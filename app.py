@@ -101,7 +101,9 @@ def fetch_tmdb_data(tmdb_id, media_type):
                 'total_seasons': data.get('number_of_seasons') if media_type == 'tv' else None,
                 'genres': [g['name'] for g in data.get('genres', [])],
                 'video_links': video_links,  # Now includes video_720p, video_1080p and video_2160p placeholders
-                'file_type': 'webrip'  # Default file type
+                'file_type': 'webrip',  # Default file type
+                'source_type': 'original',  # Default source type
+                'youtube_trailer': ''  # Default empty YouTube trailer
             }
             
             return processed_data
@@ -153,6 +155,31 @@ def format_date_for_input(date_value):
     
     return None
 
+def extract_youtube_id(url):
+    """Extract YouTube video ID from various URL formats"""
+    if not url:
+        return None
+    
+    # Common YouTube URL patterns
+    patterns = [
+        r'(?:youtube\.com\/watch\?v=)([\w-]{11})',
+        r'(?:youtu\.be\/)([\w-]{11})',
+        r'(?:youtube\.com\/embed\/)([\w-]{11})',
+        r'(?:youtube\.com\/v\/)([\w-]{11})'
+    ]
+    
+    import re
+    for pattern in patterns:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+    
+    # If it's already just the video ID (11 characters)
+    if len(url) == 11 and all(c.isalnum() or c in ['-', '_'] for c in url):
+        return url
+    
+    return None
+
 def prepare_media_data(data):
     """Prepare and validate media data before database operations"""
     print("Raw data received:", data)  # Debug log
@@ -163,6 +190,70 @@ def prepare_media_data(data):
         genres = [g.strip() for g in genres.split(',')] if genres else []
     elif genres is None:
         genres = []
+    
+    # ===== NEW: Process source_type =====
+    source_type = data.get('source_type', 'original')
+    # Validate source_type
+    valid_source_types = ['original', 'camcopy', 'bluray', 'webrip', 'webdl', 'hdtv', 'dvdrip', 'brrip']
+    if source_type not in valid_source_types:
+        source_type = 'original'
+    
+    # ===== NEW: Process YouTube trailer =====
+    youtube_trailer = clean_value(data.get('youtube_trailer'))
+    # Extract YouTube ID if it's a full URL
+    if youtube_trailer:
+        youtube_id = extract_youtube_id(youtube_trailer)
+        if youtube_id:
+            # Store as embed URL for frontend
+            youtube_trailer = f"https://www.youtube.com/embed/{youtube_id}"
+    
+    # ===== NEW: Process screenshots =====
+    screenshots_720p = []
+    screenshots_1080p = []
+    screenshots_2160p = []
+    
+    # Process 720p screenshots (comma-separated URLs or JSON array)
+    screenshots_720p_input = data.get('screenshots_720p', '')
+    if isinstance(screenshots_720p_input, str):
+        if screenshots_720p_input.startswith('[') and screenshots_720p_input.endswith(']'):
+            # JSON array
+            screenshots_720p = safe_json_loads(screenshots_720p_input, [])
+        else:
+            # Comma-separated URLs
+            screenshots_720p = [url.strip() for url in screenshots_720p_input.split(',') if url.strip()]
+    elif isinstance(screenshots_720p_input, list):
+        screenshots_720p = screenshots_720p_input
+    
+    # Process 1080p screenshots
+    screenshots_1080p_input = data.get('screenshots_1080p', '')
+    if isinstance(screenshots_1080p_input, str):
+        if screenshots_1080p_input.startswith('[') and screenshots_1080p_input.endswith(']'):
+            screenshots_1080p = safe_json_loads(screenshots_1080p_input, [])
+        else:
+            screenshots_1080p = [url.strip() for url in screenshots_1080p_input.split(',') if url.strip()]
+    elif isinstance(screenshots_1080p_input, list):
+        screenshots_1080p = screenshots_1080p_input
+    
+    # Process 2160p screenshots
+    screenshots_2160p_input = data.get('screenshots_2160p', '')
+    if isinstance(screenshots_2160p_input, str):
+        if screenshots_2160p_input.startswith('[') and screenshots_2160p_input.endswith(']'):
+            screenshots_2160p = safe_json_loads(screenshots_2160p_input, [])
+        else:
+            screenshots_2160p = [url.strip() for url in screenshots_2160p_input.split(',') if url.strip()]
+    elif isinstance(screenshots_2160p_input, list):
+        screenshots_2160p = screenshots_2160p_input
+    
+    # Process trailer screenshots (optional)
+    screenshots_trailer = []
+    screenshots_trailer_input = data.get('screenshots_trailer', '')
+    if isinstance(screenshots_trailer_input, str):
+        if screenshots_trailer_input.startswith('[') and screenshots_trailer_input.endswith(']'):
+            screenshots_trailer = safe_json_loads(screenshots_trailer_input, [])
+        else:
+            screenshots_trailer = [url.strip() for url in screenshots_trailer_input.split(',') if url.strip()]
+    elif isinstance(screenshots_trailer_input, list):
+        screenshots_trailer = screenshots_trailer_input
     
     # ===== Process video links =====
     video_links = {}
@@ -274,12 +365,18 @@ def prepare_media_data(data):
         'cast_members': safe_json_loads(data.get('cast_members'), []),
         'video_links': video_links,
         'download_links': download_links,
-        'telegram_links': telegram_links,  # NEW: Telegram download links
+        'telegram_links': telegram_links,  # Telegram download links
         'torrent_links': torrent_links,
         'total_seasons': total_seasons,
         'seasons': safe_json_loads(data.get('seasons')),
         'genres': genres,
-        'file_type': file_type
+        'file_type': file_type,
+        'source_type': source_type,  # NEW: Source type (camcopy/original)
+        'youtube_trailer': youtube_trailer,  # NEW: YouTube trailer URL
+        'screenshots_720p': screenshots_720p,  # NEW: 720p screenshots
+        'screenshots_1080p': screenshots_1080p,  # NEW: 1080p screenshots
+        'screenshots_2160p': screenshots_2160p,  # NEW: 2160p screenshots
+        'screenshots_trailer': screenshots_trailer  # NEW: Trailer screenshots (optional)
     }
     
     print("Prepared data:", prepared_data)  # Debug log
@@ -364,10 +461,17 @@ def get_all_media():
             media_dict['cast_members'] = safe_json_loads(media_dict.get('cast_members'), [])
             media_dict['video_links'] = safe_json_loads(media_dict.get('video_links'), {})
             media_dict['download_links'] = safe_json_loads(media_dict.get('download_links'), {})
-            media_dict['telegram_links'] = safe_json_loads(media_dict.get('telegram_links'), {})  # NEW: Telegram links
+            media_dict['telegram_links'] = safe_json_loads(media_dict.get('telegram_links'), {})  # Telegram links
             media_dict['torrent_links'] = safe_json_loads(media_dict.get('torrent_links'), {})
             media_dict['seasons'] = safe_json_loads(media_dict.get('seasons'))
             media_dict['genres'] = safe_json_loads(media_dict.get('genres'), [])
+            
+            # NEW: Parse screenshot and trailer fields
+            media_dict['screenshots_720p'] = safe_json_loads(media_dict.get('screenshots_720p'), [])
+            media_dict['screenshots_1080p'] = safe_json_loads(media_dict.get('screenshots_1080p'), [])
+            media_dict['screenshots_2160p'] = safe_json_loads(media_dict.get('screenshots_2160p'), [])
+            media_dict['screenshots_trailer'] = safe_json_loads(media_dict.get('screenshots_trailer'), [])
+            
             media_list.append(media_dict)
         
         return jsonify(media_list)
@@ -395,10 +499,16 @@ def get_single_media(media_id):
             media_dict['cast_members'] = safe_json_loads(media_dict.get('cast_members'), [])
             media_dict['video_links'] = safe_json_loads(media_dict.get('video_links'), {})
             media_dict['download_links'] = safe_json_loads(media_dict.get('download_links'), {})
-            media_dict['telegram_links'] = safe_json_loads(media_dict.get('telegram_links'), {})  # NEW: Telegram links
+            media_dict['telegram_links'] = safe_json_loads(media_dict.get('telegram_links'), {})  # Telegram links
             media_dict['torrent_links'] = safe_json_loads(media_dict.get('torrent_links'), {})
             media_dict['seasons'] = safe_json_loads(media_dict.get('seasons'))
             media_dict['genres'] = safe_json_loads(media_dict.get('genres'), [])
+            
+            # NEW: Parse screenshot and trailer fields
+            media_dict['screenshots_720p'] = safe_json_loads(media_dict.get('screenshots_720p'), [])
+            media_dict['screenshots_1080p'] = safe_json_loads(media_dict.get('screenshots_1080p'), [])
+            media_dict['screenshots_2160p'] = safe_json_loads(media_dict.get('screenshots_2160p'), [])
+            media_dict['screenshots_trailer'] = safe_json_loads(media_dict.get('screenshots_trailer'), [])
             
             print(f"Sending media data for ID {media_id}:", media_dict)  # Debug log
             
@@ -455,10 +565,13 @@ def add_media():
         
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO media (type, title, description, thumbnail, backdrop, release_date, language, rating, status,
-                              cast_members, video_links, download_links, telegram_links, torrent_links,
-                              total_seasons, seasons, genres, file_type)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO media (
+                type, title, description, thumbnail, backdrop, release_date, language, rating, status,
+                cast_members, video_links, download_links, telegram_links, torrent_links,
+                total_seasons, seasons, genres, file_type, source_type, youtube_trailer,
+                screenshots_720p, screenshots_1080p, screenshots_2160p, screenshots_trailer
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id;
         """, (
             media_data['type'], 
@@ -469,16 +582,22 @@ def add_media():
             media_data['release_date'], 
             media_data['language'], 
             media_data['rating'],
-            media_data['status'],  # NEW: TV series status
+            media_data['status'],  # TV series status
             json.dumps(media_data['cast_members']), 
             json.dumps(media_data['video_links']), 
             json.dumps(media_data['download_links']),
-            json.dumps(media_data['telegram_links']),  # NEW: Telegram links
+            json.dumps(media_data['telegram_links']),  # Telegram links
             json.dumps(media_data['torrent_links']),
             media_data['total_seasons'], 
             json.dumps(media_data['seasons']), 
             json.dumps(media_data['genres']),
-            media_data['file_type']
+            media_data['file_type'],
+            media_data['source_type'],  # NEW: Source type
+            media_data['youtube_trailer'],  # NEW: YouTube trailer
+            json.dumps(media_data['screenshots_720p']),  # NEW: 720p screenshots
+            json.dumps(media_data['screenshots_1080p']),  # NEW: 1080p screenshots
+            json.dumps(media_data['screenshots_2160p']),  # NEW: 2160p screenshots
+            json.dumps(media_data['screenshots_trailer'])  # NEW: Trailer screenshots
         ))
         
         media_id = cur.fetchone()[0]
@@ -511,7 +630,9 @@ def update_media(media_id):
             UPDATE media SET
                 type = %s, title = %s, description = %s, thumbnail = %s, backdrop = %s, release_date = %s,
                 language = %s, rating = %s, status = %s, cast_members = %s, video_links = %s, 
-                download_links = %s, telegram_links = %s, torrent_links = %s, total_seasons = %s, seasons = %s, genres = %s, file_type = %s
+                download_links = %s, telegram_links = %s, torrent_links = %s, total_seasons = %s, seasons = %s, 
+                genres = %s, file_type = %s, source_type = %s, youtube_trailer = %s,
+                screenshots_720p = %s, screenshots_1080p = %s, screenshots_2160p = %s, screenshots_trailer = %s
             WHERE id = %s;
         """, (
             media_data['type'], 
@@ -522,16 +643,22 @@ def update_media(media_id):
             media_data['release_date'], 
             media_data['language'], 
             media_data['rating'],
-            media_data['status'],  # NEW: TV series status
+            media_data['status'],  # TV series status
             json.dumps(media_data['cast_members']), 
             json.dumps(media_data['video_links']), 
             json.dumps(media_data['download_links']),
-            json.dumps(media_data['telegram_links']),  # NEW: Telegram links
+            json.dumps(media_data['telegram_links']),  # Telegram links
             json.dumps(media_data['torrent_links']),
             media_data['total_seasons'], 
             json.dumps(media_data['seasons']), 
             json.dumps(media_data['genres']),
             media_data['file_type'],
+            media_data['source_type'],  # NEW: Source type
+            media_data['youtube_trailer'],  # NEW: YouTube trailer
+            json.dumps(media_data['screenshots_720p']),  # NEW: 720p screenshots
+            json.dumps(media_data['screenshots_1080p']),  # NEW: 1080p screenshots
+            json.dumps(media_data['screenshots_2160p']),  # NEW: 2160p screenshots
+            json.dumps(media_data['screenshots_trailer']),  # NEW: Trailer screenshots
             media_id
         ))
         
@@ -581,9 +708,9 @@ def add_episode(media_id):
             'download_720p': data.get('download_links', {}).get('download_720p'),
             'download_1080p': data.get('download_links', {}).get('download_1080p'),
             'download_2160p': data.get('download_links', {}).get('download_2160p'),
-            'telegram_720p': data.get('telegram_links', {}).get('telegram_720p'),  # NEW: Telegram links
-            'telegram_1080p': data.get('telegram_links', {}).get('telegram_1080p'),  # NEW: Telegram links
-            'telegram_2160p': data.get('telegram_links', {}).get('telegram_2160p'),  # NEW: Telegram links
+            'telegram_720p': data.get('telegram_links', {}).get('telegram_720p'),  # Telegram links
+            'telegram_1080p': data.get('telegram_links', {}).get('telegram_1080p'),  # Telegram links
+            'telegram_2160p': data.get('telegram_links', {}).get('telegram_2160p'),  # Telegram links
             'torrent_720p': data.get('torrent_links', {}).get('torrent_720p'),
             'torrent_1080p': data.get('torrent_links', {}).get('torrent_1080p'),
             'torrent_2160p': data.get('torrent_links', {}).get('torrent_2160p')
