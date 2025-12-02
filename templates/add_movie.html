@@ -15,6 +15,10 @@
         .tag { background: #6a11cb; color: #fff; padding: 5px 10px; border-radius: 15px; display: flex; align-items: center; }
         .tag-close { margin-left: 5px; cursor: pointer; font-weight: bold; }
         h2 { color: #6a11cb; border-bottom: 2px solid #6a11cb; padding-bottom: 5px; margin-top: 30px; }
+        .screenshot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .screenshot-input-group { margin-bottom: 10px; }
+        .screenshot-input-group label { font-size: 14px; color: #ccc; }
+        .help-text { font-size: 12px; color: #999; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -56,6 +60,21 @@
                 <input type="number" step="0.1" id="rating" name="rating">
             </div>
             
+            <!-- NEW: Source Type Selection -->
+            <div class="form-group">
+                <label for="source_type">Source Type:</label>
+                <select id="source_type" name="source_type">
+                    <option value="original">Original</option>
+                    <option value="camcopy">CamCopy</option>
+                    <option value="bluray">BluRay</option>
+                    <option value="webrip">WebRip</option>
+                    <option value="webdl">WebDL</option>
+                    <option value="hdtv">HDTV</option>
+                    <option value="dvdrip">DVDRip</option>
+                    <option value="brrip">BRRip</option>
+                </select>
+            </div>
+            
             <!-- File Type Selection -->
             <div class="form-group">
                 <label for="file_type">File Type:</label>
@@ -70,6 +89,13 @@
                 </select>
             </div>
 
+            <!-- NEW: YouTube Trailer -->
+            <div class="form-group">
+                <label for="youtube_trailer">YouTube Trailer URL:</label>
+                <input type="text" id="youtube_trailer" name="youtube_trailer" placeholder="https://youtube.com/watch?v=... or https://youtu.be/...">
+                <div class="help-text">Enter YouTube URL or Video ID</div>
+            </div>
+
             <div class="form-group">
                 <label for="cast_members">Cast (JSON):</label>
                 <textarea id="cast_members" name="cast_members" rows="5"></textarea>
@@ -79,6 +105,61 @@
                 <label for="genres">Genres (from TMDB):</label>
                 <input type="text" id="genres-input" placeholder="Enter genres...">
                 <div id="genres-container" class="tag-input-container"></div>
+            </div>
+
+            <!-- NEW: Screenshots Section -->
+            <h2>📸 Screenshots</h2>
+            
+            <!-- 720p Screenshots -->
+            <h3>720p Screenshots (2 Required)</h3>
+            <div class="screenshot-grid">
+                <div class="screenshot-input-group">
+                    <label for="screenshots_720p_1">720p Screenshot 1 URL:</label>
+                    <input type="text" id="screenshots_720p_1" name="screenshots_720p_1" placeholder="https://example.com/screenshot1_720.jpg">
+                </div>
+                <div class="screenshot-input-group">
+                    <label for="screenshots_720p_2">720p Screenshot 2 URL:</label>
+                    <input type="text" id="screenshots_720p_2" name="screenshots_720p_2" placeholder="https://example.com/screenshot2_720.jpg">
+                </div>
+            </div>
+
+            <!-- 1080p Screenshots -->
+            <h3>1080p Screenshots (2 Required)</h3>
+            <div class="screenshot-grid">
+                <div class="screenshot-input-group">
+                    <label for="screenshots_1080p_1">1080p Screenshot 1 URL:</label>
+                    <input type="text" id="screenshots_1080p_1" name="screenshots_1080p_1" placeholder="https://example.com/screenshot1_1080.jpg">
+                </div>
+                <div class="screenshot-input-group">
+                    <label for="screenshots_1080p_2">1080p Screenshot 2 URL:</label>
+                    <input type="text" id="screenshots_1080p_2" name="screenshots_1080p_2" placeholder="https://example.com/screenshot2_1080.jpg">
+                </div>
+            </div>
+
+            <!-- 2160p Screenshots -->
+            <h3>2160p Screenshots (2 Required)</h3>
+            <div class="screenshot-grid">
+                <div class="screenshot-input-group">
+                    <label for="screenshots_2160p_1">2160p Screenshot 1 URL:</label>
+                    <input type="text" id="screenshots_2160p_1" name="screenshots_2160p_1" placeholder="https://example.com/screenshot1_2160.jpg">
+                </div>
+                <div class="screenshot-input-group">
+                    <label for="screenshots_2160p_2">2160p Screenshot 2 URL:</label>
+                    <input type="text" id="screenshots_2160p_2" name="screenshots_2160p_2" placeholder="https://example.com/screenshot2_2160.jpg">
+                </div>
+            </div>
+
+            <!-- Trailer Screenshots (Optional) -->
+            <h3>Trailer Screenshots (Optional)</h3>
+            <div class="screenshot-grid">
+                <div class="screenshot-input-group">
+                    <label for="screenshots_trailer_1">Trailer Screenshot 1 URL:</label>
+                    <input type="text" id="screenshots_trailer_1" name="screenshots_trailer_1" placeholder="https://example.com/trailer_screenshot1.jpg">
+                </div>
+                <div class="screenshot-input-group">
+                    <label for="screenshots_trailer_2">Trailer Screenshot 2 URL:</label>
+                    <input type="text" id="screenshots_trailer_2" name="screenshots_trailer_2" placeholder="https://example.com/trailer_screenshot2.jpg">
+                </div>
             </div>
 
             <h2>🔗 Video Links</h2>
@@ -109,7 +190,7 @@
                 <input type="text" id="download_2160p" name="download_2160p">
             </div>
 
-            <!-- NEW: Telegram Download Links Section -->
+            <!-- Telegram Download Links Section -->
             <h2>📱 Telegram Download Links</h2>
             <div class="form-group">
                 <label for="telegram_720p">Telegram 720p URL:</label>
@@ -185,6 +266,8 @@
                     document.getElementById('language').value = data.language;
                     document.getElementById('rating').value = data.rating;
                     document.getElementById('file_type').value = data.file_type || 'webrip';
+                    document.getElementById('source_type').value = data.source_type || 'original';
+                    document.getElementById('youtube_trailer').value = data.youtube_trailer || '';
                     document.getElementById('cast_members').value = JSON.stringify(data.cast_members, null, 2);
                     
                     // Populate genres
@@ -207,6 +290,28 @@
             // Get all genre tags and convert to an array
             const genres = Array.from(genresContainer.children).map(tag => tag.textContent.slice(0, -1).trim());
 
+            // NEW: Collect screenshot URLs
+            const screenshots_720p = [];
+            const screenshots_1080p = [];
+            const screenshots_2160p = [];
+            const screenshots_trailer = [];
+
+            // Collect 720p screenshots
+            if (form.screenshots_720p_1.value) screenshots_720p.push(form.screenshots_720p_1.value);
+            if (form.screenshots_720p_2.value) screenshots_720p.push(form.screenshots_720p_2.value);
+            
+            // Collect 1080p screenshots
+            if (form.screenshots_1080p_1.value) screenshots_1080p.push(form.screenshots_1080p_1.value);
+            if (form.screenshots_1080p_2.value) screenshots_1080p.push(form.screenshots_1080p_2.value);
+            
+            // Collect 2160p screenshots
+            if (form.screenshots_2160p_1.value) screenshots_2160p.push(form.screenshots_2160p_1.value);
+            if (form.screenshots_2160p_2.value) screenshots_2160p.push(form.screenshots_2160p_2.value);
+            
+            // Collect trailer screenshots (optional)
+            if (form.screenshots_trailer_1.value) screenshots_trailer.push(form.screenshots_trailer_1.value);
+            if (form.screenshots_trailer_2.value) screenshots_trailer.push(form.screenshots_trailer_2.value);
+
             const data = {
                 type: 'movie',
                 title: form.title.value,
@@ -216,13 +321,20 @@
                 release_date: form.release_date.value,
                 language: form.language.value,
                 rating: parseFloat(form.rating.value) || null,
+                source_type: form.source_type.value,  // NEW: Source type
                 file_type: form.file_type.value,
+                youtube_trailer: form.youtube_trailer.value,  // NEW: YouTube trailer
                 cast_members: JSON.parse(form.cast_members.value || '[]'),
                 genres: genres,
                 video_links: {},
                 download_links: {},
-                telegram_links: {},  // NEW: Telegram links object
-                torrent_links: {}
+                telegram_links: {},
+                torrent_links: {},
+                // NEW: Screenshots
+                screenshots_720p: screenshots_720p,
+                screenshots_1080p: screenshots_1080p,
+                screenshots_2160p: screenshots_2160p,
+                screenshots_trailer: screenshots_trailer
             };
 
             // Collect video links
@@ -247,7 +359,7 @@
                 data.download_links.download_2160p = { url: form.download_2160p.value, file_type: data.file_type };
             }
 
-            // NEW: Collect Telegram download links
+            // Collect Telegram download links
             if (form.telegram_720p.value) {
                 data.telegram_links.telegram_720p = form.telegram_720p.value;
             }
