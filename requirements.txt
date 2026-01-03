@@ -1,5 +1,6 @@
 Flask
+flask-cors
+gunicorn
 psycopg2-binary
 requests
 Werkzeug
-flask-cors
