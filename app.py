@@ -428,7 +428,7 @@ def get_all_media():
     
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute("SELECT * FROM media ORDER BY id DESC LIMIT 100;")
+        cur.execute("SELECT * FROM media ORDER BY id DESC;")
         media = cur.fetchall()
         
         media_list = []
