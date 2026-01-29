@@ -60,7 +60,6 @@
                 <input type="number" step="0.1" id="rating" name="rating">
             </div>
             
-            <!-- NEW: Source Type Selection -->
             <div class="form-group">
                 <label for="source_type">Source Type:</label>
                 <select id="source_type" name="source_type">
@@ -75,7 +74,6 @@
                 </select>
             </div>
             
-            <!-- File Type Selection -->
             <div class="form-group">
                 <label for="file_type">File Type:</label>
                 <select id="file_type" name="file_type">
@@ -89,7 +87,6 @@
                 </select>
             </div>
 
-            <!-- NEW: YouTube Trailer -->
             <div class="form-group">
                 <label for="youtube_trailer">YouTube Trailer URL:</label>
                 <input type="text" id="youtube_trailer" name="youtube_trailer" placeholder="https://youtube.com/watch?v=... or https://youtu.be/...">
@@ -107,10 +104,8 @@
                 <div id="genres-container" class="tag-input-container"></div>
             </div>
 
-            <!-- NEW: Screenshots Section -->
             <h2>📸 Screenshots</h2>
             
-            <!-- 720p Screenshots -->
             <h3>720p Screenshots (2 Required)</h3>
             <div class="screenshot-grid">
                 <div class="screenshot-input-group">
@@ -123,7 +118,6 @@
                 </div>
             </div>
 
-            <!-- 1080p Screenshots -->
             <h3>1080p Screenshots (2 Required)</h3>
             <div class="screenshot-grid">
                 <div class="screenshot-input-group">
@@ -136,7 +130,6 @@
                 </div>
             </div>
 
-            <!-- 2160p Screenshots -->
             <h3>2160p Screenshots (2 Required)</h3>
             <div class="screenshot-grid">
                 <div class="screenshot-input-group">
@@ -149,7 +142,6 @@
                 </div>
             </div>
 
-            <!-- Trailer Screenshots (Optional) -->
             <h3>Trailer Screenshots (Optional)</h3>
             <div class="screenshot-grid">
                 <div class="screenshot-input-group">
@@ -160,6 +152,16 @@
                     <label for="screenshots_trailer_2">Trailer Screenshot 2 URL:</label>
                     <input type="text" id="screenshots_trailer_2" name="screenshots_trailer_2" placeholder="https://example.com/trailer_screenshot2.jpg">
                 </div>
+            </div>
+
+            <h2>📝 Subtitles</h2>
+            <div class="form-group">
+                <label for="sub_sinhala">Sinhala Subtitle URL:</label>
+                <input type="text" id="sub_sinhala" name="sub_sinhala" placeholder="https://example.com/sinhala.srt">
+            </div>
+            <div class="form-group">
+                <label for="sub_english">English Subtitle URL:</label>
+                <input type="text" id="sub_english" name="sub_english" placeholder="https://example.com/english.srt">
             </div>
 
             <h2>🔗 Video Links</h2>
@@ -190,7 +192,6 @@
                 <input type="text" id="download_2160p" name="download_2160p">
             </div>
 
-            <!-- Telegram Download Links Section -->
             <h2>📱 Telegram Download Links</h2>
             <div class="form-group">
                 <label for="telegram_720p">Telegram 720p URL:</label>
@@ -270,6 +271,10 @@
                     document.getElementById('youtube_trailer').value = data.youtube_trailer || '';
                     document.getElementById('cast_members').value = JSON.stringify(data.cast_members, null, 2);
                     
+                    // Populate subtitles if backend sends them (even empty strings)
+                    document.getElementById('sub_sinhala').value = data.sub_sinhala || '';
+                    document.getElementById('sub_english').value = data.sub_english || '';
+
                     // Populate genres
                     genresContainer.innerHTML = '';
                     if (data.genres && data.genres.length > 0) {
@@ -290,25 +295,21 @@
             // Get all genre tags and convert to an array
             const genres = Array.from(genresContainer.children).map(tag => tag.textContent.slice(0, -1).trim());
 
-            // NEW: Collect screenshot URLs
+            // Collect screenshot URLs
             const screenshots_720p = [];
             const screenshots_1080p = [];
             const screenshots_2160p = [];
             const screenshots_trailer = [];
 
-            // Collect 720p screenshots
             if (form.screenshots_720p_1.value) screenshots_720p.push(form.screenshots_720p_1.value);
             if (form.screenshots_720p_2.value) screenshots_720p.push(form.screenshots_720p_2.value);
             
-            // Collect 1080p screenshots
             if (form.screenshots_1080p_1.value) screenshots_1080p.push(form.screenshots_1080p_1.value);
             if (form.screenshots_1080p_2.value) screenshots_1080p.push(form.screenshots_1080p_2.value);
             
-            // Collect 2160p screenshots
             if (form.screenshots_2160p_1.value) screenshots_2160p.push(form.screenshots_2160p_1.value);
             if (form.screenshots_2160p_2.value) screenshots_2160p.push(form.screenshots_2160p_2.value);
             
-            // Collect trailer screenshots (optional)
             if (form.screenshots_trailer_1.value) screenshots_trailer.push(form.screenshots_trailer_1.value);
             if (form.screenshots_trailer_2.value) screenshots_trailer.push(form.screenshots_trailer_2.value);
 
@@ -321,20 +322,22 @@
                 release_date: form.release_date.value,
                 language: form.language.value,
                 rating: parseFloat(form.rating.value) || null,
-                source_type: form.source_type.value,  // NEW: Source type
+                source_type: form.source_type.value,
                 file_type: form.file_type.value,
-                youtube_trailer: form.youtube_trailer.value,  // NEW: YouTube trailer
+                youtube_trailer: form.youtube_trailer.value,
                 cast_members: JSON.parse(form.cast_members.value || '[]'),
                 genres: genres,
                 video_links: {},
                 download_links: {},
                 telegram_links: {},
                 torrent_links: {},
-                // NEW: Screenshots
                 screenshots_720p: screenshots_720p,
                 screenshots_1080p: screenshots_1080p,
                 screenshots_2160p: screenshots_2160p,
-                screenshots_trailer: screenshots_trailer
+                screenshots_trailer: screenshots_trailer,
+                // NEW: Subtitles
+                sub_sinhala: form.sub_sinhala.value,
+                sub_english: form.sub_english.value
             };
 
             // Collect video links
