@@ -164,6 +164,88 @@
             margin: 20px 0 15px 0;
             font-size: 1.1em;
         }
+
+        /* NEW: Subtitles Styles */
+        .subtitle-section {
+            background: #3a3a3c;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #6a11cb;
+        }
+
+        .subtitle-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .subtitle-input-group {
+            margin-bottom: 10px;
+        }
+
+        .subtitle-input-group label {
+            font-size: 14px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+        }
+
+        .subtitle-input-group label::before {
+            content: "🎯";
+            margin-right: 8px;
+        }
+
+        .subtitle-input-group input {
+            background: #5a606b;
+        }
+
+        .subtitle-info {
+            background: #5a606b;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+
+        .language-section {
+            margin-bottom: 20px;
+        }
+
+        .language-section h3 {
+            color: #6a11cb;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #444;
+        }
+
+        .section-toggle {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-toggle::after {
+            content: "▼";
+            transition: transform 0.3s;
+        }
+
+        .section-toggle.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+        }
     </style>
 </head>
 <body>
@@ -238,11 +320,11 @@
                     <div class="form-group">
                         <label for="file_type">File Type:</label>
                         <select id="file_type" name="file_type">
-                            <option value="WEBRIP">WebRip</option>
-                            <option value="BLURAY">BluRay</option>
-                            <option value="WEB-DL">WebDL</option>
-                            <option value="HD">HD</option>
-                            <option value="CAMCOPY">Camcopy</option>
+                            <option value="webrip">WebRip</option>
+                            <option value="bluray">BluRay</option>
+                            <option value="webdl">WebDL</option>
+                            <option value="hdtv">HDTV</option>
+                            <option value="dvd">DVD</option>
                             <option value="brrip">BRRip</option>
                             <option value="bdrip">BDRip</option>
                         </select>
@@ -272,59 +354,126 @@
                 </div>
             </div>
             
-            <!-- NEW: Screenshots Section -->
+            <!-- NEW: Subtitles Section -->
+            <div class="form-section" id="subtitles-section" style="display: none;">
+                <h2 class="section-toggle" onclick="toggleSection('subtitles-content')">🎯 Subtitles (English & Sinhala)</h2>
+                <div id="subtitles-content" class="collapsible-content">
+                    <div class="subtitle-info">
+                        <strong>Format:</strong> Add comma-separated URLs for subtitle files (.vtt, .srt, .ass)<br>
+                        <strong>Example:</strong> https://example.com/subtitles_en.vtt, https://example.com/subtitles_en2.srt
+                    </div>
+                    
+                    <!-- English Subtitles -->
+                    <div class="language-section">
+                        <h3>English Subtitles</h3>
+                        <div class="subtitle-grid">
+                            <div class="subtitle-input-group">
+                                <label for="english_subtitles_720p">English 720p Subtitles:</label>
+                                <input type="text" id="english_subtitles_720p" name="english_subtitles_720p" placeholder="https://example.com/english_720p.vtt, https://example.com/english_720p.srt">
+                            </div>
+                            <div class="subtitle-input-group">
+                                <label for="english_subtitles_1080p">English 1080p Subtitles:</label>
+                                <input type="text" id="english_subtitles_1080p" name="english_subtitles_1080p" placeholder="https://example.com/english_1080p.vtt, https://example.com/english_1080p.srt">
+                            </div>
+                            <div class="subtitle-input-group">
+                                <label for="english_subtitles_2160p">English 2160p Subtitles:</label>
+                                <input type="text" id="english_subtitles_2160p" name="english_subtitles_2160p" placeholder="https://example.com/english_2160p.vtt, https://example.com/english_2160p.srt">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sinhala Subtitles -->
+                    <div class="language-section">
+                        <h3>සිංහල උපසිරැසි (Sinhala Subtitles)</h3>
+                        <div class="subtitle-grid">
+                            <div class="subtitle-input-group">
+                                <label for="sinhala_subtitles_720p">Sinhala 720p Subtitles:</label>
+                                <input type="text" id="sinhala_subtitles_720p" name="sinhala_subtitles_720p" placeholder="https://example.com/sinhala_720p.vtt, https://example.com/sinhala_720p.srt">
+                            </div>
+                            <div class="subtitle-input-group">
+                                <label for="sinhala_subtitles_1080p">Sinhala 1080p Subtitles:</label>
+                                <input type="text" id="sinhala_subtitles_1080p" name="sinhala_subtitles_1080p" placeholder="https://example.com/sinhala_1080p.vtt, https://example.com/sinhala_1080p.srt">
+                            </div>
+                            <div class="subtitle-input-group">
+                                <label for="sinhala_subtitles_2160p">Sinhala 2160p Subtitles:</label>
+                                <input type="text" id="sinhala_subtitles_2160p" name="sinhala_subtitles_2160p" placeholder="https://example.com/sinhala_2160p.vtt, https://example.com/sinhala_2160p.srt">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Alternative: Single subtitle field for all qualities -->
+                    <div class="language-section">
+                        <h3>Alternative: Single Subtitle URLs</h3>
+                        <div class="subtitle-grid">
+                            <div class="subtitle-input-group">
+                                <label for="english_subtitles_all">All English Subtitles (for all qualities):</label>
+                                <input type="text" id="english_subtitles_all" name="english_subtitles_all" placeholder="https://example.com/english_all.vtt">
+                                <div class="help-text">This will apply to all video qualities if quality-specific subtitles are not provided</div>
+                            </div>
+                            <div class="subtitle-input-group">
+                                <label for="sinhala_subtitles_all">සියලුම සිංහල උපසිරැසි (All Sinhala Subtitles):</label>
+                                <input type="text" id="sinhala_subtitles_all" name="sinhala_subtitles_all" placeholder="https://example.com/sinhala_all.vtt">
+                                <div class="help-text">This will apply to all video qualities if quality-specific subtitles are not provided</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Screenshots Section -->
             <div class="form-section" id="screenshots-section" style="display: none;">
-                <h2>📸 Screenshots</h2>
-                
-                <!-- 720p Screenshots -->
-                <h3>720p Screenshots (2 Required)</h3>
-                <div class="screenshot-grid">
-                    <div class="screenshot-input-group">
-                        <label for="screenshots_720p_1">720p Screenshot 1 URL:</label>
-                        <input type="text" id="screenshots_720p_1" name="screenshots_720p_1" placeholder="https://example.com/screenshot1_720.jpg">
+                <h2 class="section-toggle" onclick="toggleSection('screenshots-content')">📸 Screenshots</h2>
+                <div id="screenshots-content" class="collapsible-content">
+                    <!-- 720p Screenshots -->
+                    <h3>720p Screenshots (2 Required)</h3>
+                    <div class="screenshot-grid">
+                        <div class="screenshot-input-group">
+                            <label for="screenshots_720p_1">720p Screenshot 1 URL:</label>
+                            <input type="text" id="screenshots_720p_1" name="screenshots_720p_1" placeholder="https://example.com/screenshot1_720.jpg">
+                        </div>
+                        <div class="screenshot-input-group">
+                            <label for="screenshots_720p_2">720p Screenshot 2 URL:</label>
+                            <input type="text" id="screenshots_720p_2" name="screenshots_720p_2" placeholder="https://example.com/screenshot2_720.jpg">
+                        </div>
                     </div>
-                    <div class="screenshot-input-group">
-                        <label for="screenshots_720p_2">720p Screenshot 2 URL:</label>
-                        <input type="text" id="screenshots_720p_2" name="screenshots_720p_2" placeholder="https://example.com/screenshot2_720.jpg">
-                    </div>
-                </div>
 
-                <!-- 1080p Screenshots -->
-                <h3>1080p Screenshots (2 Required)</h3>
-                <div class="screenshot-grid">
-                    <div class="screenshot-input-group">
-                        <label for="screenshots_1080p_1">1080p Screenshot 1 URL:</label>
-                        <input type="text" id="screenshots_1080p_1" name="screenshots_1080p_1" placeholder="https://example.com/screenshot1_1080.jpg">
+                    <!-- 1080p Screenshots -->
+                    <h3>1080p Screenshots (2 Required)</h3>
+                    <div class="screenshot-grid">
+                        <div class="screenshot-input-group">
+                            <label for="screenshots_1080p_1">1080p Screenshot 1 URL:</label>
+                            <input type="text" id="screenshots_1080p_1" name="screenshots_1080p_1" placeholder="https://example.com/screenshot1_1080.jpg">
+                        </div>
+                        <div class="screenshot-input-group">
+                            <label for="screenshots_1080p_2">1080p Screenshot 2 URL:</label>
+                            <input type="text" id="screenshots_1080p_2" name="screenshots_1080p_2" placeholder="https://example.com/screenshot2_1080.jpg">
+                        </div>
                     </div>
-                    <div class="screenshot-input-group">
-                        <label for="screenshots_1080p_2">1080p Screenshot 2 URL:</label>
-                        <input type="text" id="screenshots_1080p_2" name="screenshots_1080p_2" placeholder="https://example.com/screenshot2_1080.jpg">
-                    </div>
-                </div>
 
-                <!-- 2160p Screenshots -->
-                <h3>2160p Screenshots (2 Required)</h3>
-                <div class="screenshot-grid">
-                    <div class="screenshot-input-group">
-                        <label for="screenshots_2160p_1">2160p Screenshot 1 URL:</label>
-                        <input type="text" id="screenshots_2160p_1" name="screenshots_2160p_1" placeholder="https://example.com/screenshot1_2160.jpg">
+                    <!-- 2160p Screenshots -->
+                    <h3>2160p Screenshots (2 Required)</h3>
+                    <div class="screenshot-grid">
+                        <div class="screenshot-input-group">
+                            <label for="screenshots_2160p_1">2160p Screenshot 1 URL:</label>
+                            <input type="text" id="screenshots_2160p_1" name="screenshots_2160p_1" placeholder="https://example.com/screenshot1_2160.jpg">
+                        </div>
+                        <div class="screenshot-input-group">
+                            <label for="screenshots_2160p_2">2160p Screenshot 2 URL:</label>
+                            <input type="text" id="screenshots_2160p_2" name="screenshots_2160p_2" placeholder="https://example.com/screenshot2_2160.jpg">
+                        </div>
                     </div>
-                    <div class="screenshot-input-group">
-                        <label for="screenshots_2160p_2">2160p Screenshot 2 URL:</label>
-                        <input type="text" id="screenshots_2160p_2" name="screenshots_2160p_2" placeholder="https://example.com/screenshot2_2160.jpg">
-                    </div>
-                </div>
 
-                <!-- Trailer Screenshots (Optional) -->
-                <h3>Trailer Screenshots (Optional)</h3>
-                <div class="screenshot-grid">
-                    <div class="screenshot-input-group">
-                        <label for="screenshots_trailer_1">Trailer Screenshot 1 URL:</label>
-                        <input type="text" id="screenshots_trailer_1" name="screenshots_trailer_1" placeholder="https://example.com/trailer_screenshot1.jpg">
-                    </div>
-                    <div class="screenshot-input-group">
-                        <label for="screenshots_trailer_2">Trailer Screenshot 2 URL:</label>
-                        <input type="text" id="screenshots_trailer_2" name="screenshots_trailer_2" placeholder="https://example.com/trailer_screenshot2.jpg">
+                    <!-- Trailer Screenshots (Optional) -->
+                    <h3>Trailer Screenshots (Optional)</h3>
+                    <div class="screenshot-grid">
+                        <div class="screenshot-input-group">
+                            <label for="screenshots_trailer_1">Trailer Screenshot 1 URL:</label>
+                            <input type="text" id="screenshots_trailer_1" name="screenshots_trailer_1" placeholder="https://example.com/trailer_screenshot1.jpg">
+                        </div>
+                        <div class="screenshot-input-group">
+                            <label for="screenshots_trailer_2">Trailer Screenshot 2 URL:</label>
+                            <input type="text" id="screenshots_trailer_2" name="screenshots_trailer_2" placeholder="https://example.com/trailer_screenshot2.jpg">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -351,6 +500,21 @@
             document.getElementById('media-id').value = mediaId;
             await loadMediaData(mediaId);
         });
+
+        // Function to toggle section visibility
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const toggle = section.previousElementSibling;
+            
+            section.classList.toggle('collapsed');
+            toggle.classList.toggle('collapsed');
+        }
+
+        // Parse subtitle URLs from comma-separated string
+        function parseSubtitleUrls(input) {
+            if (!input || input.trim() === '') return [];
+            return input.split(',').map(url => url.trim()).filter(url => url !== '');
+        }
 
         async function loadMediaData(id) {
             try {
@@ -428,6 +592,17 @@
                     }
                 }
                 
+                // NEW: Parse subtitles field
+                if (typeof media.subtitles === 'string') {
+                    try {
+                        media.subtitles = JSON.parse(media.subtitles);
+                    } catch (e) {
+                        media.subtitles = { english: [], sinhala: [] };
+                    }
+                } else if (!media.subtitles) {
+                    media.subtitles = { english: [], sinhala: [] };
+                }
+                
                 if (typeof media.cast_members === 'string') {
                     try {
                         media.cast_members = JSON.parse(media.cast_members);
@@ -486,6 +661,9 @@
             // NEW: Show screenshots section for all media types
             document.getElementById('screenshots-section').style.display = 'block';
             
+            // NEW: Show subtitles section for all media types
+            document.getElementById('subtitles-section').style.display = 'block';
+            
             // NEW: Populate screenshot fields
             if (media.screenshots_720p && Array.isArray(media.screenshots_720p)) {
                 document.getElementById('screenshots_720p_1').value = media.screenshots_720p[0] || '';
@@ -505,6 +683,23 @@
             if (media.screenshots_trailer && Array.isArray(media.screenshots_trailer)) {
                 document.getElementById('screenshots_trailer_1').value = media.screenshots_trailer[0] || '';
                 document.getElementById('screenshots_trailer_2').value = media.screenshots_trailer[1] || '';
+            }
+            
+            // NEW: Populate subtitle fields
+            if (media.subtitles) {
+                const englishSubtitles = media.subtitles.english || [];
+                const sinhalaSubtitles = media.subtitles.sinhala || [];
+                
+                // For simplicity, we'll populate the "all" fields with all subtitles
+                if (englishSubtitles.length > 0) {
+                    document.getElementById('english_subtitles_all').value = englishSubtitles.join(', ');
+                }
+                
+                if (sinhalaSubtitles.length > 0) {
+                    document.getElementById('sinhala_subtitles_all').value = sinhalaSubtitles.join(', ');
+                }
+                
+                // You could add more sophisticated logic to separate by quality if needed
             }
             
             // Genres
@@ -798,20 +993,38 @@
             const torrent1080p = episodeData ? (episodeData.torrent_1080p || '') : '';
             const torrent2160p = episodeData ? (episodeData.torrent_2160p || '') : '';
             
+            // NEW: Handle episode subtitles
+            const episodeSubtitles = episodeData ? (episodeData.subtitles || { english: [], sinhala: [] }) : { english: [], sinhala: [] };
+            const episodeEnglishSubtitles = Array.isArray(episodeSubtitles.english) ? episodeSubtitles.english.join(', ') : '';
+            const episodeSinhalaSubtitles = Array.isArray(episodeSubtitles.sinhala) ? episodeSubtitles.sinhala.join(', ') : '';
+            
             episodeDiv.innerHTML = `
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_name" placeholder="Episode Name" value="${episodeName}" required style="flex-basis: 100%;">
+                
+                <!-- Video Links -->
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_video_720p" placeholder="720p Video Link" value="${video720p}">
-                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_download_720p" placeholder="720p Download Link" value="${download720p}">
-                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_telegram_720p" placeholder="720p Telegram Link" value="${telegram720p}">
-                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_torrent_720p" placeholder="720p Torrent Link" value="${torrent720p}">
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_video_1080p" placeholder="1080p Video Link" value="${video1080p}">
-                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_download_1080p" placeholder="1080p Download Link" value="${download1080p}">
-                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_telegram_1080p" placeholder="1080p Telegram Link" value="${telegram1080p}">
-                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_torrent_1080p" placeholder="1080p Torrent Link" value="${torrent1080p}">
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_video_2160p" placeholder="2160p Video Link" value="${video2160p}">
+                
+                <!-- Download Links -->
+                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_download_720p" placeholder="720p Download Link" value="${download720p}">
+                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_download_1080p" placeholder="1080p Download Link" value="${download1080p}">
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_download_2160p" placeholder="2160p Download Link" value="${download2160p}">
+                
+                <!-- Telegram Links -->
+                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_telegram_720p" placeholder="720p Telegram Link" value="${telegram720p}">
+                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_telegram_1080p" placeholder="1080p Telegram Link" value="${telegram1080p}">
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_telegram_2160p" placeholder="2160p Telegram Link" value="${telegram2160p}">
+                
+                <!-- Torrent Links -->
+                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_torrent_720p" placeholder="720p Torrent Link" value="${torrent720p}">
+                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_torrent_1080p" placeholder="1080p Torrent Link" value="${torrent1080p}">
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_torrent_2160p" placeholder="2160p Torrent Link" value="${torrent2160p}">
+                
+                <!-- NEW: Episode Subtitles -->
+                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_english_subtitles" placeholder="English Subtitles (comma-separated)" value="${episodeEnglishSubtitles}" style="flex-basis: 100%;">
+                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_sinhala_subtitles" placeholder="Sinhala Subtitles (comma-separated)" value="${episodeSinhalaSubtitles}" style="flex-basis: 100%;">
+                
                 <button type="button" class="remove-btn" onclick="removeEpisode(this)">Remove</button>
             `;
             episodeContainer.appendChild(episodeDiv);
@@ -836,6 +1049,26 @@
             const originalText = submitButton.textContent;
             submitButton.textContent = 'Updating...';
 
+            // NEW: Collect subtitle URLs
+            let englishSubtitles = [];
+            let sinhalaSubtitles = [];
+            
+            // Collect quality-specific English subtitles
+            const english720p = parseSubtitleUrls(document.getElementById('english_subtitles_720p').value);
+            const english1080p = parseSubtitleUrls(document.getElementById('english_subtitles_1080p').value);
+            const english2160p = parseSubtitleUrls(document.getElementById('english_subtitles_2160p').value);
+            const englishAll = parseSubtitleUrls(document.getElementById('english_subtitles_all').value);
+            
+            // Collect quality-specific Sinhala subtitles
+            const sinhala720p = parseSubtitleUrls(document.getElementById('sinhala_subtitles_720p').value);
+            const sinhala1080p = parseSubtitleUrls(document.getElementById('sinhala_subtitles_1080p').value);
+            const sinhala2160p = parseSubtitleUrls(document.getElementById('sinhala_subtitles_2160p').value);
+            const sinhalaAll = parseSubtitleUrls(document.getElementById('sinhala_subtitles_all').value);
+            
+            // Combine subtitles: quality-specific first, then general
+            englishSubtitles = [...new Set([...english720p, ...english1080p, ...english2160p, ...englishAll])];
+            sinhalaSubtitles = [...new Set([...sinhala720p, ...sinhala1080p, ...sinhala2160p, ...sinhalaAll])];
+
             // Build data object
             const data = {
                 type: mediaType,
@@ -846,11 +1079,16 @@
                 release_date: form.release_date.value || null,
                 language: form.language.value.trim() || null,
                 rating: form.rating.value ? parseFloat(form.rating.value) : null,
-                source_type: sourceType, // NEW: Source type
+                source_type: sourceType,
                 file_type: fileType,
-                youtube_trailer: document.getElementById('youtube_trailer').value.trim() || null, // NEW: YouTube trailer
+                youtube_trailer: document.getElementById('youtube_trailer').value.trim() || null,
                 genres: form.genres.value.trim() ? form.genres.value.split(',').map(g => g.trim()) : [],
-                cast_members: JSON.parse(form.cast_members.value || '[]')
+                cast_members: JSON.parse(form.cast_members.value || '[]'),
+                // NEW: Subtitles data
+                subtitles: {
+                    english: englishSubtitles,
+                    sinhala: sinhalaSubtitles
+                }
             };
 
             // NEW: Add status field for TV series
@@ -985,6 +1223,10 @@
                             const dl1080Val = row.querySelector(`input[placeholder="1080p Download Link"]`).value.trim();
                             const dl2160Val = row.querySelector(`input[placeholder="2160p Download Link"]`).value.trim();
                             
+                            // NEW: Parse episode subtitles
+                            const episodeEnglishSubtitles = parseSubtitleUrls(row.querySelector(`input[placeholder="English Subtitles (comma-separated)"]`).value.trim());
+                            const episodeSinhalaSubtitles = parseSubtitleUrls(row.querySelector(`input[placeholder="Sinhala Subtitles (comma-separated)"]`).value.trim());
+                            
                             episodes.push({
                                 episode_number: episodeNumber,
                                 episode_name: episodeName,
@@ -999,7 +1241,12 @@
                                 video_2160p: row.querySelector(`input[placeholder="2160p Video Link"]`).value.trim() || null,
                                 download_2160p: dl2160Val ? { url: dl2160Val, file_type: fileType } : null,
                                 telegram_2160p: row.querySelector(`input[placeholder="2160p Telegram Link"]`).value.trim() || null,
-                                torrent_2160p: row.querySelector(`input[placeholder="2160p Torrent Link"]`).value.trim() || null
+                                torrent_2160p: row.querySelector(`input[placeholder="2160p Torrent Link"]`).value.trim() || null,
+                                // NEW: Episode subtitles
+                                subtitles: {
+                                    english: episodeEnglishSubtitles,
+                                    sinhala: episodeSinhalaSubtitles
+                                }
                             });
                         }
                     });
@@ -1049,6 +1296,23 @@
             } finally {
                 submitButton.textContent = originalText;
             }
+        });
+
+        // Initialize sections as expanded
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const sections = ['subtitles-content', 'screenshots-content'];
+                sections.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.classList.remove('collapsed');
+                        const toggle = section.previousElementSibling;
+                        if (toggle) {
+                            toggle.classList.remove('collapsed');
+                        }
+                    }
+                });
+            }, 100);
         });
     </script>
 </body>
