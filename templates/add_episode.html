@@ -32,6 +32,56 @@
             margin-top: 30px;
             font-size: 1.2em;
         }
+        
+        /* NEW: Subtitle Section Styles */
+        .subtitle-info {
+            background: #3a3a3c;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #ccc;
+            border-left: 3px solid #6a11cb;
+        }
+        
+        .subtitle-input-group {
+            margin-bottom: 10px;
+        }
+        
+        .subtitle-input-group label {
+            font-size: 14px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+        }
+        
+        .subtitle-input-group label::before {
+            content: "🎯";
+            margin-right: 8px;
+        }
+        
+        .subtitle-input-group input {
+            background: #5a606b;
+        }
+        
+        .language-section {
+            margin-bottom: 20px;
+        }
+        
+        .language-section h4 {
+            color: #8a2be2;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #444;
+            font-size: 16px;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -48,6 +98,62 @@
         <div>
             <label for="episode_name">Episode Name:</label>
             <input type="text" id="episode_name" name="episode_name" required>
+        </div>
+        
+        <!-- NEW: Subtitles Section -->
+        <div class="section-title">🎯 Subtitles (English & Sinhala)</div>
+        <div class="subtitle-info">
+            <strong>Format:</strong> Add comma-separated URLs for subtitle files (.vtt, .srt, .ass)<br>
+            <strong>Example:</strong> https://example.com/episode_en.vtt, https://example.com/episode_en2.srt
+        </div>
+        
+        <!-- English Subtitles -->
+        <div class="language-section">
+            <h4>English Subtitles</h4>
+            <div class="subtitle-input-group">
+                <label for="english_subtitles_720p">English 720p Subtitles:</label>
+                <input type="text" id="english_subtitles_720p" name="english_subtitles_720p" placeholder="https://example.com/episode_720p_en.vtt">
+            </div>
+            <div class="subtitle-input-group">
+                <label for="english_subtitles_1080p">English 1080p Subtitles:</label>
+                <input type="text" id="english_subtitles_1080p" name="english_subtitles_1080p" placeholder="https://example.com/episode_1080p_en.vtt">
+            </div>
+            <div class="subtitle-input-group">
+                <label for="english_subtitles_2160p">English 2160p Subtitles:</label>
+                <input type="text" id="english_subtitles_2160p" name="english_subtitles_2160p" placeholder="https://example.com/episode_2160p_en.vtt">
+            </div>
+        </div>
+        
+        <!-- Sinhala Subtitles -->
+        <div class="language-section">
+            <h4>සිංහල උපසිරැසි (Sinhala Subtitles)</h4>
+            <div class="subtitle-input-group">
+                <label for="sinhala_subtitles_720p">Sinhala 720p Subtitles:</label>
+                <input type="text" id="sinhala_subtitles_720p" name="sinhala_subtitles_720p" placeholder="https://example.com/episode_720p_si.vtt">
+            </div>
+            <div class="subtitle-input-group">
+                <label for="sinhala_subtitles_1080p">Sinhala 1080p Subtitles:</label>
+                <input type="text" id="sinhala_subtitles_1080p" name="sinhala_subtitles_1080p" placeholder="https://example.com/episode_1080p_si.vtt">
+            </div>
+            <div class="subtitle-input-group">
+                <label for="sinhala_subtitles_2160p">Sinhala 2160p Subtitles:</label>
+                <input type="text" id="sinhala_subtitles_2160p" name="sinhala_subtitles_2160p" placeholder="https://example.com/episode_2160p_si.vtt">
+            </div>
+        </div>
+        
+        <!-- Alternative: Single subtitle field for all qualities -->
+        <div class="language-section">
+            <h4>Alternative: Single Subtitle URLs</h4>
+            <div class="subtitle-input-group">
+                <label for="english_subtitles_all">All English Subtitles (for all qualities):</label>
+                <input type="text" id="english_subtitles_all" name="english_subtitles_all" placeholder="https://example.com/episode_en.vtt">
+                <div class="help-text">This will apply to all video qualities if quality-specific subtitles are not provided</div>
+            </div>
+            <div class="subtitle-input-group">
+                <label for="sinhala_subtitles_all">සියලුම සිංහල උපසිරැසි (All Sinhala Subtitles):</label>
+                <input type="text" id="sinhala_subtitles_all" name="sinhala_subtitles_all" placeholder="https://example.com/episode_si.vtt">
+                <div class="help-text">This will apply to all video qualities if quality-specific subtitles are not provided</div>
+            </div>
         </div>
         
         <div class="section-title">🎬 Video Links</div>
@@ -122,10 +228,36 @@
                 return;
             }
 
+            // Function to parse subtitle URLs from comma-separated string
+            function parseSubtitleUrls(input) {
+                if (!input || input.trim() === '') return [];
+                return input.split(',').map(url => url.trim()).filter(url => url !== '');
+            }
+
             document.getElementById('add-episode-form').addEventListener('submit', async function(event) {
                 event.preventDefault();
                 const form = event.target;
                 const formData = new FormData(form);
+
+                // NEW: Parse subtitle URLs
+                let englishSubtitles = [];
+                let sinhalaSubtitles = [];
+                
+                // Collect quality-specific English subtitles
+                const english720p = parseSubtitleUrls(formData.get('english_subtitles_720p'));
+                const english1080p = parseSubtitleUrls(formData.get('english_subtitles_1080p'));
+                const english2160p = parseSubtitleUrls(formData.get('english_subtitles_2160p'));
+                const englishAll = parseSubtitleUrls(formData.get('english_subtitles_all'));
+                
+                // Collect quality-specific Sinhala subtitles
+                const sinhala720p = parseSubtitleUrls(formData.get('sinhala_subtitles_720p'));
+                const sinhala1080p = parseSubtitleUrls(formData.get('sinhala_subtitles_1080p'));
+                const sinhala2160p = parseSubtitleUrls(formData.get('sinhala_subtitles_2160p'));
+                const sinhalaAll = parseSubtitleUrls(formData.get('sinhala_subtitles_all'));
+                
+                // Combine subtitles: quality-specific first, then general
+                englishSubtitles = [...new Set([...english720p, ...english1080p, ...english2160p, ...englishAll])];
+                sinhalaSubtitles = [...new Set([...sinhala720p, ...sinhala1080p, ...sinhala2160p, ...sinhalaAll])];
 
                 const videoLinks = {};
                 if (formData.get('video_720p')) videoLinks['video_720p'] = formData.get('video_720p');
@@ -155,8 +287,14 @@
                     video_links: videoLinks,
                     download_links: downloadLinks,
                     telegram_links: telegramLinks,  // NEW: Include Telegram links
-                    torrent_links: torrentLinks
+                    torrent_links: torrentLinks,
+                    // NEW: Include subtitles
+                    english_subtitles: englishSubtitles.join(', '),  // Send as comma-separated string
+                    sinhala_subtitles: sinhalaSubtitles.join(', ')   // Send as comma-separated string
                 };
+
+                // For debugging
+                console.log('Submitting episode data:', data);
 
                 try {
                     const response = await fetch(`/api/admin/media/${mediaId}/episode`, {
@@ -169,7 +307,7 @@
                     });
                     const result = await response.json();
                     if (response.ok) {
-                        alert('Episode saved successfully!');
+                        alert('Episode saved successfully with subtitles!');
                         window.location.href = `/admin/edit?id=${mediaId}`;
                     } else {
                         alert('Error: ' + result.message);
