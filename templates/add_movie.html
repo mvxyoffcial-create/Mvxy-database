@@ -15,10 +15,23 @@
         .tag { background: #6a11cb; color: #fff; padding: 5px 10px; border-radius: 15px; display: flex; align-items: center; }
         .tag-close { margin-left: 5px; cursor: pointer; font-weight: bold; }
         h2 { color: #6a11cb; border-bottom: 2px solid #6a11cb; padding-bottom: 5px; margin-top: 30px; }
+        h3 { color: #8a2be2; margin-top: 20px; font-size: 16px; }
         .screenshot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .screenshot-input-group { margin-bottom: 10px; }
         .screenshot-input-group label { font-size: 14px; color: #ccc; }
         .help-text { font-size: 12px; color: #999; margin-top: 5px; }
+        .subtitle-section { background: #4a505b; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #6a11cb; }
+        .subtitle-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .subtitle-input-group { margin-bottom: 10px; }
+        .subtitle-input-group label { font-size: 14px; color: #ccc; display: flex; align-items: center; }
+        .subtitle-input-group label::before { content: "🎯"; margin-right: 8px; }
+        .subtitle-input-group input { background: #5a606b; }
+        .subtitle-info { background: #5a606b; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 12px; color: #ccc; }
+        .section-toggle { cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+        .section-toggle::after { content: "▼"; transition: transform 0.3s; }
+        .section-toggle.collapsed::after { transform: rotate(-90deg); }
+        .collapsible-content { max-height: 1000px; overflow: hidden; transition: max-height 0.3s ease-in-out; }
+        .collapsible-content.collapsed { max-height: 0; }
     </style>
 </head>
 <body>
@@ -60,6 +73,7 @@
                 <input type="number" step="0.1" id="rating" name="rating">
             </div>
             
+            <!-- NEW: Source Type Selection -->
             <div class="form-group">
                 <label for="source_type">Source Type:</label>
                 <select id="source_type" name="source_type">
@@ -74,19 +88,21 @@
                 </select>
             </div>
             
+            <!-- File Type Selection -->
             <div class="form-group">
                 <label for="file_type">File Type:</label>
                 <select id="file_type" name="file_type">
-                    <option value="WEBRIP">WEBRIP</option>
-                    <option value="BLURAY">BLURAY</option>
-                    <option value="WEB-DL">WEBDL</option>
-                    <option value="HD">HD</option>
-                    <option value="CAMCOPY">CAMCOPY</option>
-                    <option value="BRRIP">BRRip</option>
-                    <option value="BDRIP">BDRip</option>
+                    <option value="webrip">WebRip</option>
+                    <option value="bluray">BluRay</option>
+                    <option value="webdl">WebDL</option>
+                    <option value="hdtv">HDTV</option>
+                    <option value="dvd">DVD</option>
+                    <option value="brrip">BRRip</option>
+                    <option value="bdrip">BDRip</option>
                 </select>
             </div>
 
+            <!-- NEW: YouTube Trailer -->
             <div class="form-group">
                 <label for="youtube_trailer">YouTube Trailer URL:</label>
                 <input type="text" id="youtube_trailer" name="youtube_trailer" placeholder="https://youtube.com/watch?v=... or https://youtu.be/...">
@@ -104,120 +120,187 @@
                 <div id="genres-container" class="tag-input-container"></div>
             </div>
 
-            <h2>📸 Screenshots</h2>
-            
-            <h3>720p Screenshots (2 Required)</h3>
-            <div class="screenshot-grid">
-                <div class="screenshot-input-group">
-                    <label for="screenshots_720p_1">720p Screenshot 1 URL:</label>
-                    <input type="text" id="screenshots_720p_1" name="screenshots_720p_1" placeholder="https://example.com/screenshot1_720.jpg">
+            <!-- NEW: Subtitles Section -->
+            <h2 class="section-toggle" onclick="toggleSection('subtitles-section')">🎯 Subtitles (English & Sinhala)</h2>
+            <div id="subtitles-section" class="subtitle-section collapsible-content">
+                <div class="subtitle-info">
+                    <strong>Format:</strong> Add comma-separated URLs for subtitle files (.vtt, .srt, .ass)<br>
+                    <strong>Example:</strong> https://example.com/subtitles_en.vtt, https://example.com/subtitles_en2.srt
                 </div>
-                <div class="screenshot-input-group">
-                    <label for="screenshots_720p_2">720p Screenshot 2 URL:</label>
-                    <input type="text" id="screenshots_720p_2" name="screenshots_720p_2" placeholder="https://example.com/screenshot2_720.jpg">
+                
+                <!-- English Subtitles -->
+                <h3>English Subtitles</h3>
+                <div class="subtitle-grid">
+                    <div class="subtitle-input-group">
+                        <label for="english_subtitles_720p">English 720p Subtitles:</label>
+                        <input type="text" id="english_subtitles_720p" name="english_subtitles_720p" placeholder="https://example.com/english_720p.vtt, https://example.com/english_720p.srt">
+                    </div>
+                    <div class="subtitle-input-group">
+                        <label for="english_subtitles_1080p">English 1080p Subtitles:</label>
+                        <input type="text" id="english_subtitles_1080p" name="english_subtitles_1080p" placeholder="https://example.com/english_1080p.vtt, https://example.com/english_1080p.srt">
+                    </div>
+                    <div class="subtitle-input-group">
+                        <label for="english_subtitles_2160p">English 2160p Subtitles:</label>
+                        <input type="text" id="english_subtitles_2160p" name="english_subtitles_2160p" placeholder="https://example.com/english_2160p.vtt, https://example.com/english_2160p.srt">
+                    </div>
+                </div>
+
+                <!-- Sinhala Subtitles -->
+                <h3>සිංහල උපසිරැසි (Sinhala Subtitles)</h3>
+                <div class="subtitle-grid">
+                    <div class="subtitle-input-group">
+                        <label for="sinhala_subtitles_720p">Sinhala 720p Subtitles:</label>
+                        <input type="text" id="sinhala_subtitles_720p" name="sinhala_subtitles_720p" placeholder="https://example.com/sinhala_720p.vtt, https://example.com/sinhala_720p.srt">
+                    </div>
+                    <div class="subtitle-input-group">
+                        <label for="sinhala_subtitles_1080p">Sinhala 1080p Subtitles:</label>
+                        <input type="text" id="sinhala_subtitles_1080p" name="sinhala_subtitles_1080p" placeholder="https://example.com/sinhala_1080p.vtt, https://example.com/sinhala_1080p.srt">
+                    </div>
+                    <div class="subtitle-input-group">
+                        <label for="sinhala_subtitles_2160p">Sinhala 2160p Subtitles:</label>
+                        <input type="text" id="sinhala_subtitles_2160p" name="sinhala_subtitles_2160p" placeholder="https://example.com/sinhala_2160p.vtt, https://example.com/sinhala_2160p.srt">
+                    </div>
+                </div>
+                
+                <!-- Alternative: Single subtitle field for all qualities -->
+                <h3>Alternative: Single Subtitle URLs</h3>
+                <div class="subtitle-grid">
+                    <div class="subtitle-input-group">
+                        <label for="english_subtitles_all">All English Subtitles (for all qualities):</label>
+                        <input type="text" id="english_subtitles_all" name="english_subtitles_all" placeholder="https://example.com/english_all.vtt">
+                        <div class="help-text">This will apply to all video qualities if quality-specific subtitles are not provided</div>
+                    </div>
+                    <div class="subtitle-input-group">
+                        <label for="sinhala_subtitles_all">සියලුම සිංහල උපසිරැසි (All Sinhala Subtitles):</label>
+                        <input type="text" id="sinhala_subtitles_all" name="sinhala_subtitles_all" placeholder="https://example.com/sinhala_all.vtt">
+                        <div class="help-text">This will apply to all video qualities if quality-specific subtitles are not provided</div>
+                    </div>
                 </div>
             </div>
 
-            <h3>1080p Screenshots (2 Required)</h3>
-            <div class="screenshot-grid">
-                <div class="screenshot-input-group">
-                    <label for="screenshots_1080p_1">1080p Screenshot 1 URL:</label>
-                    <input type="text" id="screenshots_1080p_1" name="screenshots_1080p_1" placeholder="https://example.com/screenshot1_1080.jpg">
+            <!-- Screenshots Section -->
+            <h2 class="section-toggle" onclick="toggleSection('screenshots-section')">📸 Screenshots</h2>
+            <div id="screenshots-section" class="collapsible-content">
+                
+                <!-- 720p Screenshots -->
+                <h3>720p Screenshots (2 Required)</h3>
+                <div class="screenshot-grid">
+                    <div class="screenshot-input-group">
+                        <label for="screenshots_720p_1">720p Screenshot 1 URL:</label>
+                        <input type="text" id="screenshots_720p_1" name="screenshots_720p_1" placeholder="https://example.com/screenshot1_720.jpg">
+                    </div>
+                    <div class="screenshot-input-group">
+                        <label for="screenshots_720p_2">720p Screenshot 2 URL:</label>
+                        <input type="text" id="screenshots_720p_2" name="screenshots_720p_2" placeholder="https://example.com/screenshot2_720.jpg">
+                    </div>
                 </div>
-                <div class="screenshot-input-group">
-                    <label for="screenshots_1080p_2">1080p Screenshot 2 URL:</label>
-                    <input type="text" id="screenshots_1080p_2" name="screenshots_1080p_2" placeholder="https://example.com/screenshot2_1080.jpg">
+
+                <!-- 1080p Screenshots -->
+                <h3>1080p Screenshots (2 Required)</h3>
+                <div class="screenshot-grid">
+                    <div class="screenshot-input-group">
+                        <label for="screenshots_1080p_1">1080p Screenshot 1 URL:</label>
+                        <input type="text" id="screenshots_1080p_1" name="screenshots_1080p_1" placeholder="https://example.com/screenshot1_1080.jpg">
+                    </div>
+                    <div class="screenshot-input-group">
+                        <label for="screenshots_1080p_2">1080p Screenshot 2 URL:</label>
+                        <input type="text" id="screenshots_1080p_2" name="screenshots_1080p_2" placeholder="https://example.com/screenshot2_1080.jpg">
+                    </div>
+                </div>
+
+                <!-- 2160p Screenshots -->
+                <h3>2160p Screenshots (2 Required)</h3>
+                <div class="screenshot-grid">
+                    <div class="screenshot-input-group">
+                        <label for="screenshots_2160p_1">2160p Screenshot 1 URL:</label>
+                        <input type="text" id="screenshots_2160p_1" name="screenshots_2160p_1" placeholder="https://example.com/screenshot1_2160.jpg">
+                    </div>
+                    <div class="screenshot-input-group">
+                        <label for="screenshots_2160p_2">2160p Screenshot 2 URL:</label>
+                        <input type="text" id="screenshots_2160p_2" name="screenshots_2160p_2" placeholder="https://example.com/screenshot2_2160.jpg">
+                    </div>
+                </div>
+
+                <!-- Trailer Screenshots (Optional) -->
+                <h3>Trailer Screenshots (Optional)</h3>
+                <div class="screenshot-grid">
+                    <div class="screenshot-input-group">
+                        <label for="screenshots_trailer_1">Trailer Screenshot 1 URL:</label>
+                        <input type="text" id="screenshots_trailer_1" name="screenshots_trailer_1" placeholder="https://example.com/trailer_screenshot1.jpg">
+                    </div>
+                    <div class="screenshot-input-group">
+                        <label for="screenshots_trailer_2">Trailer Screenshot 2 URL:</label>
+                        <input type="text" id="screenshots_trailer_2" name="screenshots_trailer_2" placeholder="https://example.com/trailer_screenshot2.jpg">
+                    </div>
                 </div>
             </div>
 
-            <h3>2160p Screenshots (2 Required)</h3>
-            <div class="screenshot-grid">
-                <div class="screenshot-input-group">
-                    <label for="screenshots_2160p_1">2160p Screenshot 1 URL:</label>
-                    <input type="text" id="screenshots_2160p_1" name="screenshots_2160p_1" placeholder="https://example.com/screenshot1_2160.jpg">
+            <!-- Video Links Section -->
+            <h2 class="section-toggle" onclick="toggleSection('video-links-section')">🔗 Video Links</h2>
+            <div id="video-links-section" class="collapsible-content">
+                <div class="form-group">
+                    <label for="video_720p">Video 720p URL:</label>
+                    <input type="text" id="video_720p" name="video_720p">
                 </div>
-                <div class="screenshot-input-group">
-                    <label for="screenshots_2160p_2">2160p Screenshot 2 URL:</label>
-                    <input type="text" id="screenshots_2160p_2" name="screenshots_2160p_2" placeholder="https://example.com/screenshot2_2160.jpg">
+                <div class="form-group">
+                    <label for="video_1080p">Video 1080p URL:</label>
+                    <input type="text" id="video_1080p" name="video_1080p">
                 </div>
-            </div>
-
-            <h3>Trailer Screenshots (Optional)</h3>
-            <div class="screenshot-grid">
-                <div class="screenshot-input-group">
-                    <label for="screenshots_trailer_1">Trailer Screenshot 1 URL:</label>
-                    <input type="text" id="screenshots_trailer_1" name="screenshots_trailer_1" placeholder="https://example.com/trailer_screenshot1.jpg">
-                </div>
-                <div class="screenshot-input-group">
-                    <label for="screenshots_trailer_2">Trailer Screenshot 2 URL:</label>
-                    <input type="text" id="screenshots_trailer_2" name="screenshots_trailer_2" placeholder="https://example.com/trailer_screenshot2.jpg">
+                <div class="form-group">
+                    <label for="video_2160p">Video 2160p URL:</label>
+                    <input type="text" id="video_2160p" name="video_2160p">
                 </div>
             </div>
 
-            <h2>📝 Subtitles</h2>
-            <div class="form-group">
-                <label for="sub_sinhala">Sinhala Subtitle URL:</label>
-                <input type="text" id="sub_sinhala" name="sub_sinhala" placeholder="https://example.com/sinhala.srt">
-            </div>
-            <div class="form-group">
-                <label for="sub_english">English Subtitle URL:</label>
-                <input type="text" id="sub_english" name="sub_english" placeholder="https://example.com/english.srt">
-            </div>
-
-            <h2>🔗 Video Links</h2>
-            <div class="form-group">
-                <label for="video_720p">Video 720p URL:</label>
-                <input type="text" id="video_720p" name="video_720p">
-            </div>
-            <div class="form-group">
-                <label for="video_1080p">Video 1080p URL:</label>
-                <input type="text" id="video_1080p" name="video_1080p">
-            </div>
-            <div class="form-group">
-                <label for="video_2160p">Video 2160p URL:</label>
-                <input type="text" id="video_2160p" name="video_2160p">
+            <!-- Download Links Section -->
+            <h2 class="section-toggle" onclick="toggleSection('download-links-section')">⬇️ Download Links</h2>
+            <div id="download-links-section" class="collapsible-content">
+                <div class="form-group">
+                    <label for="download_720p">Download 720p URL:</label>
+                    <input type="text" id="download_720p" name="download_720p">
+                </div>
+                <div class="form-group">
+                    <label for="download_1080p">Download 1080p URL:</label>
+                    <input type="text" id="download_1080p" name="download_1080p">
+                </div>
+                <div class="form-group">
+                    <label for="download_2160p">Download 2160p URL:</label>
+                    <input type="text" id="download_2160p" name="download_2160p">
+                </div>
             </div>
 
-            <h2>⬇️ Download Links</h2>
-            <div class="form-group">
-                <label for="download_720p">Download 720p URL:</label>
-                <input type="text" id="download_720p" name="download_720p">
-            </div>
-            <div class="form-group">
-                <label for="download_1080p">Download 1080p URL:</label>
-                <input type="text" id="download_1080p" name="download_1080p">
-            </div>
-            <div class="form-group">
-                <label for="download_2160p">Download 2160p URL:</label>
-                <input type="text" id="download_2160p" name="download_2160p">
-            </div>
-
-            <h2>📱 Telegram Download Links</h2>
-            <div class="form-group">
-                <label for="telegram_720p">Telegram 720p URL:</label>
-                <input type="text" id="telegram_720p" name="telegram_720p" placeholder="https://t.me/...">
-            </div>
-            <div class="form-group">
-                <label for="telegram_1080p">Telegram 1080p URL:</label>
-                <input type="text" id="telegram_1080p" name="telegram_1080p" placeholder="https://t.me/...">
-            </div>
-            <div class="form-group">
-                <label for="telegram_2160p">Telegram 2160p URL:</label>
-                <input type="text" id="telegram_2160p" name="telegram_2160p" placeholder="https://t.me/...">
+            <!-- Telegram Download Links Section -->
+            <h2 class="section-toggle" onclick="toggleSection('telegram-links-section')">📱 Telegram Download Links</h2>
+            <div id="telegram-links-section" class="collapsible-content">
+                <div class="form-group">
+                    <label for="telegram_720p">Telegram 720p URL:</label>
+                    <input type="text" id="telegram_720p" name="telegram_720p" placeholder="https://t.me/...">
+                </div>
+                <div class="form-group">
+                    <label for="telegram_1080p">Telegram 1080p URL:</label>
+                    <input type="text" id="telegram_1080p" name="telegram_1080p" placeholder="https://t.me/...">
+                </div>
+                <div class="form-group">
+                    <label for="telegram_2160p">Telegram 2160p URL:</label>
+                    <input type="text" id="telegram_2160p" name="telegram_2160p" placeholder="https://t.me/...">
+                </div>
             </div>
 
-            <h2>🧲 Torrent Links</h2>
-            <div class="form-group">
-                <label for="torrent_720p">Torrent 720p URL:</label>
-                <input type="text" id="torrent_720p" name="torrent_720p" placeholder="magnet:?xt=urn:btih:...">
-            </div>
-            <div class="form-group">
-                <label for="torrent_1080p">Torrent 1080p URL:</label>
-                <input type="text" id="torrent_1080p" name="torrent_1080p" placeholder="magnet:?xt=urn:btih:...">
-            </div>
-            <div class="form-group">
-                <label for="torrent_2160p">Torrent 2160p URL:</label>
-                <input type="text" id="torrent_2160p" name="torrent_2160p" placeholder="magnet:?xt=urn:btih:...">
+            <!-- Torrent Links Section -->
+            <h2 class="section-toggle" onclick="toggleSection('torrent-links-section')">🧲 Torrent Links</h2>
+            <div id="torrent-links-section" class="collapsible-content">
+                <div class="form-group">
+                    <label for="torrent_720p">Torrent 720p URL:</label>
+                    <input type="text" id="torrent_720p" name="torrent_720p" placeholder="magnet:?xt=urn:btih:...">
+                </div>
+                <div class="form-group">
+                    <label for="torrent_1080p">Torrent 1080p URL:</label>
+                    <input type="text" id="torrent_1080p" name="torrent_1080p" placeholder="magnet:?xt=urn:btih:...">
+                </div>
+                <div class="form-group">
+                    <label for="torrent_2160p">Torrent 2160p URL:</label>
+                    <input type="text" id="torrent_2160p" name="torrent_2160p" placeholder="magnet:?xt=urn:btih:...">
+                </div>
             </div>
 
             <button type="submit" class="btn-primary">Save Movie</button>
@@ -240,6 +323,21 @@
             closeBtn.onclick = () => tag.remove();
             tag.appendChild(closeBtn);
             genresContainer.appendChild(tag);
+        }
+
+        // Function to toggle section visibility
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const toggle = section.previousElementSibling;
+            
+            section.classList.toggle('collapsed');
+            toggle.classList.toggle('collapsed');
+        }
+
+        // Parse subtitle URLs from comma-separated string
+        function parseSubtitleUrls(input) {
+            if (!input || input.trim() === '') return [];
+            return input.split(',').map(url => url.trim()).filter(url => url !== '');
         }
 
         // Fetch genres from TMDB and populate form
@@ -271,10 +369,6 @@
                     document.getElementById('youtube_trailer').value = data.youtube_trailer || '';
                     document.getElementById('cast_members').value = JSON.stringify(data.cast_members, null, 2);
                     
-                    // Populate subtitles if backend sends them (even empty strings)
-                    document.getElementById('sub_sinhala').value = data.sub_sinhala || '';
-                    document.getElementById('sub_english').value = data.sub_english || '';
-
                     // Populate genres
                     genresContainer.innerHTML = '';
                     if (data.genres && data.genres.length > 0) {
@@ -301,17 +395,41 @@
             const screenshots_2160p = [];
             const screenshots_trailer = [];
 
+            // Collect 720p screenshots
             if (form.screenshots_720p_1.value) screenshots_720p.push(form.screenshots_720p_1.value);
             if (form.screenshots_720p_2.value) screenshots_720p.push(form.screenshots_720p_2.value);
             
+            // Collect 1080p screenshots
             if (form.screenshots_1080p_1.value) screenshots_1080p.push(form.screenshots_1080p_1.value);
             if (form.screenshots_1080p_2.value) screenshots_1080p.push(form.screenshots_1080p_2.value);
             
+            // Collect 2160p screenshots
             if (form.screenshots_2160p_1.value) screenshots_2160p.push(form.screenshots_2160p_1.value);
             if (form.screenshots_2160p_2.value) screenshots_2160p.push(form.screenshots_2160p_2.value);
             
+            // Collect trailer screenshots (optional)
             if (form.screenshots_trailer_1.value) screenshots_trailer.push(form.screenshots_trailer_1.value);
             if (form.screenshots_trailer_2.value) screenshots_trailer.push(form.screenshots_trailer_2.value);
+
+            // NEW: Collect subtitle URLs
+            let englishSubtitles = [];
+            let sinhalaSubtitles = [];
+            
+            // Collect quality-specific English subtitles
+            const english720p = parseSubtitleUrls(form.english_subtitles_720p.value);
+            const english1080p = parseSubtitleUrls(form.english_subtitles_1080p.value);
+            const english2160p = parseSubtitleUrls(form.english_subtitles_2160p.value);
+            const englishAll = parseSubtitleUrls(form.english_subtitles_all.value);
+            
+            // Collect quality-specific Sinhala subtitles
+            const sinhala720p = parseSubtitleUrls(form.sinhala_subtitles_720p.value);
+            const sinhala1080p = parseSubtitleUrls(form.sinhala_subtitles_1080p.value);
+            const sinhala2160p = parseSubtitleUrls(form.sinhala_subtitles_2160p.value);
+            const sinhalaAll = parseSubtitleUrls(form.sinhala_subtitles_all.value);
+            
+            // Combine subtitles: quality-specific first, then general
+            englishSubtitles = [...new Set([...english720p, ...english1080p, ...english2160p, ...englishAll])];
+            sinhalaSubtitles = [...new Set([...sinhala720p, ...sinhala1080p, ...sinhala2160p, ...sinhalaAll])];
 
             const data = {
                 type: 'movie',
@@ -335,9 +453,11 @@
                 screenshots_1080p: screenshots_1080p,
                 screenshots_2160p: screenshots_2160p,
                 screenshots_trailer: screenshots_trailer,
-                // NEW: Subtitles
-                sub_sinhala: form.sub_sinhala.value,
-                sub_english: form.sub_english.value
+                // NEW: Subtitles data
+                subtitles: {
+                    english: englishSubtitles,
+                    sinhala: sinhalaSubtitles
+                }
             };
 
             // Collect video links
@@ -384,6 +504,8 @@
                 data.torrent_links.torrent_2160p = form.torrent_2160p.value;
             }
 
+            console.log('Submitting data:', data); // For debugging
+
             try {
                 const response = await fetch(`${ADMIN_API_BASE_URL}/media`, {
                     method: 'POST',
@@ -410,6 +532,30 @@
                 createGenreTag(e.target.value.trim());
                 e.target.value = '';
             }
+        });
+
+        // Initialize all sections as expanded
+        document.addEventListener('DOMContentLoaded', () => {
+            // All sections start expanded
+            const sections = [
+                'subtitles-section',
+                'screenshots-section',
+                'video-links-section',
+                'download-links-section',
+                'telegram-links-section',
+                'torrent-links-section'
+            ];
+            
+            sections.forEach(section => {
+                const sectionEl = document.getElementById(section);
+                if (sectionEl) {
+                    sectionEl.classList.remove('collapsed');
+                    const toggle = sectionEl.previousElementSibling;
+                    if (toggle) {
+                        toggle.classList.remove('collapsed');
+                    }
+                }
+            });
         });
     </script>
 </body>
