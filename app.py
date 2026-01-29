@@ -9,8 +9,10 @@ from functools import wraps
 from base64 import b64decode
 from flask_cors import CORS
 from datetime import date, datetime
+import re
 
 app = Flask(__name__)
+
 # Enable CORS for all routes to allow cross-origin requests from websites and apps
 CORS(app)
 
@@ -66,7 +68,9 @@ def fetch_tmdb_data(tmdb_id, media_type):
     elif media_type == 'tv':
         url = f"https://api.themoviedb.org/3/tv/{tmdb_id}?api_key={TMDB_API_KEY}&append_to_response=credits"
     
-    if not url: return None
+    if not url:
+        return None
+
     try:
         response = requests.get(url, timeout=10)
         if response.status_code == 200:
@@ -81,11 +85,11 @@ def fetch_tmdb_data(tmdb_id, media_type):
             
             # Initialize empty video links for both movie and TV
             video_links = {
-                'video_720p': "", 
-                'video_1080p': "", 
-                'video_2160p': ""
+                'video_720p': "",  # Empty placeholder for 720p
+                'video_1080p': "",  # Empty placeholder for 1080p
+                'video_2160p': ""   # Empty placeholder for 2160p
             }
-            
+
             processed_data = {
                 'title': data.get('title') if media_type == 'movie' else data.get('name'),
                 'description': data.get('overview'),
@@ -97,13 +101,16 @@ def fetch_tmdb_data(tmdb_id, media_type):
                 'cast_members': cast,
                 'total_seasons': data.get('number_of_seasons') if media_type == 'tv' else None,
                 'genres': [g['name'] for g in data.get('genres', [])],
-                'video_links': video_links,
-                'file_type': 'webrip', 
-                'source_type': 'original',
-                'youtube_trailer': '',
-                'sub_sinhala': '',  # Added placeholder for Sinhala subtitle
-                'sub_english': ''   # Added placeholder for English subtitle
+                'video_links': video_links,  # Now includes video_720p, video_1080p and video_2160p placeholders
+                'file_type': 'webrip',  # Default file type
+                'source_type': 'original',  # Default source type
+                'youtube_trailer': '',  # Default empty YouTube trailer
+                'subtitles': {  # Default empty subtitles for movies
+                    'english': [],
+                    'sinhala': []
+                }
             }
+            
             return processed_data
         else:
             return None
@@ -123,8 +130,10 @@ def fetch_genres(media_type):
 # --- Helper Functions ---
 def safe_json_loads(data, default=None):
     """Safely parse JSON data with proper error handling"""
-    if data is None: return default
-    if isinstance(data, (dict, list)): return data
+    if data is None:
+        return default
+    if isinstance(data, (dict, list)):
+        return data
     try:
         return json.loads(data) if data else default
     except (json.JSONDecodeError, TypeError):
@@ -139,18 +148,23 @@ def clean_value(value):
 
 def format_date_for_input(date_value):
     """Format date for HTML date input (YYYY-MM-DD)"""
-    if not date_value: return None
+    if not date_value:
+        return None
+    
     if isinstance(date_value, str):
         # If it's already a string, keep first 10 chars (YYYY-MM-DD)
         return date_value[:10] if len(date_value) >= 10 else date_value
     elif isinstance(date_value, (date, datetime)):
         # If it's a date/datetime object, format it
         return date_value.strftime('%Y-%m-%d')
+    
     return None
 
 def extract_youtube_id(url):
     """Extract YouTube video ID from various URL formats"""
-    if not url: return None
+    if not url:
+        return None
+    
     # Common YouTube URL patterns
     patterns = [
         r'(?:youtube\.com\/watch\?v=)([\w-]{11})',
@@ -158,18 +172,38 @@ def extract_youtube_id(url):
         r'(?:youtube\.com\/embed\/)([\w-]{11})',
         r'(?:youtube\.com\/v\/)([\w-]{11})'
     ]
-    import re
+    
     for pattern in patterns:
         match = re.search(pattern, url)
-        if match: return match.group(1)
+        if match:
+            return match.group(1)
+    
     # If it's already just the video ID (11 characters)
     if len(url) == 11 and all(c.isalnum() or c in ['-', '_'] for c in url):
         return url
+    
     return None
+
+def parse_subtitle_input(subtitle_data):
+    """Parse subtitle input which can be string (comma-separated) or list"""
+    if not subtitle_data:
+        return []
+    
+    if isinstance(subtitle_data, str):
+        if subtitle_data.startswith('[') and subtitle_data.endswith(']'):
+            # JSON array
+            return safe_json_loads(subtitle_data, [])
+        else:
+            # Comma-separated URLs
+            return [url.strip() for url in subtitle_data.split(',') if url.strip()]
+    elif isinstance(subtitle_data, list):
+        return subtitle_data
+    
+    return []
 
 def prepare_media_data(data):
     """Prepare and validate media data before database operations"""
-    print("Raw data received:", data) # Debug log
+    print("Raw data received:", data)  # Debug log
     
     # Process genres - handle both string and array input
     genres = data.get('genres', [])
@@ -177,39 +211,40 @@ def prepare_media_data(data):
         genres = [g.strip() for g in genres.split(',')] if genres else []
     elif genres is None:
         genres = []
-
-    # Process source_type
+    
+    # ===== Process source_type =====
     source_type = data.get('source_type', 'original')
+    # Validate source_type
     valid_source_types = ['original', 'camcopy', 'bluray', 'webrip', 'webdl', 'hdtv', 'dvdrip', 'brrip']
     if source_type not in valid_source_types:
         source_type = 'original'
-
-    # Process YouTube trailer
+    
+    # ===== Process YouTube trailer =====
     youtube_trailer = clean_value(data.get('youtube_trailer'))
+    # Extract YouTube ID if it's a full URL
     if youtube_trailer:
         youtube_id = extract_youtube_id(youtube_trailer)
         if youtube_id:
+            # Store as embed URL for frontend
             youtube_trailer = f"https://www.youtube.com/embed/{youtube_id}"
-
-    # ===== Process Subtitles (NEW) =====
-    sub_sinhala = clean_value(data.get('sub_sinhala'))
-    sub_english = clean_value(data.get('sub_english'))
-
-    # Process screenshots
+    
+    # ===== Process screenshots =====
     screenshots_720p = []
     screenshots_1080p = []
     screenshots_2160p = []
     
-    # Process 720p screenshots
+    # Process 720p screenshots (comma-separated URLs or JSON array)
     screenshots_720p_input = data.get('screenshots_720p', '')
     if isinstance(screenshots_720p_input, str):
         if screenshots_720p_input.startswith('[') and screenshots_720p_input.endswith(']'):
+            # JSON array
             screenshots_720p = safe_json_loads(screenshots_720p_input, [])
         else:
+            # Comma-separated URLs
             screenshots_720p = [url.strip() for url in screenshots_720p_input.split(',') if url.strip()]
     elif isinstance(screenshots_720p_input, list):
         screenshots_720p = screenshots_720p_input
-
+    
     # Process 1080p screenshots
     screenshots_1080p_input = data.get('screenshots_1080p', '')
     if isinstance(screenshots_1080p_input, str):
@@ -219,7 +254,7 @@ def prepare_media_data(data):
             screenshots_1080p = [url.strip() for url in screenshots_1080p_input.split(',') if url.strip()]
     elif isinstance(screenshots_1080p_input, list):
         screenshots_1080p = screenshots_1080p_input
-
+    
     # Process 2160p screenshots
     screenshots_2160p_input = data.get('screenshots_2160p', '')
     if isinstance(screenshots_2160p_input, str):
@@ -229,8 +264,8 @@ def prepare_media_data(data):
             screenshots_2160p = [url.strip() for url in screenshots_2160p_input.split(',') if url.strip()]
     elif isinstance(screenshots_2160p_input, list):
         screenshots_2160p = screenshots_2160p_input
-        
-    # Process trailer screenshots
+    
+    # Process trailer screenshots (optional)
     screenshots_trailer = []
     screenshots_trailer_input = data.get('screenshots_trailer', '')
     if isinstance(screenshots_trailer_input, str):
@@ -240,61 +275,99 @@ def prepare_media_data(data):
             screenshots_trailer = [url.strip() for url in screenshots_trailer_input.split(',') if url.strip()]
     elif isinstance(screenshots_trailer_input, list):
         screenshots_trailer = screenshots_trailer_input
-
-    # Process video links
+    
+    # ===== Process video links =====
     video_links = {}
     if data.get('video_links'):
         video_links = safe_json_loads(data.get('video_links'), {})
     else:
+        # Handle individual video link fields
         video_720p = clean_value(data.get('video_720p')) or clean_value(data.get('tv_video_720p'))
         video_1080p = clean_value(data.get('video_1080p')) or clean_value(data.get('tv_video_1080p'))
         video_2160p = clean_value(data.get('video_2160p')) or clean_value(data.get('tv_video_2160p'))
         
-        if video_720p: video_links['video_720p'] = video_720p
-        if video_1080p: video_links['video_1080p'] = video_1080p
-        if video_2160p: video_links['video_2160p'] = video_2160p
-
-    # Process download links
+        if video_720p:
+            video_links['video_720p'] = video_720p
+        if video_1080p:
+            video_links['video_1080p'] = video_1080p
+        if video_2160p:
+            video_links['video_2160p'] = video_2160p
+    
+    # ===== Process download links as NESTED OBJECTS (matches your database) =====
     download_links = {}
     if data.get('download_links'):
         download_links = safe_json_loads(data.get('download_links'), {})
     else:
+        # Handle individual download link fields - store as nested objects
         download_720p = clean_value(data.get('download_720p'))
         download_1080p = clean_value(data.get('download_1080p'))
         download_2160p = clean_value(data.get('download_2160p'))
+        
         file_type = data.get('file_type', 'webrip')
         
-        if download_720p: download_links['download_720p'] = {'url': download_720p, 'file_type': file_type}
-        if download_1080p: download_links['download_1080p'] = {'url': download_1080p, 'file_type': file_type}
-        if download_2160p: download_links['download_2160p'] = {'url': download_2160p, 'file_type': file_type}
-
-    # Process TELEGRAM download links
+        # Store with download_720p, download_1080p, download_2160p keys as nested objects
+        if download_720p:
+            download_links['download_720p'] = {'url': download_720p, 'file_type': file_type}
+        if download_1080p:
+            download_links['download_1080p'] = {'url': download_1080p, 'file_type': file_type}
+        if download_2160p:
+            download_links['download_2160p'] = {'url': download_2160p, 'file_type': file_type}
+    
+    # ===== Process TELEGRAM download links =====
     telegram_links = {}
     if data.get('telegram_links'):
         telegram_links = safe_json_loads(data.get('telegram_links'), {})
     else:
+        # Handle individual Telegram link fields
         telegram_720p = clean_value(data.get('telegram_720p'))
         telegram_1080p = clean_value(data.get('telegram_1080p'))
         telegram_2160p = clean_value(data.get('telegram_2160p'))
         
-        if telegram_720p: telegram_links['telegram_720p'] = telegram_720p
-        if telegram_1080p: telegram_links['telegram_1080p'] = telegram_1080p
-        if telegram_2160p: telegram_links['telegram_2160p'] = telegram_2160p
-
-    # Process torrent links
+        if telegram_720p:
+            telegram_links['telegram_720p'] = telegram_720p
+        if telegram_1080p:
+            telegram_links['telegram_1080p'] = telegram_1080p
+        if telegram_2160p:
+            telegram_links['telegram_2160p'] = telegram_2160p
+    
+    # ===== Process torrent links =====
     torrent_links = {}
     if data.get('torrent_links'):
         torrent_links = safe_json_loads(data.get('torrent_links'), {})
     else:
+        # Handle individual torrent link fields
         torrent_720p = clean_value(data.get('torrent_720p'))
         torrent_1080p = clean_value(data.get('torrent_1080p'))
         torrent_2160p = clean_value(data.get('torrent_2160p'))
         
-        if torrent_720p: torrent_links['torrent_720p'] = torrent_720p
-        if torrent_1080p: torrent_links['torrent_1080p'] = torrent_1080p
-        if torrent_2160p: torrent_links['torrent_2160p'] = torrent_2160p
-
-    # Handle rating
+        if torrent_720p:
+            torrent_links['torrent_720p'] = torrent_720p
+        if torrent_1080p:
+            torrent_links['torrent_1080p'] = torrent_1080p
+        if torrent_2160p:
+            torrent_links['torrent_2160p'] = torrent_2160p
+    
+    # ===== NEW: Process subtitles for MOVIES =====
+    subtitles = {
+        'english': [],
+        'sinhala': []
+    }
+    
+    # Process subtitles for movies
+    if data.get('subtitles'):
+        subtitles_data = safe_json_loads(data.get('subtitles'), {})
+        if isinstance(subtitles_data, dict):
+            subtitles['english'] = parse_subtitle_input(subtitles_data.get('english', []))
+            subtitles['sinhala'] = parse_subtitle_input(subtitles_data.get('sinhala', []))
+    else:
+        # Handle individual subtitle fields for backward compatibility
+        english_subtitles_input = data.get('english_subtitles', '')
+        sinhala_subtitles_input = data.get('sinhala_subtitles', '')
+        
+        subtitles['english'] = parse_subtitle_input(english_subtitles_input)
+        subtitles['sinhala'] = parse_subtitle_input(sinhala_subtitles_input)
+    
+    # Handle rating - allow empty/null
     rating = data.get('rating')
     if rating in [None, '']:
         rating = None
@@ -303,8 +376,8 @@ def prepare_media_data(data):
             rating = float(rating)
         except (ValueError, TypeError):
             rating = None
-
-    # Handle total_seasons
+    
+    # Handle total_seasons for TV series
     total_seasons = data.get('total_seasons')
     if total_seasons in [None, '']:
         total_seasons = None
@@ -313,13 +386,31 @@ def prepare_media_data(data):
             total_seasons = int(total_seasons)
         except (ValueError, TypeError):
             total_seasons = None
-            
+    
     # Handle file_type
     file_type = data.get('file_type', 'webrip')
     
-    # Handle status
+    # Handle status field for TV series
     status = clean_value(data.get('status'))
-
+    
+    # ===== Process seasons data for TV series with subtitle support =====
+    seasons_data = safe_json_loads(data.get('seasons'), {})
+    
+    # If seasons data is provided, ensure each episode has subtitle structure
+    if seasons_data and isinstance(seasons_data, dict):
+        for season_key, season_info in seasons_data.items():
+            if 'episodes' in season_info and isinstance(season_info['episodes'], list):
+                for episode in season_info['episodes']:
+                    # Ensure each episode has subtitles field
+                    if 'subtitles' not in episode:
+                        episode['subtitles'] = {'english': [], 'sinhala': []}
+                    elif isinstance(episode['subtitles'], dict):
+                        # Ensure both english and sinhala arrays exist
+                        if 'english' not in episode['subtitles']:
+                            episode['subtitles']['english'] = []
+                        if 'sinhala' not in episode['subtitles']:
+                            episode['subtitles']['sinhala'] = []
+    
     prepared_data = {
         'type': data.get('type'),
         'title': clean_value(data.get('title', '')),
@@ -329,26 +420,26 @@ def prepare_media_data(data):
         'release_date': clean_value(data.get('release_date')),
         'language': clean_value(data.get('language')),
         'rating': rating,
-        'status': status,
+        'status': status,  # TV series status
         'cast_members': safe_json_loads(data.get('cast_members'), []),
         'video_links': video_links,
         'download_links': download_links,
-        'telegram_links': telegram_links,
+        'telegram_links': telegram_links,  # Telegram download links
         'torrent_links': torrent_links,
         'total_seasons': total_seasons,
-        'seasons': safe_json_loads(data.get('seasons')),
+        'seasons': seasons_data,  # Now with subtitle support
         'genres': genres,
         'file_type': file_type,
-        'source_type': source_type,
-        'youtube_trailer': youtube_trailer,
-        'screenshots_720p': screenshots_720p,
-        'screenshots_1080p': screenshots_1080p,
-        'screenshots_2160p': screenshots_2160p,
-        'screenshots_trailer': screenshots_trailer,
-        'sub_sinhala': sub_sinhala, # NEW FIELD
-        'sub_english': sub_english  # NEW FIELD
+        'source_type': source_type,  # Source type (camcopy/original)
+        'youtube_trailer': youtube_trailer,  # YouTube trailer URL
+        'screenshots_720p': screenshots_720p,  # 720p screenshots
+        'screenshots_1080p': screenshots_1080p,  # 1080p screenshots
+        'screenshots_2160p': screenshots_2160p,  # 2160p screenshots
+        'screenshots_trailer': screenshots_trailer,  # Trailer screenshots (optional)
+        'subtitles': subtitles  # NEW: English and Sinhala subtitles for MOVIES
     }
-    print("Prepared data:", prepared_data) # Debug log
+    
+    print("Prepared data:", prepared_data)  # Debug log
     return prepared_data
 
 # --- Main Public Routes ---
@@ -394,7 +485,8 @@ def add_episode_page():
         return "Media ID required", 400
     
     conn, error = get_db()
-    if error: return f"Database error: {error}", 500
+    if error:
+        return f"Database error: {error}", 500
     
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute("SELECT id, title FROM media WHERE id = %s AND type = 'tv';", (media_id,))
@@ -402,22 +494,26 @@ def add_episode_page():
     
     if not media:
         return "TV series not found", 404
-        
+    
     return render_template("add_episode.html", media=dict(media))
 
 # --- Public API Endpoints ---
 @app.route("/api/media", methods=["GET"])
 def get_all_media():
     conn, error = get_db()
-    if error: return jsonify({"message": "Database connection error", "error": error}), 500
+    if error:
+        return jsonify({"message": "Database connection error", "error": error}), 500
+    
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT * FROM media ORDER BY id DESC;")
         media = cur.fetchall()
         
+        # Parse JSON fields for proper frontend consumption
         media_list = []
         for row in media:
             media_dict = dict(row)
+            
             # Format date properly
             media_dict['release_date'] = format_date_for_input(media_dict.get('release_date'))
             
@@ -425,18 +521,30 @@ def get_all_media():
             media_dict['cast_members'] = safe_json_loads(media_dict.get('cast_members'), [])
             media_dict['video_links'] = safe_json_loads(media_dict.get('video_links'), {})
             media_dict['download_links'] = safe_json_loads(media_dict.get('download_links'), {})
-            media_dict['telegram_links'] = safe_json_loads(media_dict.get('telegram_links'), {})
+            media_dict['telegram_links'] = safe_json_loads(media_dict.get('telegram_links'), {})  # Telegram links
             media_dict['torrent_links'] = safe_json_loads(media_dict.get('torrent_links'), {})
             media_dict['seasons'] = safe_json_loads(media_dict.get('seasons'))
             media_dict['genres'] = safe_json_loads(media_dict.get('genres'), [])
+            
+            # Parse screenshot and trailer fields
             media_dict['screenshots_720p'] = safe_json_loads(media_dict.get('screenshots_720p'), [])
             media_dict['screenshots_1080p'] = safe_json_loads(media_dict.get('screenshots_1080p'), [])
             media_dict['screenshots_2160p'] = safe_json_loads(media_dict.get('screenshots_2160p'), [])
             media_dict['screenshots_trailer'] = safe_json_loads(media_dict.get('screenshots_trailer'), [])
             
-            # Note: sub_sinhala and sub_english are standard columns, so they are already in media_dict
+            # NEW: Parse subtitles field
+            media_dict['subtitles'] = safe_json_loads(media_dict.get('subtitles'), {'english': [], 'sinhala': []})
+            
+            # Ensure episodes in seasons have subtitle structure
+            if media_dict['seasons'] and isinstance(media_dict['seasons'], dict):
+                for season_key, season_info in media_dict['seasons'].items():
+                    if 'episodes' in season_info and isinstance(season_info['episodes'], list):
+                        for episode in season_info['episodes']:
+                            if 'subtitles' not in episode:
+                                episode['subtitles'] = {'english': [], 'sinhala': []}
             
             media_list.append(media_dict)
+        
         return jsonify(media_list)
     except psycopg2.Error as e:
         return jsonify({"message": "Database error", "error": str(e)}), 500
@@ -444,7 +552,9 @@ def get_all_media():
 @app.route("/api/media/<int:media_id>", methods=["GET"])
 def get_single_media(media_id):
     conn, error = get_db()
-    if error: return jsonify({"message": "Database connection error", "error": error}), 500
+    if error:
+        return jsonify({"message": "Database connection error", "error": error}), 500
+    
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT * FROM media WHERE id = %s;", (media_id,))
@@ -452,22 +562,40 @@ def get_single_media(media_id):
         
         if media:
             media_dict = dict(media)
+            
+            # Format date properly for HTML date input
             media_dict['release_date'] = format_date_for_input(media_dict.get('release_date'))
             
+            # Parse JSON fields for frontend
             media_dict['cast_members'] = safe_json_loads(media_dict.get('cast_members'), [])
             media_dict['video_links'] = safe_json_loads(media_dict.get('video_links'), {})
             media_dict['download_links'] = safe_json_loads(media_dict.get('download_links'), {})
-            media_dict['telegram_links'] = safe_json_loads(media_dict.get('telegram_links'), {})
+            media_dict['telegram_links'] = safe_json_loads(media_dict.get('telegram_links'), {})  # Telegram links
             media_dict['torrent_links'] = safe_json_loads(media_dict.get('torrent_links'), {})
             media_dict['seasons'] = safe_json_loads(media_dict.get('seasons'))
             media_dict['genres'] = safe_json_loads(media_dict.get('genres'), [])
+            
+            # Parse screenshot and trailer fields
             media_dict['screenshots_720p'] = safe_json_loads(media_dict.get('screenshots_720p'), [])
             media_dict['screenshots_1080p'] = safe_json_loads(media_dict.get('screenshots_1080p'), [])
             media_dict['screenshots_2160p'] = safe_json_loads(media_dict.get('screenshots_2160p'), [])
             media_dict['screenshots_trailer'] = safe_json_loads(media_dict.get('screenshots_trailer'), [])
             
-            print(f"Sending media data for ID {media_id}:", media_dict) # Debug log
+            # NEW: Parse subtitles field
+            media_dict['subtitles'] = safe_json_loads(media_dict.get('subtitles'), {'english': [], 'sinhala': []})
+            
+            # Ensure episodes in seasons have subtitle structure
+            if media_dict['seasons'] and isinstance(media_dict['seasons'], dict):
+                for season_key, season_info in media_dict['seasons'].items():
+                    if 'episodes' in season_info and isinstance(season_info['episodes'], list):
+                        for episode in season_info['episodes']:
+                            if 'subtitles' not in episode:
+                                episode['subtitles'] = {'english': [], 'sinhala': []}
+            
+            print(f"Sending media data for ID {media_id}:", media_dict)  # Debug log
+            
             return jsonify(media_dict)
+        
         return jsonify({"message": "Media not found"}), 404
     except psycopg2.Error as e:
         return jsonify({"message": "Database error", "error": str(e)}), 500
@@ -498,97 +626,138 @@ def tmdb_fetch_api():
     tmdb_data = fetch_tmdb_data(tmdb_id, media_type)
     if tmdb_data:
         return jsonify(tmdb_data), 200
+    
     return jsonify({"message": "Failed to fetch data from TMDB"}), 404
 
 @app.route("/api/admin/media", methods=["POST"])
 @requires_auth
 def add_media():
     data = request.json
-    print("Received data for new media:", data) # Debug log
+    print("Received data for new media:", data)  # Debug log
+    
     if not data or not data.get('title'):
         return jsonify({"message": "Title is required"}), 400
-
+    
     conn, error = get_db()
-    if error: return jsonify({"message": "Database connection error", "error": error}), 500
-
+    if error:
+        return jsonify({"message": "Database connection error", "error": error}), 500
+    
     try:
         media_data = prepare_media_data(data)
-        cur = conn.cursor()
         
-        # ADDED sub_sinhala and sub_english to INSERT query
+        cur = conn.cursor()
         cur.execute("""
             INSERT INTO media (
                 type, title, description, thumbnail, backdrop, release_date, language, rating, status,
-                cast_members, video_links, download_links, telegram_links, torrent_links, 
+                cast_members, video_links, download_links, telegram_links, torrent_links,
                 total_seasons, seasons, genres, file_type, source_type, youtube_trailer,
                 screenshots_720p, screenshots_1080p, screenshots_2160p, screenshots_trailer,
-                sub_sinhala, sub_english
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                subtitles
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id;
         """, (
-            media_data['type'], media_data['title'], media_data['description'], media_data['thumbnail'], media_data['backdrop'], media_data['release_date'], media_data['language'], media_data['rating'], media_data['status'],
-            json.dumps(media_data['cast_members']), json.dumps(media_data['video_links']), json.dumps(media_data['download_links']), json.dumps(media_data['telegram_links']),
-            json.dumps(media_data['torrent_links']), media_data['total_seasons'], json.dumps(media_data['seasons']), json.dumps(media_data['genres']), media_data['file_type'], media_data['source_type'],
-            media_data['youtube_trailer'], json.dumps(media_data['screenshots_720p']), json.dumps(media_data['screenshots_1080p']), json.dumps(media_data['screenshots_2160p']), json.dumps(media_data['screenshots_trailer']),
-            media_data['sub_sinhala'], media_data['sub_english']
+            media_data['type'], 
+            media_data['title'], 
+            media_data['description'], 
+            media_data['thumbnail'],
+            media_data['backdrop'],
+            media_data['release_date'], 
+            media_data['language'], 
+            media_data['rating'],
+            media_data['status'],  # TV series status
+            json.dumps(media_data['cast_members']), 
+            json.dumps(media_data['video_links']), 
+            json.dumps(media_data['download_links']),
+            json.dumps(media_data['telegram_links']),  # Telegram links
+            json.dumps(media_data['torrent_links']),
+            media_data['total_seasons'], 
+            json.dumps(media_data['seasons']), 
+            json.dumps(media_data['genres']),
+            media_data['file_type'],
+            media_data['source_type'],  # Source type
+            media_data['youtube_trailer'],  # YouTube trailer
+            json.dumps(media_data['screenshots_720p']),  # 720p screenshots
+            json.dumps(media_data['screenshots_1080p']),  # 1080p screenshots
+            json.dumps(media_data['screenshots_2160p']),  # 2160p screenshots
+            json.dumps(media_data['screenshots_trailer']),  # Trailer screenshots
+            json.dumps(media_data['subtitles'])  # NEW: Subtitles
         ))
         
         media_id = cur.fetchone()[0]
         conn.commit()
         return jsonify({"message": "Media added successfully", "id": media_id}), 201
-
+        
     except (psycopg2.DatabaseError, json.JSONDecodeError, ValueError) as e:
         conn.rollback()
-        print("Error adding media:", str(e))
+        print("Error adding media:", str(e))  # Debug log
         return jsonify({"message": "Error adding media", "error": str(e)}), 400
 
 @app.route("/api/admin/media/<int:media_id>", methods=["PUT"])
 @requires_auth
 def update_media(media_id):
     data = request.json
-    print(f"Received update data for media {media_id}:", data) # Debug log
+    print(f"Received update data for media {media_id}:", data)  # Debug log
+    
     if not data or not data.get('title'):
         return jsonify({"message": "Title is required"}), 400
-
+    
     conn, error = get_db()
-    if error: return jsonify({"message": "Database connection error", "error": error}), 500
-
+    if error:
+        return jsonify({"message": "Database connection error", "error": error}), 500
+    
     try:
         media_data = prepare_media_data(data)
-        cur = conn.cursor()
         
-        # ADDED sub_sinhala and sub_english to UPDATE query
+        cur = conn.cursor()
         cur.execute("""
-            UPDATE media SET 
-                type = %s, title = %s, description = %s, thumbnail = %s, backdrop = %s, 
-                release_date = %s, language = %s, rating = %s, status = %s, cast_members = %s, 
-                video_links = %s, download_links = %s, telegram_links = %s, torrent_links = %s, 
-                total_seasons = %s, seasons = %s, genres = %s, file_type = %s, source_type = %s, 
-                youtube_trailer = %s, screenshots_720p = %s, screenshots_1080p = %s, 
-                screenshots_2160p = %s, screenshots_trailer = %s,
-                sub_sinhala = %s, sub_english = %s
+            UPDATE media SET
+                type = %s, title = %s, description = %s, thumbnail = %s, backdrop = %s, release_date = %s,
+                language = %s, rating = %s, status = %s, cast_members = %s, video_links = %s, 
+                download_links = %s, telegram_links = %s, torrent_links = %s, total_seasons = %s, seasons = %s, 
+                genres = %s, file_type = %s, source_type = %s, youtube_trailer = %s,
+                screenshots_720p = %s, screenshots_1080p = %s, screenshots_2160p = %s, screenshots_trailer = %s,
+                subtitles = %s
             WHERE id = %s;
         """, (
-            media_data['type'], media_data['title'], media_data['description'], media_data['thumbnail'], media_data['backdrop'], 
-            media_data['release_date'], media_data['language'], media_data['rating'], media_data['status'], json.dumps(media_data['cast_members']), 
-            json.dumps(media_data['video_links']), json.dumps(media_data['download_links']), json.dumps(media_data['telegram_links']), json.dumps(media_data['torrent_links']), 
-            media_data['total_seasons'], json.dumps(media_data['seasons']), json.dumps(media_data['genres']), media_data['file_type'], media_data['source_type'], 
-            media_data['youtube_trailer'], json.dumps(media_data['screenshots_720p']), json.dumps(media_data['screenshots_1080p']), 
-            json.dumps(media_data['screenshots_2160p']), json.dumps(media_data['screenshots_trailer']),
-            media_data['sub_sinhala'], media_data['sub_english'],
+            media_data['type'], 
+            media_data['title'], 
+            media_data['description'], 
+            media_data['thumbnail'],
+            media_data['backdrop'],
+            media_data['release_date'], 
+            media_data['language'], 
+            media_data['rating'],
+            media_data['status'],  # TV series status
+            json.dumps(media_data['cast_members']), 
+            json.dumps(media_data['video_links']), 
+            json.dumps(media_data['download_links']),
+            json.dumps(media_data['telegram_links']),  # Telegram links
+            json.dumps(media_data['torrent_links']),
+            media_data['total_seasons'], 
+            json.dumps(media_data['seasons']), 
+            json.dumps(media_data['genres']),
+            media_data['file_type'],
+            media_data['source_type'],  # Source type
+            media_data['youtube_trailer'],  # YouTube trailer
+            json.dumps(media_data['screenshots_720p']),  # 720p screenshots
+            json.dumps(media_data['screenshots_1080p']),  # 1080p screenshots
+            json.dumps(media_data['screenshots_2160p']),  # 2160p screenshots
+            json.dumps(media_data['screenshots_trailer']),  # Trailer screenshots
+            json.dumps(media_data['subtitles']),  # NEW: Subtitles
             media_id
         ))
         
         conn.commit()
         if cur.rowcount == 0:
             return jsonify({"message": "Media not found"}), 404
-            
-        print(f"Media {media_id} updated successfully")
+        
+        print(f"Media {media_id} updated successfully")  # Debug log
         return jsonify({"message": "Media updated successfully"}), 200
-
+        
     except (psycopg2.DatabaseError, json.JSONDecodeError, ValueError) as e:
         conn.rollback()
-        print("Error updating media:", str(e))
+        print("Error updating media:", str(e))  # Debug log
         return jsonify({"message": "Error updating media", "error": str(e)}), 400
 
 @app.route("/api/admin/media/<int:media_id>/episode", methods=["POST"])
@@ -597,10 +766,11 @@ def add_episode(media_id):
     data = request.json
     if not data:
         return jsonify({"message": "Episode data is required"}), 400
-
+    
     conn, error = get_db()
-    if error: return jsonify({"message": "Database connection error", "error": error}), 500
-
+    if error:
+        return jsonify({"message": "Database connection error", "error": error}), 500
+    
     try:
         # Get current media data
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -609,11 +779,17 @@ def add_episode(media_id):
         
         if not media:
             return jsonify({"message": "TV series not found"}), 404
-            
+        
         current_seasons = safe_json_loads(media['seasons'], {})
         file_type = media['file_type'] or 'webrip'
-
-        # Prepare episode data - ADDED subtitles here
+        
+        # Parse subtitles for the episode
+        episode_subtitles = {
+            'english': parse_subtitle_input(data.get('english_subtitles', '')),
+            'sinhala': parse_subtitle_input(data.get('sinhala_subtitles', ''))
+        }
+        
+        # Prepare episode data with subtitle support
         season_number = data.get('season_number')
         episode_data = {
             'episode_number': data.get('episode_number'),
@@ -624,16 +800,15 @@ def add_episode(media_id):
             'download_720p': data.get('download_links', {}).get('download_720p'),
             'download_1080p': data.get('download_links', {}).get('download_1080p'),
             'download_2160p': data.get('download_links', {}).get('download_2160p'),
-            'telegram_720p': data.get('telegram_links', {}).get('telegram_720p'),
-            'telegram_1080p': data.get('telegram_links', {}).get('telegram_1080p'),
-            'telegram_2160p': data.get('telegram_links', {}).get('telegram_2160p'),
+            'telegram_720p': data.get('telegram_links', {}).get('telegram_720p'),  # Telegram links
+            'telegram_1080p': data.get('telegram_links', {}).get('telegram_1080p'),  # Telegram links
+            'telegram_2160p': data.get('telegram_links', {}).get('telegram_2160p'),  # Telegram links
             'torrent_720p': data.get('torrent_links', {}).get('torrent_720p'),
             'torrent_1080p': data.get('torrent_links', {}).get('torrent_1080p'),
             'torrent_2160p': data.get('torrent_links', {}).get('torrent_2160p'),
-            'sub_sinhala': data.get('sub_sinhala', ''), # Added subtitle field for episodes
-            'sub_english': data.get('sub_english', '')  # Added subtitle field for episodes
+            'subtitles': episode_subtitles  # Episode subtitles
         }
-
+        
         # Add episode to season
         season_key = f'season_{season_number}'
         if season_key not in current_seasons:
@@ -646,15 +821,16 @@ def add_episode(media_id):
         # Add episode
         current_seasons[season_key]['episodes'].append(episode_data)
         current_seasons[season_key]['total_episodes'] = len(current_seasons[season_key]['episodes'])
-
+        
         # Update database
         cur.execute("""
-            UPDATE media SET seasons = %s WHERE id = %s;
+            UPDATE media SET seasons = %s 
+            WHERE id = %s;
         """, (json.dumps(current_seasons), media_id))
         
         conn.commit()
         return jsonify({"message": "Episode added successfully"}), 200
-
+        
     except (psycopg2.DatabaseError, json.JSONDecodeError, ValueError) as e:
         conn.rollback()
         return jsonify({"message": "Error adding episode", "error": str(e)}), 400
@@ -663,17 +839,159 @@ def add_episode(media_id):
 @requires_auth
 def delete_media(media_id):
     conn, error = get_db()
-    if error: return jsonify({"message": "Database connection error", "error": error}), 500
+    if error:
+        return jsonify({"message": "Database connection error", "error": error}), 500
+    
     try:
         cur = conn.cursor()
         cur.execute("DELETE FROM media WHERE id = %s;", (media_id,))
         conn.commit()
+        
         if cur.rowcount == 0:
             return jsonify({"message": "Media not found"}), 404
+        
         return jsonify({"message": "Media deleted successfully"}), 200
+        
     except psycopg2.DatabaseError as e:
         conn.rollback()
         return jsonify({"message": "Error deleting media", "error": str(e)}), 400
+
+# --- NEW: Subtitle Management Endpoints ---
+@app.route("/api/admin/media/<int:media_id>/subtitles", methods=["PUT"])
+@requires_auth
+def update_media_subtitles(media_id):
+    """Update subtitles for a movie or TV series"""
+    data = request.json
+    if not data:
+        return jsonify({"message": "Subtitle data is required"}), 400
+    
+    conn, error = get_db()
+    if error:
+        return jsonify({"message": "Database connection error", "error": error}), 500
+    
+    try:
+        # Get current media data
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("SELECT type, subtitles, seasons FROM media WHERE id = %s;", (media_id,))
+        media = cur.fetchone()
+        
+        if not media:
+            return jsonify({"message": "Media not found"}), 404
+        
+        media_type = media['type']
+        current_subtitles = safe_json_loads(media['subtitles'], {'english': [], 'sinhala': []})
+        current_seasons = safe_json_loads(media['seasons'], {})
+        
+        if media_type == 'movie':
+            # Update movie subtitles
+            new_subtitles = {
+                'english': parse_subtitle_input(data.get('english', [])),
+                'sinhala': parse_subtitle_input(data.get('sinhala', []))
+            }
+            
+            cur.execute("""
+                UPDATE media SET subtitles = %s 
+                WHERE id = %s;
+            """, (json.dumps(new_subtitles), media_id))
+            
+        elif media_type == 'tv':
+            # For TV series, update subtitles in seasons/episodes
+            season_number = data.get('season_number')
+            episode_number = data.get('episode_number')
+            
+            if season_number is not None and episode_number is not None:
+                # Update specific episode subtitles
+                season_key = f'season_{season_number}'
+                if season_key in current_seasons and 'episodes' in current_seasons[season_key]:
+                    episodes = current_seasons[season_key]['episodes']
+                    for episode in episodes:
+                        if episode.get('episode_number') == episode_number:
+                            episode['subtitles'] = {
+                                'english': parse_subtitle_input(data.get('english', [])),
+                                'sinhala': parse_subtitle_input(data.get('sinhala', []))
+                            }
+                            break
+                
+                cur.execute("""
+                    UPDATE media SET seasons = %s 
+                    WHERE id = %s;
+                """, (json.dumps(current_seasons), media_id))
+            else:
+                # Update TV series level subtitles (for the whole series)
+                new_subtitles = {
+                    'english': parse_subtitle_input(data.get('english', [])),
+                    'sinhala': parse_subtitle_input(data.get('sinhala', []))
+                }
+                
+                cur.execute("""
+                    UPDATE media SET subtitles = %s 
+                    WHERE id = %s;
+                """, (json.dumps(new_subtitles), media_id))
+        
+        conn.commit()
+        return jsonify({"message": "Subtitles updated successfully"}), 200
+        
+    except (psycopg2.DatabaseError, json.JSONDecodeError, ValueError) as e:
+        conn.rollback()
+        return jsonify({"message": "Error updating subtitles", "error": str(e)}), 400
+
+@app.route("/api/admin/media/<int:media_id>/episode/<int:episode_number>/subtitles", methods=["PUT"])
+@requires_auth
+def update_episode_subtitles(media_id, episode_number):
+    """Update subtitles for a specific TV episode"""
+    data = request.json
+    season_number = request.args.get('season_number', type=int)
+    
+    if not data or season_number is None:
+        return jsonify({"message": "Season number and subtitle data are required"}), 400
+    
+    conn, error = get_db()
+    if error:
+        return jsonify({"message": "Database connection error", "error": error}), 500
+    
+    try:
+        # Get current media data
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("SELECT seasons FROM media WHERE id = %s AND type = 'tv';", (media_id,))
+        media = cur.fetchone()
+        
+        if not media:
+            return jsonify({"message": "TV series not found"}), 404
+        
+        current_seasons = safe_json_loads(media['seasons'], {})
+        season_key = f'season_{season_number}'
+        
+        if season_key not in current_seasons or 'episodes' not in current_seasons[season_key]:
+            return jsonify({"message": "Season or episode not found"}), 404
+        
+        # Find and update the episode
+        episodes = current_seasons[season_key]['episodes']
+        episode_found = False
+        
+        for episode in episodes:
+            if episode.get('episode_number') == episode_number:
+                episode['subtitles'] = {
+                    'english': parse_subtitle_input(data.get('english', [])),
+                    'sinhala': parse_subtitle_input(data.get('sinhala', []))
+                }
+                episode_found = True
+                break
+        
+        if not episode_found:
+            return jsonify({"message": "Episode not found"}), 404
+        
+        # Update database
+        cur.execute("""
+            UPDATE media SET seasons = %s 
+            WHERE id = %s;
+        """, (json.dumps(current_seasons), media_id))
+        
+        conn.commit()
+        return jsonify({"message": "Episode subtitles updated successfully"}), 200
+        
+    except (psycopg2.DatabaseError, json.JSONDecodeError, ValueError) as e:
+        conn.rollback()
+        return jsonify({"message": "Error updating episode subtitles", "error": str(e)}), 400
 
 # Error handlers
 @app.errorhandler(404)
