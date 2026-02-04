@@ -248,7 +248,7 @@ def prepare_media_data(data):
     
     # Process source_type
     source_type = data.get('source_type', 'original')
-    valid_source_types = ['original', 'camcopy', 'bluray', 'webrip', 'webdl', 'hdtv', 'dvdrip', 'brrip']
+    valid_source_types = ['original', 'camcopy', 'bluray', 'webrip', 'web-dl', 'hdtv', 'dvdrip', 'brrip']
     if source_type not in valid_source_types:
         source_type = 'original'
     
