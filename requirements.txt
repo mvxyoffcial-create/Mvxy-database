@@ -4,3 +4,4 @@ gunicorn
 psycopg2-binary
 requests
 Werkzeug
+flask-compress
