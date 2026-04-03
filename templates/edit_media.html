@@ -835,6 +835,19 @@
                 const tvTelegram720 = media.telegram_links ? (media.telegram_links['telegram_720p'] || '') : '';
                 const tvTelegram1080 = media.telegram_links ? (media.telegram_links['telegram_1080p'] || '') : '';
                 const tvTelegram2160 = media.telegram_links ? (media.telegram_links['telegram_2160p'] || '') : '';
+
+                // Get TV series Download links (handle nested {url, file_type} objects)
+                const _tvDl720 = media.download_links ? media.download_links['download_720p'] : null;
+                const _tvDl1080 = media.download_links ? media.download_links['download_1080p'] : null;
+                const _tvDl2160 = media.download_links ? media.download_links['download_2160p'] : null;
+                const tvDownload720 = (_tvDl720 && typeof _tvDl720 === 'object') ? (_tvDl720.url || '') : (_tvDl720 || '');
+                const tvDownload1080 = (_tvDl1080 && typeof _tvDl1080 === 'object') ? (_tvDl1080.url || '') : (_tvDl1080 || '');
+                const tvDownload2160 = (_tvDl2160 && typeof _tvDl2160 === 'object') ? (_tvDl2160.url || '') : (_tvDl2160 || '');
+
+                // Get TV series Torrent links
+                const tvTorrent720 = media.torrent_links ? (media.torrent_links['torrent_720p'] || '') : '';
+                const tvTorrent1080 = media.torrent_links ? (media.torrent_links['torrent_1080p'] || '') : '';
+                const tvTorrent2160 = media.torrent_links ? (media.torrent_links['torrent_2160p'] || '') : '';
                 
                 dynamicFieldsContainer.innerHTML = `
                     <div class="form-section">
@@ -877,30 +890,30 @@
                         <h2>⬇️ TV Series Download Links</h2>
                         <div class="form-group">
                             <label for="tv_download_720p">720p Download URL:</label>
-                            <input type="text" id="tv_download_720p" name="tv_download_720p" placeholder="https://example.com/download_720p.mp4">
+                            <input type="text" id="tv_download_720p" name="tv_download_720p" placeholder="https://example.com/download_720p.mp4" value="${tvDownload720}">
                         </div>
                         <div class="form-group">
                             <label for="tv_download_1080p">1080p Download URL:</label>
-                            <input type="text" id="tv_download_1080p" name="tv_download_1080p" placeholder="https://example.com/download_1080p.mp4">
+                            <input type="text" id="tv_download_1080p" name="tv_download_1080p" placeholder="https://example.com/download_1080p.mp4" value="${tvDownload1080}">
                         </div>
                         <div class="form-group">
                             <label for="tv_download_2160p">2160p Download URL:</label>
-                            <input type="text" id="tv_download_2160p" name="tv_download_2160p" placeholder="https://example.com/download_2160p.mp4">
+                            <input type="text" id="tv_download_2160p" name="tv_download_2160p" placeholder="https://example.com/download_2160p.mp4" value="${tvDownload2160}">
                         </div>
                         
                         <!-- TV Series Torrent Links -->
                         <h2>🧲 TV Series Torrent Links</h2>
                         <div class="form-group">
                             <label for="tv_torrent_720p">720p Torrent URL:</label>
-                            <input type="text" id="tv_torrent_720p" name="tv_torrent_720p" placeholder="magnet:?xt=urn:btih:...">
+                            <input type="text" id="tv_torrent_720p" name="tv_torrent_720p" placeholder="magnet:?xt=urn:btih:..." value="${tvTorrent720}">
                         </div>
                         <div class="form-group">
                             <label for="tv_torrent_1080p">1080p Torrent URL:</label>
-                            <input type="text" id="tv_torrent_1080p" name="tv_torrent_1080p" placeholder="magnet:?xt=urn:btih:...">
+                            <input type="text" id="tv_torrent_1080p" name="tv_torrent_1080p" placeholder="magnet:?xt=urn:btih:..." value="${tvTorrent1080}">
                         </div>
                         <div class="form-group">
                             <label for="tv_torrent_2160p">2160p Torrent URL:</label>
-                            <input type="text" id="tv_torrent_2160p" name="tv_torrent_2160p" placeholder="magnet:?xt=urn:btih:...">
+                            <input type="text" id="tv_torrent_2160p" name="tv_torrent_2160p" placeholder="magnet:?xt=urn:btih:..." value="${tvTorrent2160}">
                         </div>
                         
                         <div id="seasons-container"></div>
