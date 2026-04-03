@@ -14,9 +14,18 @@
         .btn-secondary { background: #555; color: #fff; border: none; padding: 10px 15px; cursor: pointer; border-radius: 6px; }
         .season-container { border: 1px dashed #777; padding: 15px; border-radius: 8px; margin-top: 20px; background: #323842; }
         .episode-container { margin-top: 10px; padding-left: 20px; border-left: 2px solid #6a11cb; }
-        .episode-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; background: #3b404a; padding: 10px; border-radius: 6px; }
-        .episode-row input { flex: 1; min-width: 140px; font-size: 13px; }
-        .remove-btn { background: #ff4d4d; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+
+        /* Episode card layout */
+        .episode-row { margin-bottom: 14px; background: #3b404a; padding: 12px 14px; border-radius: 8px; border: 1px solid #4a505b; }
+        .episode-row .ep-name-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+        .episode-row .ep-name-row input { flex: 1; font-size: 13px; }
+        .episode-row .ep-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 6px; }
+        .episode-row .ep-grid input { font-size: 12px; padding: 7px 9px; }
+        .ep-section-label { font-size: 11px; font-weight: bold; color: #8a8a8a; text-transform: uppercase; letter-spacing: 0.5px; margin: 6px 0 3px; }
+        .ep-subtitle-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+        .ep-subtitle-row input { font-size: 12px; padding: 7px 9px; }
+
+        .remove-btn { background: #ff4d4d; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; white-space: nowrap; }
         h2 { color: #6a11cb; border-bottom: 2px solid #6a11cb; padding-bottom: 5px; margin-top: 30px; }
         h3 { color: #8a2be2; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
         .screenshot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -24,6 +33,13 @@
         .inline-group { display: flex; gap: 15px; }
         .inline-group .form-group { flex: 1; }
         .section-box { background: #323842; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+
+        /* colour-coded input placeholders for episode grid */
+        .ep-video input::placeholder    { color: #7db3ff; }
+        .ep-download input::placeholder { color: #7dff9e; }
+        .ep-telegram input::placeholder { color: #36bffa; }
+        .ep-torrent input::placeholder  { color: #f5a623; }
+        .ep-sub input::placeholder      { color: #d47aff; }
     </style>
 </head>
 <body>
@@ -134,7 +150,7 @@
                 </div>
             </div>
 
-            <h2>📝 Subtitles</h2>
+            <h2>📝 Series-Level Subtitles</h2>
             <div class="section-box">
                 <div class="form-group">
                     <label for="sub_sinhala">Sinhala Subtitle URL:</label>
@@ -240,13 +256,50 @@
             const div = document.createElement('div');
             div.classList.add('episode-row');
             div.innerHTML = `
-                <input type="text" name="s${sNum}_e${epNum}_name" placeholder="Episode Name" required style="flex-basis:100%">
-                <input type="text" placeholder="720p Video">
-                <input type="text" placeholder="1080p Video">
-                <input type="text" placeholder="720p Download">
-                <input type="text" placeholder="1080p Download">
-                <input type="text" placeholder="720p Telegram">
-                <button type="button" class="remove-btn" onclick="this.closest('.episode-row').remove()">X</button>
+                <!-- Episode name row -->
+                <div class="ep-name-row">
+                    <input type="text" name="s${sNum}_e${epNum}_name" placeholder="Episode ${epNum} Name" required style="flex:1;">
+                    <button type="button" class="remove-btn" onclick="this.closest('.episode-row').remove()">✕</button>
+                </div>
+
+                <!-- Video streams -->
+                <div class="ep-section-label">🎬 Video (Stream)</div>
+                <div class="ep-grid ep-video">
+                    <input type="text" placeholder="720p Video URL">
+                    <input type="text" placeholder="1080p Video URL">
+                    <input type="text" placeholder="2160p Video URL">
+                </div>
+
+                <!-- Download links -->
+                <div class="ep-section-label">⬇️ Download</div>
+                <div class="ep-grid ep-download">
+                    <input type="text" placeholder="720p Download">
+                    <input type="text" placeholder="1080p Download">
+                    <input type="text" placeholder="2160p Download">
+                </div>
+
+                <!-- Telegram links -->
+                <div class="ep-section-label">✈️ Telegram</div>
+                <div class="ep-grid ep-telegram">
+                    <input type="text" placeholder="720p Telegram">
+                    <input type="text" placeholder="1080p Telegram">
+                    <input type="text" placeholder="2160p Telegram">
+                </div>
+
+                <!-- Torrent links -->
+                <div class="ep-section-label">🧲 Torrent</div>
+                <div class="ep-grid ep-torrent">
+                    <input type="text" placeholder="720p Torrent">
+                    <input type="text" placeholder="1080p Torrent">
+                    <input type="text" placeholder="2160p Torrent">
+                </div>
+
+                <!-- Subtitles -->
+                <div class="ep-section-label">💬 Subtitles</div>
+                <div class="ep-subtitle-row ep-sub">
+                    <input type="text" placeholder="English Subtitle URL (.srt / .vtt)">
+                    <input type="text" placeholder="Sinhala Subtitle URL (.srt / .vtt)">
+                </div>
             `;
             container.appendChild(div);
         }
@@ -285,18 +338,56 @@
             document.querySelectorAll('.season-container').forEach((sDiv, sIdx) => {
                 const sNum = sIdx + 1;
                 const episodes = [];
+
                 sDiv.querySelectorAll('.episode-row').forEach((row, eIdx) => {
-                    const inputs = row.querySelectorAll('input');
+                    // Name (inside .ep-name-row)
+                    const nameInput = row.querySelector('.ep-name-row input');
+
+                    // Video inputs (3)
+                    const videoInputs = row.querySelectorAll('.ep-video input');
+                    // Download inputs (3)
+                    const dlInputs = row.querySelectorAll('.ep-download input');
+                    // Telegram inputs (3)
+                    const tgInputs = row.querySelectorAll('.ep-telegram input');
+                    // Torrent inputs (3)
+                    const torrentInputs = row.querySelectorAll('.ep-torrent input');
+                    // Subtitle inputs (2: english, sinhala)
+                    const subInputs = row.querySelectorAll('.ep-sub input');
+
+                    const v = (inp, i) => inp[i] ? inp[i].value.trim() : '';
+
                     episodes.push({
                         episode_number: eIdx + 1,
-                        episode_name: inputs[0].value,
-                        video_720p: inputs[1].value || null,
-                        video_1080p: inputs[2].value || null,
-                        download_720p: inputs[3].value ? { url: inputs[3].value, file_type: fileType } : null,
-                        download_1080p: inputs[4].value ? { url: inputs[4].value, file_type: fileType } : null,
-                        telegram_720p: inputs[5].value || null
+                        episode_name: nameInput ? nameInput.value.trim() : '',
+
+                        // Stream
+                        video_720p:  v(videoInputs, 0) || null,
+                        video_1080p: v(videoInputs, 1) || null,
+                        video_2160p: v(videoInputs, 2) || null,
+
+                        // Download
+                        download_720p:  v(dlInputs, 0) ? { url: v(dlInputs, 0),  file_type: fileType } : null,
+                        download_1080p: v(dlInputs, 1) ? { url: v(dlInputs, 1), file_type: fileType } : null,
+                        download_2160p: v(dlInputs, 2) ? { url: v(dlInputs, 2), file_type: fileType } : null,
+
+                        // Telegram
+                        telegram_720p:  v(tgInputs, 0) || null,
+                        telegram_1080p: v(tgInputs, 1) || null,
+                        telegram_2160p: v(tgInputs, 2) || null,
+
+                        // Torrent
+                        torrent_720p:  v(torrentInputs, 0) || null,
+                        torrent_1080p: v(torrentInputs, 1) || null,
+                        torrent_2160p: v(torrentInputs, 2) || null,
+
+                        // Per-episode subtitles
+                        subtitles: {
+                            english: v(subInputs, 0) ? [v(subInputs, 0)] : [],
+                            sinhala: v(subInputs, 1) ? [v(subInputs, 1)] : []
+                        }
                     });
                 });
+
                 seasons[`season_${sNum}`] = { season_number: sNum, episodes };
             });
 
@@ -313,31 +404,31 @@
                 source_type: formData.get('source_type'),
                 file_type: fileType,
                 youtube_trailer: formData.get('youtube_trailer'),
-                sub_sinhala: formData.get('sub_sinhala'), // New Field
-                sub_english: formData.get('sub_english'), // New Field
+                sub_sinhala: formData.get('sub_sinhala'),
+                sub_english: formData.get('sub_english'),
                 genres: formData.get('genres').split(',').map(g => g.trim()),
                 cast_members: JSON.parse(formData.get('cast_members') || '[]'),
-                screenshots_720p: [document.getElementById('screenshots_720p_1').value, document.getElementById('screenshots_720p_2').value].filter(i => i),
+                screenshots_720p:  [document.getElementById('screenshots_720p_1').value,  document.getElementById('screenshots_720p_2').value].filter(i => i),
                 screenshots_1080p: [document.getElementById('screenshots_1080p_1').value, document.getElementById('screenshots_1080p_2').value].filter(i => i),
                 screenshots_2160p: [document.getElementById('screenshots_2160p_1').value, document.getElementById('screenshots_2160p_2').value].filter(i => i),
                 screenshots_trailer: [document.getElementById('screenshots_trailer_1').value, document.getElementById('screenshots_trailer_2').value].filter(i => i),
                 video_links: {
-                    video_720p: document.getElementById('tv_video_720p').value,
+                    video_720p:  document.getElementById('tv_video_720p').value,
                     video_1080p: document.getElementById('tv_video_1080p').value,
                     video_2160p: document.getElementById('tv_video_2160p').value
                 },
                 telegram_links: {
-                    telegram_720p: document.getElementById('telegram_720p').value,
+                    telegram_720p:  document.getElementById('telegram_720p').value,
                     telegram_1080p: document.getElementById('telegram_1080p').value,
                     telegram_2160p: document.getElementById('telegram_2160p').value
                 },
                 torrent_links: {
-                    torrent_720p: document.getElementById('torrent_720p').value,
+                    torrent_720p:  document.getElementById('torrent_720p').value,
                     torrent_1080p: document.getElementById('torrent_1080p').value,
                     torrent_2160p: document.getElementById('torrent_2160p').value
                 },
                 download_links: {
-                    download_720p: document.getElementById('download_720p').value ? { url: document.getElementById('download_720p').value, file_type: fileType } : null,
+                    download_720p:  document.getElementById('download_720p').value  ? { url: document.getElementById('download_720p').value,  file_type: fileType } : null,
                     download_1080p: document.getElementById('download_1080p').value ? { url: document.getElementById('download_1080p').value, file_type: fileType } : null,
                     download_2160p: document.getElementById('download_2160p').value ? { url: document.getElementById('download_2160p').value, file_type: fileType } : null
                 },
