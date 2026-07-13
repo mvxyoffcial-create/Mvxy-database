@@ -1,7 +1,6 @@
 import os
 import requests
 import json
-import time
 import psycopg2
 import psycopg2.extras
 from psycopg2 import pool
@@ -27,8 +26,6 @@ Compress(app)
 app.config['JSON_SORT_KEYS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year cache for static files
-# Slightly larger gzip threshold work is skipped for tiny payloads (faster for small JSON)
-app.config['COMPRESS_MIN_SIZE'] = 500
 
 # --- Configuration ---
 DATABASE_URL = os.environ.get('DATABASE_URL') or "postgresql://<user>:<password>@<host>:<port>/<dbname>"
@@ -36,17 +33,9 @@ TMDB_API_KEY = "52f6a75a38a397d940959b336801e1c3"
 ADMIN_USERNAME = "venura"
 ADMIN_PASSWORD_HASH = generate_password_hash("venura")
 
-# How long server-side response caches stay warm before being refreshed from the DB.
-# Cache is also actively invalidated on every write, so this is just a safety-net TTL.
-CACHE_TTL_SECONDS = int(os.environ.get('CACHE_TTL_SECONDS', 30))
-
 # Database Connection Pool (significantly improves performance)
 connection_pool = None
 pool_lock = Lock()
-
-# Pool sizing is env-configurable so it can be tuned per host without code changes.
-POOL_MIN_CONN = int(os.environ.get('DB_POOL_MIN', 2))
-POOL_MAX_CONN = int(os.environ.get('DB_POOL_MAX', 20))
 
 def init_connection_pool():
     global connection_pool
@@ -55,8 +44,8 @@ def init_connection_pool():
             if connection_pool is None:
                 try:
                     connection_pool = psycopg2.pool.ThreadedConnectionPool(
-                        minconn=POOL_MIN_CONN,
-                        maxconn=POOL_MAX_CONN,
+                        minconn=2,
+                        maxconn=20,
                         dsn=DATABASE_URL,
                         sslmode='require'
                     )
@@ -467,47 +456,6 @@ def parse_media_row(row):
     
     return media_dict
 
-# --- Lightweight in-process response cache ---
-# Avoids re-hitting Postgres + re-parsing every JSON column on every single
-# request. Entries are invalidated immediately on any write, and also expire
-# after CACHE_TTL_SECONDS as a safety net (e.g. multi-instance deployments).
-_cache_lock = Lock()
-_media_list_cache = {"data": None, "ts": 0.0}
-_media_single_cache = {}  # media_id -> {"data": ..., "ts": ...}
-
-def _cache_get_all_media():
-    with _cache_lock:
-        entry = _media_list_cache
-        if entry["data"] is not None and (time.time() - entry["ts"]) < CACHE_TTL_SECONDS:
-            return entry["data"]
-    return None
-
-def _cache_set_all_media(data):
-    with _cache_lock:
-        _media_list_cache["data"] = data
-        _media_list_cache["ts"] = time.time()
-
-def _cache_get_single_media(media_id):
-    with _cache_lock:
-        entry = _media_single_cache.get(media_id)
-        if entry and (time.time() - entry["ts"]) < CACHE_TTL_SECONDS:
-            return entry["data"]
-    return None
-
-def _cache_set_single_media(media_id, data):
-    with _cache_lock:
-        _media_single_cache[media_id] = {"data": data, "ts": time.time()}
-
-def _invalidate_media_cache(media_id=None):
-    """Call after any write so stale data is never served."""
-    with _cache_lock:
-        _media_list_cache["data"] = None
-        _media_list_cache["ts"] = 0.0
-        if media_id is not None:
-            _media_single_cache.pop(media_id, None)
-        else:
-            _media_single_cache.clear()
-
 # --- Main Public Routes ---
 @app.route("/")
 def home():
@@ -554,7 +502,7 @@ def add_episode_page():
     if error:
         return f"Database error: {error}", 500
     
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute("SELECT id, title FROM media WHERE id = %s AND type = 'tv';", (media_id,))
     media = cur.fetchone()
     
@@ -566,60 +514,40 @@ def add_episode_page():
 # --- Optimized Public API Endpoints ---
 @app.route("/api/media", methods=["GET"])
 def get_all_media():
-    # Serve from the in-process cache when warm - skips the DB round trip
-    # and the per-row JSON parsing entirely for repeat requests.
-    cached = _cache_get_all_media()
-    if cached is not None:
-        response = jsonify(cached)
-        response.headers['Cache-Control'] = 'public, max-age=60'
-        response.headers['X-Cache'] = 'HIT'
-        return response
-
     conn, error = get_db()
     if error:
         return jsonify({"message": "Database connection error", "error": error}), 500
     
     try:
-        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT * FROM media ORDER BY id DESC;")
         media = cur.fetchall()
         
         # Optimized: Use list comprehension
         media_list = [parse_media_row(row) for row in media]
-        _cache_set_all_media(media_list)
         
         response = jsonify(media_list)
         response.headers['Cache-Control'] = 'public, max-age=60'  # Cache for 1 minute
-        response.headers['X-Cache'] = 'MISS'
         return response
     except psycopg2.Error as e:
         return jsonify({"message": "Database error", "error": str(e)}), 500
 
 @app.route("/api/media/<int:media_id>", methods=["GET"])
 def get_single_media(media_id):
-    cached = _cache_get_single_media(media_id)
-    if cached is not None:
-        response = jsonify(cached)
-        response.headers['Cache-Control'] = 'public, max-age=300'
-        response.headers['X-Cache'] = 'HIT'
-        return response
-
     conn, error = get_db()
     if error:
         return jsonify({"message": "Database connection error", "error": error}), 500
     
     try:
-        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT * FROM media WHERE id = %s;", (media_id,))
         media = cur.fetchone()
         
         if media:
             media_dict = parse_media_row(media)
-            _cache_set_single_media(media_id, media_dict)
             
             response = jsonify(media_dict)
             response.headers['Cache-Control'] = 'public, max-age=300'  # Cache for 5 minutes
-            response.headers['X-Cache'] = 'MISS'
             return response
         
         return jsonify({"message": "Media not found"}), 404
@@ -713,7 +641,6 @@ def add_media():
         
         media_id = cur.fetchone()[0]
         conn.commit()
-        _invalidate_media_cache()
         return jsonify({"message": "Media added successfully", "id": media_id}), 201
         
     except (psycopg2.DatabaseError, json.JSONDecodeError, ValueError) as e:
@@ -778,7 +705,6 @@ def update_media(media_id):
         if cur.rowcount == 0:
             return jsonify({"message": "Media not found"}), 404
         
-        _invalidate_media_cache(media_id)
         return jsonify({"message": "Media updated successfully"}), 200
         
     except (psycopg2.DatabaseError, json.JSONDecodeError, ValueError) as e:
@@ -797,7 +723,7 @@ def add_episode(media_id):
         return jsonify({"message": "Database connection error", "error": error}), 500
     
     try:
-        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT seasons, file_type FROM media WHERE id = %s AND type = 'tv';", (media_id,))
         media = cur.fetchone()
         
@@ -848,7 +774,6 @@ def add_episode(media_id):
         """, (json.dumps(current_seasons), media_id))
         
         conn.commit()
-        _invalidate_media_cache(media_id)
         return jsonify({"message": "Episode added successfully"}), 200
         
     except (psycopg2.DatabaseError, json.JSONDecodeError, ValueError) as e:
@@ -870,7 +795,6 @@ def delete_media(media_id):
         if cur.rowcount == 0:
             return jsonify({"message": "Media not found"}), 404
         
-        _invalidate_media_cache(media_id)
         return jsonify({"message": "Media deleted successfully"}), 200
         
     except psycopg2.DatabaseError as e:
@@ -890,7 +814,7 @@ def update_media_subtitles(media_id):
         return jsonify({"message": "Database connection error", "error": error}), 500
     
     try:
-        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT type, subtitles, seasons FROM media WHERE id = %s;", (media_id,))
         media = cur.fetchone()
         
@@ -944,7 +868,6 @@ def update_media_subtitles(media_id):
                 """, (json.dumps(new_subtitles), media_id))
         
         conn.commit()
-        _invalidate_media_cache(media_id)
         return jsonify({"message": "Subtitles updated successfully"}), 200
         
     except (psycopg2.DatabaseError, json.JSONDecodeError, ValueError) as e:
@@ -965,7 +888,7 @@ def update_episode_subtitles(media_id, episode_number):
         return jsonify({"message": "Database connection error", "error": error}), 500
     
     try:
-        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT seasons FROM media WHERE id = %s AND type = 'tv';", (media_id,))
         media = cur.fetchone()
         
@@ -999,7 +922,6 @@ def update_episode_subtitles(media_id, episode_number):
         """, (json.dumps(current_seasons), media_id))
         
         conn.commit()
-        _invalidate_media_cache(media_id)
         return jsonify({"message": "Episode subtitles updated successfully"}), 200
         
     except (psycopg2.DatabaseError, json.JSONDecodeError, ValueError) as e:
