@@ -256,12 +256,16 @@
                 </div>
             </div>
 
-            <!-- Download Links Section (UPDATED) -->
+            <!-- Download Links Section (UPDATED WITH FILE SIZE) -->
             <h2 class="section-toggle" onclick="toggleSection('download-links-section')">⬇️ Download Links</h2>
             <div id="download-links-section" class="collapsible-content">
                 
                 <!-- 720p Download Links -->
-                <h3>720p Download Links</h3>
+                <h3>720p Download Links & File Size</h3>
+                <div class="form-group">
+                    <label for="size_720p">720p File Size (e.g. 800MB / 1.2GB):</label>
+                    <input type="text" id="size_720p" name="size_720p" placeholder="800MB">
+                </div>
                 <div class="download-grid">
                     <div class="form-group">
                         <label for="download_720p">Download 720p URL (Primary):</label>
@@ -278,7 +282,11 @@
                 </div>
 
                 <!-- 1080p Download Links -->
-                <h3>1080p Download Links</h3>
+                <h3>1080p Download Links & File Size</h3>
+                <div class="form-group">
+                    <label for="size_1080p">1080p File Size (e.g. 1.8GB / 2.5GB):</label>
+                    <input type="text" id="size_1080p" name="size_1080p" placeholder="1.8GB">
+                </div>
                 <div class="download-grid">
                     <div class="form-group">
                         <label for="download_1080p">Download 1080p URL (Primary):</label>
@@ -295,7 +303,11 @@
                 </div>
 
                 <!-- 2160p Download Links -->
-                <h3>2160p Download Links</h3>
+                <h3>2160p Download Links & File Size</h3>
+                <div class="form-group">
+                    <label for="size_2160p">2160p File Size (e.g. 5.5GB / 12GB):</label>
+                    <input type="text" id="size_2160p" name="size_2160p" placeholder="5.5GB">
+                </div>
                 <div class="download-grid">
                     <div class="form-group">
                         <label for="download_2160p">Download 2160p URL (Primary):</label>
@@ -488,6 +500,9 @@
                 youtube_trailer: form.youtube_trailer.value,
                 cast_members: JSON.parse(form.cast_members.value || '[]'),
                 genres: genres,
+                size_720p: form.size_720p.value || null,
+                size_1080p: form.size_1080p.value || null,
+                size_2160p: form.size_2160p.value || null,
                 video_links: {},
                 download_links: {},
                 telegram_links: {},
@@ -522,7 +537,8 @@
                     url: dl720_1 || dl720_2 || dl720_3, 
                     url_2: dl720_2,
                     url_3: dl720_3,
-                    file_type: data.file_type 
+                    file_type: data.file_type,
+                    size: data.size_720p
                 };
             }
 
@@ -535,7 +551,8 @@
                     url: dl1080_1 || dl1080_2 || dl1080_3, 
                     url_2: dl1080_2,
                     url_3: dl1080_3,
-                    file_type: data.file_type 
+                    file_type: data.file_type,
+                    size: data.size_1080p
                 };
             }
 
@@ -548,7 +565,8 @@
                     url: dl2160_1 || dl2160_2 || dl2160_3, 
                     url_2: dl2160_2,
                     url_3: dl2160_3,
-                    file_type: data.file_type 
+                    file_type: data.file_type,
+                    size: data.size_2160p
                 };
             }
 
