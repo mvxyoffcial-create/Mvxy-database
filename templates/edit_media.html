@@ -273,6 +273,26 @@
             border-radius: 6px;
             margin-bottom: 15px;
         }
+
+        .file-size-badge {
+            display: inline-block;
+            background: #6a11cb;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .quality-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .quality-header h3 {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -701,6 +721,7 @@
                 let download720_1 = '', download720_2 = '', download720_3 = '';
                 let download1080_1 = '', download1080_2 = '', download1080_3 = '';
                 let download2160_1 = '', download2160_2 = '', download2160_3 = '';
+                let fileSize720 = '', fileSize1080 = '', fileSize2160 = '';
                 
                 if (media.download_links && typeof media.download_links === 'object') {
                     const dl720 = media.download_links['download_720p'];
@@ -711,6 +732,7 @@
                         download720_1 = dl720.url || '';
                         download720_2 = dl720.url_2 || '';
                         download720_3 = dl720.url_3 || '';
+                        fileSize720 = dl720.file_size || '';
                     } else if (typeof dl720 === 'string') {
                         download720_1 = dl720;
                     }
@@ -719,6 +741,7 @@
                         download1080_1 = dl1080.url || '';
                         download1080_2 = dl1080.url_2 || '';
                         download1080_3 = dl1080.url_3 || '';
+                        fileSize1080 = dl1080.file_size || '';
                     } else if (typeof dl1080 === 'string') {
                         download1080_1 = dl1080;
                     }
@@ -727,31 +750,72 @@
                         download2160_1 = dl2160.url || '';
                         download2160_2 = dl2160.url_2 || '';
                         download2160_3 = dl2160.url_3 || '';
+                        fileSize2160 = dl2160.file_size || '';
                     } else if (typeof dl2160 === 'string') {
                         download2160_1 = dl2160;
                     }
                 }
                 
-                // Extract Telegram download links
-                let telegram720 = '';
-                let telegram1080 = '';
-                let telegram2160 = '';
+                // Extract Telegram download links with file sizes
+                let telegram720 = '', telegram1080 = '', telegram2160 = '';
+                let telegramSize720 = '', telegramSize1080 = '', telegramSize2160 = '';
                 
                 if (media.telegram_links && typeof media.telegram_links === 'object') {
-                    telegram720 = media.telegram_links['telegram_720p'] || '';
-                    telegram1080 = media.telegram_links['telegram_1080p'] || '';
-                    telegram2160 = media.telegram_links['telegram_2160p'] || '';
+                    const tg720 = media.telegram_links['telegram_720p'];
+                    const tg1080 = media.telegram_links['telegram_1080p'];
+                    const tg2160 = media.telegram_links['telegram_2160p'];
+                    
+                    if (tg720 && typeof tg720 === 'object') {
+                        telegram720 = tg720.url || '';
+                        telegramSize720 = tg720.file_size || '';
+                    } else if (typeof tg720 === 'string') {
+                        telegram720 = tg720;
+                    }
+                    
+                    if (tg1080 && typeof tg1080 === 'object') {
+                        telegram1080 = tg1080.url || '';
+                        telegramSize1080 = tg1080.file_size || '';
+                    } else if (typeof tg1080 === 'string') {
+                        telegram1080 = tg1080;
+                    }
+                    
+                    if (tg2160 && typeof tg2160 === 'object') {
+                        telegram2160 = tg2160.url || '';
+                        telegramSize2160 = tg2160.file_size || '';
+                    } else if (typeof tg2160 === 'string') {
+                        telegram2160 = tg2160;
+                    }
                 }
                 
-                // Extract torrent links
-                let torrent720 = '';
-                let torrent1080 = '';
-                let torrent2160 = '';
+                // Extract torrent links with file sizes
+                let torrent720 = '', torrent1080 = '', torrent2160 = '';
+                let torrentSize720 = '', torrentSize1080 = '', torrentSize2160 = '';
                 
                 if (media.torrent_links && typeof media.torrent_links === 'object') {
-                    torrent720 = media.torrent_links['torrent_720p'] || '';
-                    torrent1080 = media.torrent_links['torrent_1080p'] || '';
-                    torrent2160 = media.torrent_links['torrent_2160p'] || '';
+                    const tr720 = media.torrent_links['torrent_720p'];
+                    const tr1080 = media.torrent_links['torrent_1080p'];
+                    const tr2160 = media.torrent_links['torrent_2160p'];
+                    
+                    if (tr720 && typeof tr720 === 'object') {
+                        torrent720 = tr720.url || '';
+                        torrentSize720 = tr720.file_size || '';
+                    } else if (typeof tr720 === 'string') {
+                        torrent720 = tr720;
+                    }
+                    
+                    if (tr1080 && typeof tr1080 === 'object') {
+                        torrent1080 = tr1080.url || '';
+                        torrentSize1080 = tr1080.file_size || '';
+                    } else if (typeof tr1080 === 'string') {
+                        torrent1080 = tr1080;
+                    }
+                    
+                    if (tr2160 && typeof tr2160 === 'object') {
+                        torrent2160 = tr2160.url || '';
+                        torrentSize2160 = tr2160.file_size || '';
+                    } else if (typeof tr2160 === 'string') {
+                        torrent2160 = tr2160;
+                    }
                 }
                 
                 dynamicFieldsContainer.innerHTML = `
@@ -773,6 +837,10 @@
                         <h2>⬇️ Download Links</h2>
                         
                         <h3>720p Download Links</h3>
+                        <div class="form-group">
+                            <label for="file_size_720p">📦 720p File Size:</label>
+                            <input type="text" id="file_size_720p" name="file_size_720p" placeholder="e.g. 800MB, 1.2GB" value="${fileSize720}">
+                        </div>
                         <div class="download-grid">
                             <div class="form-group">
                                 <label for="download_720p">720p Download URL (Primary):</label>
@@ -789,6 +857,10 @@
                         </div>
 
                         <h3>1080p Download Links</h3>
+                        <div class="form-group">
+                            <label for="file_size_1080p">📦 1080p File Size:</label>
+                            <input type="text" id="file_size_1080p" name="file_size_1080p" placeholder="e.g. 1.8GB, 2.5GB" value="${fileSize1080}">
+                        </div>
                         <div class="download-grid">
                             <div class="form-group">
                                 <label for="download_1080p">1080p Download URL (Primary):</label>
@@ -805,6 +877,10 @@
                         </div>
 
                         <h3>2160p Download Links</h3>
+                        <div class="form-group">
+                            <label for="file_size_2160p">📦 2160p File Size:</label>
+                            <input type="text" id="file_size_2160p" name="file_size_2160p" placeholder="e.g. 5.5GB, 12GB" value="${fileSize2160}">
+                        </div>
                         <div class="download-grid">
                             <div class="form-group">
                                 <label for="download_2160p">2160p Download URL (Primary):</label>
@@ -823,12 +899,24 @@
                         <!-- Telegram Download Links Section -->
                         <h2>📱 Telegram Download Links</h2>
                         <div class="form-group">
+                            <label for="telegram_size_720p">📦 Telegram 720p File Size:</label>
+                            <input type="text" id="telegram_size_720p" name="telegram_size_720p" placeholder="e.g. 800MB, 1.2GB" value="${telegramSize720}">
+                        </div>
+                        <div class="form-group">
                             <label for="telegram_720p">720p Telegram URL:</label>
                             <input type="text" id="telegram_720p" name="telegram_720p" placeholder="https://t.me/..." value="${telegram720}">
                         </div>
                         <div class="form-group">
+                            <label for="telegram_size_1080p">📦 Telegram 1080p File Size:</label>
+                            <input type="text" id="telegram_size_1080p" name="telegram_size_1080p" placeholder="e.g. 1.8GB, 2.5GB" value="${telegramSize1080}">
+                        </div>
+                        <div class="form-group">
                             <label for="telegram_1080p">1080p Telegram URL:</label>
                             <input type="text" id="telegram_1080p" name="telegram_1080p" placeholder="https://t.me/..." value="${telegram1080}">
+                        </div>
+                        <div class="form-group">
+                            <label for="telegram_size_2160p">📦 Telegram 2160p File Size:</label>
+                            <input type="text" id="telegram_size_2160p" name="telegram_size_2160p" placeholder="e.g. 5.5GB, 12GB" value="${telegramSize2160}">
                         </div>
                         <div class="form-group">
                             <label for="telegram_2160p">2160p Telegram URL:</label>
@@ -837,12 +925,24 @@
 
                         <h2>🧲 Torrent Links</h2>
                         <div class="form-group">
+                            <label for="torrent_size_720p">📦 Torrent 720p File Size:</label>
+                            <input type="text" id="torrent_size_720p" name="torrent_size_720p" placeholder="e.g. 800MB, 1.2GB" value="${torrentSize720}">
+                        </div>
+                        <div class="form-group">
                             <label for="torrent_720p">720p Torrent URL:</label>
                             <input type="text" id="torrent_720p" name="torrent_720p" placeholder="magnet:?xt=urn:btih:..." value="${torrent720}">
                         </div>
                         <div class="form-group">
+                            <label for="torrent_size_1080p">📦 Torrent 1080p File Size:</label>
+                            <input type="text" id="torrent_size_1080p" name="torrent_size_1080p" placeholder="e.g. 1.8GB, 2.5GB" value="${torrentSize1080}">
+                        </div>
+                        <div class="form-group">
                             <label for="torrent_1080p">1080p Torrent URL:</label>
                             <input type="text" id="torrent_1080p" name="torrent_1080p" placeholder="magnet:?xt=urn:btih:..." value="${torrent1080}">
+                        </div>
+                        <div class="form-group">
+                            <label for="torrent_size_2160p">📦 Torrent 2160p File Size:</label>
+                            <input type="text" id="torrent_size_2160p" name="torrent_size_2160p" placeholder="e.g. 5.5GB, 12GB" value="${torrentSize2160}">
                         </div>
                         <div class="form-group">
                             <label for="torrent_2160p">2160p Torrent URL:</label>
@@ -1002,15 +1102,35 @@
             let download720p = '';
             let download1080p = '';
             let download2160p = '';
+            let fileSize720p = '';
+            let fileSize1080p = '';
+            let fileSize2160p = '';
             
             if (episodeData) {
                 const dl720 = episodeData.download_720p;
                 const dl1080 = episodeData.download_1080p;
                 const dl2160 = episodeData.download_2160p;
                 
-                download720p = (typeof dl720 === 'object' && dl720 !== null) ? dl720.url : (dl720 || '');
-                download1080p = (typeof dl1080 === 'object' && dl1080 !== null) ? dl1080.url : (dl1080 || '');
-                download2160p = (typeof dl2160 === 'object' && dl2160 !== null) ? dl2160.url : (dl2160 || '');
+                if (dl720 && typeof dl720 === 'object') {
+                    download720p = dl720.url || '';
+                    fileSize720p = dl720.file_size || '';
+                } else if (typeof dl720 === 'string') {
+                    download720p = dl720;
+                }
+                
+                if (dl1080 && typeof dl1080 === 'object') {
+                    download1080p = dl1080.url || '';
+                    fileSize1080p = dl1080.file_size || '';
+                } else if (typeof dl1080 === 'string') {
+                    download1080p = dl1080;
+                }
+                
+                if (dl2160 && typeof dl2160 === 'object') {
+                    download2160p = dl2160.url || '';
+                    fileSize2160p = dl2160.file_size || '';
+                } else if (typeof dl2160 === 'string') {
+                    download2160p = dl2160;
+                }
             }
             
             const telegram720p = episodeData ? (episodeData.telegram_720p || '') : '';
@@ -1033,9 +1153,14 @@
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_video_1080p" placeholder="1080p Video Link" value="${video1080p}">
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_video_2160p" placeholder="2160p Video Link" value="${video2160p}">
                 
-                <!-- Download Links -->
+                <!-- Download Links with File Sizes -->
+                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_file_size_720p" placeholder="720p File Size (e.g. 800MB)" value="${fileSize720p}">
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_download_720p" placeholder="720p Download Link" value="${download720p}">
+                
+                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_file_size_1080p" placeholder="1080p File Size (e.g. 1.8GB)" value="${fileSize1080p}">
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_download_1080p" placeholder="1080p Download Link" value="${download1080p}">
+                
+                <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_file_size_2160p" placeholder="2160p File Size (e.g. 5.5GB)" value="${fileSize2160p}">
                 <input type="text" name="season_${seasonNumber}_episode_${episodeCount}_download_2160p" placeholder="2160p Download Link" value="${download2160p}">
                 
                 <!-- Telegram Links -->
@@ -1157,6 +1282,11 @@
                 data.video_1080p = v1080Val || null;
                 data.video_2160p = v2160Val || null;
                 
+                // Collect file sizes
+                data.file_size_720p = document.getElementById('file_size_720p').value.trim() || null;
+                data.file_size_1080p = document.getElementById('file_size_1080p').value.trim() || null;
+                data.file_size_2160p = document.getElementById('file_size_2160p').value.trim() || null;
+                
                 // Collect 3 download links per resolution for movies
                 const dl720_1 = document.getElementById('download_720p').value.trim();
                 const dl720_2 = document.getElementById('download_720p_2').value.trim();
@@ -1182,23 +1312,25 @@
                 data.download_2160p_2 = dl2160_2 || null;
                 data.download_2160p_3 = dl2160_3 || null;
                 
-                // Telegram download links
-                const tg720Val = document.getElementById('telegram_720p').value.trim();
-                const tg1080Val = document.getElementById('telegram_1080p').value.trim();
-                const tg2160Val = document.getElementById('telegram_2160p').value.trim();
+                // Telegram download links with file sizes
+                data.telegram_file_size_720p = document.getElementById('telegram_size_720p').value.trim() || null;
+                data.telegram_720p = document.getElementById('telegram_720p').value.trim() || null;
                 
-                data.telegram_720p = tg720Val || null;
-                data.telegram_1080p = tg1080Val || null;
-                data.telegram_2160p = tg2160Val || null;
+                data.telegram_file_size_1080p = document.getElementById('telegram_size_1080p').value.trim() || null;
+                data.telegram_1080p = document.getElementById('telegram_1080p').value.trim() || null;
                 
-                // Torrent links
-                const t720Val = document.getElementById('torrent_720p').value.trim();
-                const t1080Val = document.getElementById('torrent_1080p').value.trim();
-                const t2160Val = document.getElementById('torrent_2160p').value.trim();
+                data.telegram_file_size_2160p = document.getElementById('telegram_size_2160p').value.trim() || null;
+                data.telegram_2160p = document.getElementById('telegram_2160p').value.trim() || null;
                 
-                data.torrent_720p = t720Val || null;
-                data.torrent_1080p = t1080Val || null;
-                data.torrent_2160p = t2160Val || null;
+                // Torrent links with file sizes
+                data.torrent_file_size_720p = document.getElementById('torrent_size_720p').value.trim() || null;
+                data.torrent_720p = document.getElementById('torrent_720p').value.trim() || null;
+                
+                data.torrent_file_size_1080p = document.getElementById('torrent_size_1080p').value.trim() || null;
+                data.torrent_1080p = document.getElementById('torrent_1080p').value.trim() || null;
+                
+                data.torrent_file_size_2160p = document.getElementById('torrent_size_2160p').value.trim() || null;
+                data.torrent_2160p = document.getElementById('torrent_2160p').value.trim() || null;
             } else if (mediaType === 'tv') {
                 const tv720 = document.getElementById('tv_video_720p') ? document.getElementById('tv_video_720p').value.trim() : null;
                 const tv1080 = document.getElementById('tv_video_1080p') ? document.getElementById('tv_video_1080p').value.trim() : null;
@@ -1249,22 +1381,35 @@
                             const dl1080Val = row.querySelector(`input[placeholder="1080p Download Link"]`).value.trim();
                             const dl2160Val = row.querySelector(`input[placeholder="2160p Download Link"]`).value.trim();
                             
+                            const fs720 = row.querySelector(`input[placeholder="720p File Size (e.g. 800MB)"]`).value.trim();
+                            const fs1080 = row.querySelector(`input[placeholder="1080p File Size (e.g. 1.8GB)"]`).value.trim();
+                            const fs2160 = row.querySelector(`input[placeholder="2160p File Size (e.g. 5.5GB)"]`).value.trim();
+                            
                             const episodeEnglishSubtitles = parseSubtitleUrls(row.querySelector(`input[placeholder="English Subtitles (comma-separated)"]`).value.trim());
                             const episodeSinhalaSubtitles = parseSubtitleUrls(row.querySelector(`input[placeholder="Sinhala Subtitles (comma-separated)"]`).value.trim());
+                            
+                            const download720p = dl720Val ? { url: dl720Val, file_type: fileType } : null;
+                            if (fs720 && download720p) download720p.file_size = fs720;
+                            
+                            const download1080p = dl1080Val ? { url: dl1080Val, file_type: fileType } : null;
+                            if (fs1080 && download1080p) download1080p.file_size = fs1080;
+                            
+                            const download2160p = dl2160Val ? { url: dl2160Val, file_type: fileType } : null;
+                            if (fs2160 && download2160p) download2160p.file_size = fs2160;
                             
                             episodes.push({
                                 episode_number: episodeNumber,
                                 episode_name: episodeName,
                                 video_720p: row.querySelector(`input[placeholder="720p Video Link"]`).value.trim() || null,
-                                download_720p: dl720Val ? { url: dl720Val, file_type: fileType } : null,
+                                download_720p: download720p,
                                 telegram_720p: row.querySelector(`input[placeholder="720p Telegram Link"]`).value.trim() || null,
                                 torrent_720p: row.querySelector(`input[placeholder="720p Torrent Link"]`).value.trim() || null,
                                 video_1080p: row.querySelector(`input[placeholder="1080p Video Link"]`).value.trim() || null,
-                                download_1080p: dl1080Val ? { url: dl1080Val, file_type: fileType } : null,
+                                download_1080p: download1080p,
                                 telegram_1080p: row.querySelector(`input[placeholder="1080p Telegram Link"]`).value.trim() || null,
                                 torrent_1080p: row.querySelector(`input[placeholder="1080p Torrent Link"]`).value.trim() || null,
                                 video_2160p: row.querySelector(`input[placeholder="2160p Video Link"]`).value.trim() || null,
-                                download_2160p: dl2160Val ? { url: dl2160Val, file_type: fileType } : null,
+                                download_2160p: download2160p,
                                 telegram_2160p: row.querySelector(`input[placeholder="2160p Telegram Link"]`).value.trim() || null,
                                 torrent_2160p: row.querySelector(`input[placeholder="2160p Torrent Link"]`).value.trim() || null,
                                 subtitles: {
