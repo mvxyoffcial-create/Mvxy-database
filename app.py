@@ -288,31 +288,29 @@ def prepare_media_data(data):
         if video_1080p: video_links['video_1080p'] = video_1080p
         if video_2160p: video_links['video_2160p'] = video_2160p
     
-    # File Sizes for each quality
-    size_720p = clean_value(data.get('size_720p'))
-    size_1080p = clean_value(data.get('size_1080p'))
-    size_2160p = clean_value(data.get('size_2160p'))
-
     download_links = {}
     if data.get('download_links'):
         download_links = safe_json_loads(data.get('download_links'), {})
     else:
         file_type = data.get('file_type', 'webrip')
 
-        # 720p download links
+        # 720p download links with file size
         download_720p_1 = clean_value(data.get('download_720p')) or clean_value(data.get('download_720p_1'))
         download_720p_2 = clean_value(data.get('download_720p_2'))
         download_720p_3 = clean_value(data.get('download_720p_3'))
+        file_size_720p = clean_value(data.get('file_size_720p'))
 
-        # 1080p download links
+        # 1080p download links with file size
         download_1080p_1 = clean_value(data.get('download_1080p')) or clean_value(data.get('download_1080p_1'))
         download_1080p_2 = clean_value(data.get('download_1080p_2'))
         download_1080p_3 = clean_value(data.get('download_1080p_3'))
+        file_size_1080p = clean_value(data.get('file_size_1080p'))
 
-        # 2160p download links
+        # 2160p download links with file size
         download_2160p_1 = clean_value(data.get('download_2160p')) or clean_value(data.get('download_2160p_1'))
         download_2160p_2 = clean_value(data.get('download_2160p_2'))
         download_2160p_3 = clean_value(data.get('download_2160p_3'))
+        file_size_2160p = clean_value(data.get('file_size_2160p'))
 
         if download_720p_1 or download_720p_2 or download_720p_3:
             download_links['download_720p'] = {
@@ -320,7 +318,7 @@ def prepare_media_data(data):
                 'url_2': download_720p_2,
                 'url_3': download_720p_3,
                 'file_type': file_type,
-                'size': size_720p
+                'file_size': file_size_720p  # Add file size
             }
 
         if download_1080p_1 or download_1080p_2 or download_1080p_3:
@@ -329,7 +327,7 @@ def prepare_media_data(data):
                 'url_2': download_1080p_2,
                 'url_3': download_1080p_3,
                 'file_type': file_type,
-                'size': size_1080p
+                'file_size': file_size_1080p  # Add file size
             }
 
         if download_2160p_1 or download_2160p_2 or download_2160p_3:
@@ -338,7 +336,7 @@ def prepare_media_data(data):
                 'url_2': download_2160p_2,
                 'url_3': download_2160p_3,
                 'file_type': file_type,
-                'size': size_2160p
+                'file_size': file_size_2160p  # Add file size
             }
     
     telegram_links = {}
@@ -348,9 +346,25 @@ def prepare_media_data(data):
         telegram_720p = clean_value(data.get('telegram_720p'))
         telegram_1080p = clean_value(data.get('telegram_1080p'))
         telegram_2160p = clean_value(data.get('telegram_2160p'))
-        if telegram_720p: telegram_links['telegram_720p'] = telegram_720p
-        if telegram_1080p: telegram_links['telegram_1080p'] = telegram_1080p
-        if telegram_2160p: telegram_links['telegram_2160p'] = telegram_2160p
+        telegram_file_size_720p = clean_value(data.get('telegram_file_size_720p'))
+        telegram_file_size_1080p = clean_value(data.get('telegram_file_size_1080p'))
+        telegram_file_size_2160p = clean_value(data.get('telegram_file_size_2160p'))
+        
+        if telegram_720p: 
+            telegram_links['telegram_720p'] = {
+                'url': telegram_720p,
+                'file_size': telegram_file_size_720p
+            }
+        if telegram_1080p: 
+            telegram_links['telegram_1080p'] = {
+                'url': telegram_1080p,
+                'file_size': telegram_file_size_1080p
+            }
+        if telegram_2160p: 
+            telegram_links['telegram_2160p'] = {
+                'url': telegram_2160p,
+                'file_size': telegram_file_size_2160p
+            }
     
     torrent_links = {}
     if data.get('torrent_links'):
@@ -359,9 +373,25 @@ def prepare_media_data(data):
         torrent_720p = clean_value(data.get('torrent_720p'))
         torrent_1080p = clean_value(data.get('torrent_1080p'))
         torrent_2160p = clean_value(data.get('torrent_2160p'))
-        if torrent_720p: torrent_links['torrent_720p'] = torrent_720p
-        if torrent_1080p: torrent_links['torrent_1080p'] = torrent_1080p
-        if torrent_2160p: torrent_links['torrent_2160p'] = torrent_2160p
+        torrent_file_size_720p = clean_value(data.get('torrent_file_size_720p'))
+        torrent_file_size_1080p = clean_value(data.get('torrent_file_size_1080p'))
+        torrent_file_size_2160p = clean_value(data.get('torrent_file_size_2160p'))
+        
+        if torrent_720p: 
+            torrent_links['torrent_720p'] = {
+                'url': torrent_720p,
+                'file_size': torrent_file_size_720p
+            }
+        if torrent_1080p: 
+            torrent_links['torrent_1080p'] = {
+                'url': torrent_1080p,
+                'file_size': torrent_file_size_1080p
+            }
+        if torrent_2160p: 
+            torrent_links['torrent_2160p'] = {
+                'url': torrent_2160p,
+                'file_size': torrent_file_size_2160p
+            }
     
     subtitles = {'english': [], 'sinhala': []}
     if data.get('subtitles'):
@@ -398,6 +428,14 @@ def prepare_media_data(data):
                     else:
                         episode['subtitles'].setdefault('english', [])
                         episode['subtitles'].setdefault('sinhala', [])
+                    
+                    # Add file size support for episodes
+                    if 'download_720p' in episode and isinstance(episode['download_720p'], dict):
+                        episode['download_720p']['file_size'] = episode.get('file_size_720p')
+                    if 'download_1080p' in episode and isinstance(episode['download_1080p'], dict):
+                        episode['download_1080p']['file_size'] = episode.get('file_size_1080p')
+                    if 'download_2160p' in episode and isinstance(episode['download_2160p'], dict):
+                        episode['download_2160p']['file_size'] = episode.get('file_size_2160p')
 
     return {
         'type': data.get('type'),
@@ -414,9 +452,6 @@ def prepare_media_data(data):
         'download_links': download_links,
         'telegram_links': telegram_links,
         'torrent_links': torrent_links,
-        'size_720p': size_720p,
-        'size_1080p': size_1080p,
-        'size_2160p': size_2160p,
         'total_seasons': total_seasons,
         'seasons': seasons_data,
         'genres': genres,
@@ -734,10 +769,10 @@ def add_episode(media_id):
         telegram_links = data.get('telegram_links', {})
         torrent_links = data.get('torrent_links', {})
 
-        # Extracting size fields for episode
-        size_720p = clean_value(data.get('size_720p'))
-        size_1080p = clean_value(data.get('size_1080p'))
-        size_2160p = clean_value(data.get('size_2160p'))
+        # Prepare download links with file sizes
+        download_720p = download_links.get('download_720p', {})
+        download_1080p = download_links.get('download_1080p', {})
+        download_2160p = download_links.get('download_2160p', {})
 
         episode_data = {
             'episode_number': data.get('episode_number'),
@@ -745,18 +780,51 @@ def add_episode(media_id):
             'video_720p': video_links.get('video_720p'),
             'video_1080p': video_links.get('video_1080p'),
             'video_2160p': video_links.get('video_2160p'),
-            'download_720p': download_links.get('download_720p'),
-            'download_1080p': download_links.get('download_1080p'),
-            'download_2160p': download_links.get('download_2160p'),
-            'telegram_720p': telegram_links.get('telegram_720p'),
-            'telegram_1080p': telegram_links.get('telegram_1080p'),
-            'telegram_2160p': telegram_links.get('telegram_2160p'),
-            'torrent_720p': torrent_links.get('torrent_720p'),
-            'torrent_1080p': torrent_links.get('torrent_1080p'),
-            'torrent_2160p': torrent_links.get('torrent_2160p'),
-            'size_720p': size_720p,
-            'size_1080p': size_1080p,
-            'size_2160p': size_2160p,
+            'download_720p': {
+                'url': download_720p.get('url'),
+                'url_2': download_720p.get('url_2'),
+                'url_3': download_720p.get('url_3'),
+                'file_type': media['file_type'],
+                'file_size': data.get('file_size_720p')  # Add file size
+            } if download_720p else None,
+            'download_1080p': {
+                'url': download_1080p.get('url'),
+                'url_2': download_1080p.get('url_2'),
+                'url_3': download_1080p.get('url_3'),
+                'file_type': media['file_type'],
+                'file_size': data.get('file_size_1080p')  # Add file size
+            } if download_1080p else None,
+            'download_2160p': {
+                'url': download_2160p.get('url'),
+                'url_2': download_2160p.get('url_2'),
+                'url_3': download_2160p.get('url_3'),
+                'file_type': media['file_type'],
+                'file_size': data.get('file_size_2160p')  # Add file size
+            } if download_2160p else None,
+            'telegram_720p': {
+                'url': telegram_links.get('telegram_720p'),
+                'file_size': data.get('telegram_file_size_720p')
+            } if telegram_links.get('telegram_720p') else None,
+            'telegram_1080p': {
+                'url': telegram_links.get('telegram_1080p'),
+                'file_size': data.get('telegram_file_size_1080p')
+            } if telegram_links.get('telegram_1080p') else None,
+            'telegram_2160p': {
+                'url': telegram_links.get('telegram_2160p'),
+                'file_size': data.get('telegram_file_size_2160p')
+            } if telegram_links.get('telegram_2160p') else None,
+            'torrent_720p': {
+                'url': torrent_links.get('torrent_720p'),
+                'file_size': data.get('torrent_file_size_720p')
+            } if torrent_links.get('torrent_720p') else None,
+            'torrent_1080p': {
+                'url': torrent_links.get('torrent_1080p'),
+                'file_size': data.get('torrent_file_size_1080p')
+            } if torrent_links.get('torrent_1080p') else None,
+            'torrent_2160p': {
+                'url': torrent_links.get('torrent_2160p'),
+                'file_size': data.get('torrent_file_size_2160p')
+            } if torrent_links.get('torrent_2160p') else None,
             'subtitles': episode_subtitles
         }
         
