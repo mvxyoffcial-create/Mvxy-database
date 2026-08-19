@@ -116,7 +116,7 @@
                             <option value="camcopy">CamCopy</option>
                             <option value="bluray">BluRay</option>
                             <option value="webrip">WebRip</option>
-                            <option value="webdl">WebDL</option>
+                            <option value="web-dl">Web-DL</option>
                             <option value="hdrip">HDRIP</option>
                             <option value="dvdrip">DVDRip</option>
                             <option value="brrip">BRRip</option>
@@ -127,7 +127,7 @@
                         <select id="file_type" name="file_type">
                             <option value="webrip">WebRip</option>
                             <option value="bluray">BluRay</option>
-                            <option value="webdl">WebDL</option>
+                            <option value="web-dl">Web-DL</option>
                             <option value="hdrip">HDRIP</option>
                             <option value="dvd">DVD</option>
                             <option value="brrip">BRRip</option>
@@ -222,7 +222,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>File Sizes for Download Links <span class="file-size-badge">Required</span></label>
+                    <label>File Sizes for Download Links <span class="file-size-badge">Required for Direct Downloads</span></label>
                     <div class="inline-group">
                         <input type="text" id="file_size_720p" placeholder="720p Size (e.g. 800MB)">
                         <input type="text" id="file_size_1080p" placeholder="1080p Size (e.g. 1.8GB)">
@@ -308,7 +308,7 @@
                 </div>
 
                 <!-- File Sizes for Episode Downloads -->
-                <div class="ep-section-label">📦 File Sizes <span style="color: #ff6b6b; font-size: 10px;">(for download links)</span></div>
+                <div class="ep-section-label">📦 File Sizes <span style="color: #ff6b6b; font-size: 10px;">(for direct download links)</span></div>
                 <div class="ep-file-size-row ep-size">
                     <input type="text" placeholder="720p Size (e.g. 800MB)">
                     <input type="text" placeholder="1080p Size (e.g. 1.8GB)">
@@ -376,7 +376,6 @@
 
         document.getElementById('add-tv-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
             const fileType = document.getElementById('file_type').value;
 
             // Collect file sizes for series-level download links
@@ -390,34 +389,26 @@
                 const episodes = [];
 
                 sDiv.querySelectorAll('.episode-row').forEach((row, eIdx) => {
-                    // Name (inside .ep-name-row)
                     const nameInput = row.querySelector('.ep-name-row input');
 
-                    // Video inputs (3)
                     const videoInputs = row.querySelectorAll('.ep-video input');
-                    // File size inputs (3)
                     const sizeInputs = row.querySelectorAll('.ep-size input');
-                    // Download inputs (3)
                     const dlInputs = row.querySelectorAll('.ep-download input');
-                    // Telegram inputs (3)
                     const tgInputs = row.querySelectorAll('.ep-telegram input');
-                    // Torrent inputs (3)
                     const torrentInputs = row.querySelectorAll('.ep-torrent input');
-                    // Subtitle inputs (2: english, sinhala)
                     const subInputs = row.querySelectorAll('.ep-sub input');
 
                     const v = (inp, i) => inp[i] ? inp[i].value.trim() : '';
 
-                    // Get file sizes for this episode
                     const epFileSize720p = v(sizeInputs, 0) || null;
                     const epFileSize1080p = v(sizeInputs, 1) || null;
                     const epFileSize2160p = v(sizeInputs, 2) || null;
 
-                    // Build download objects with file sizes
+                    // Direct downloads include file_size
                     const download720p = v(dlInputs, 0) ? { 
                         url: v(dlInputs, 0), 
                         file_type: fileType,
-                        file_size: epFileSize720p || fileSize720p // Use episode-specific or fallback to series-level
+                        file_size: epFileSize720p || fileSize720p
                     } : null;
                     
                     const download1080p = v(dlInputs, 1) ? { 
@@ -446,12 +437,12 @@
                         download_1080p: download1080p,
                         download_2160p: download2160p,
 
-                        // Telegram
+                        // Telegram (plain URLs without file_size)
                         telegram_720p:  v(tgInputs, 0) || null,
                         telegram_1080p: v(tgInputs, 1) || null,
                         telegram_2160p: v(tgInputs, 2) || null,
 
-                        // Torrent
+                        // Torrent (plain URLs without file_size)
                         torrent_720p:  v(torrentInputs, 0) || null,
                         torrent_1080p: v(torrentInputs, 1) || null,
                         torrent_2160p: v(torrentInputs, 2) || null,
@@ -471,8 +462,15 @@
                 };
             });
 
-            // Helper function to get value or null
             const getVal = (id) => document.getElementById(id).value.trim() || null;
+
+            let castMembers = [];
+            try {
+                castMembers = JSON.parse(getVal('cast-members') || '[]');
+            } catch (err) {
+                alert('Invalid JSON in Cast field.');
+                return;
+            }
 
             const data = {
                 type: 'tv',
@@ -492,47 +490,33 @@
                     english: getVal('sub_english') ? [getVal('sub_english')] : []
                 },
                 genres: getVal('genres') ? getVal('genres').split(',').map(g => g.trim()) : [],
-                cast_members: JSON.parse(getVal('cast-members') || '[]'),
-                screenshots_720p:  [getVal('screenshots_720p_1'), getVal('screenshots_720p_2')].filter(i => i),
-                screenshots_1080p: [getVal('screenshots_1080p_1'), getVal('screenshots_1080p_2')].filter(i => i),
-                screenshots_2160p: [getVal('screenshots_2160p_1'), getVal('screenshots_2160p_2')].filter(i => i),
-                screenshots_trailer: [getVal('screenshots_trailer_1'), getVal('screenshots_trailer_2')].filter(i => i),
-                video_links: {
-                    video_720p:  getVal('tv_video_720p'),
-                    video_1080p: getVal('tv_video_1080p'),
-                    video_2160p: getVal('tv_video_2160p')
-                },
+                cast_members: castMembers,
+                screenshots_720p:  [getVal('screenshots_720p_1'), getVal('screenshots_720p_2')].filter(Boolean),
+                screenshots_1080p: [getVal('screenshots_1080p_1'), getVal('screenshots_1080p_2')].filter(Boolean),
+                screenshots_2160p: [getVal('screenshots_2160p_1'), getVal('screenshots_2160p_2')].filter(Boolean),
+                screenshots_trailer: [getVal('screenshots_trailer_1'), getVal('screenshots_trailer_2')].filter(Boolean),
+                video_720p:  getVal('tv_video_720p'),
+                video_1080p: getVal('tv_video_1080p'),
+                video_2160p: getVal('tv_video_2160p'),
                 file_size_720p: fileSize720p,
                 file_size_1080p: fileSize1080p,
                 file_size_2160p: fileSize2160p,
-                telegram_links: {
-                    telegram_720p:  getVal('telegram_720p'),
-                    telegram_1080p: getVal('telegram_1080p'),
-                    telegram_2160p: getVal('telegram_2160p')
-                },
-                torrent_links: {
-                    torrent_720p:  getVal('torrent_720p'),
-                    torrent_1080p: getVal('torrent_1080p'),
-                    torrent_2160p: getVal('torrent_2160p')
-                },
-                download_links: {
-                    download_720p: getVal('download_720p') ? { 
-                        url: getVal('download_720p'), 
-                        file_type: fileType,
-                        file_size: fileSize720p
-                    } : null,
-                    download_1080p: getVal('download_1080p') ? { 
-                        url: getVal('download_1080p'), 
-                        file_type: fileType,
-                        file_size: fileSize1080p
-                    } : null,
-                    download_2160p: getVal('download_2160p') ? { 
-                        url: getVal('download_2160p'), 
-                        file_type: fileType,
-                        file_size: fileSize2160p
-                    } : null
-                },
-                seasons: seasons,
+                telegram_720p:  getVal('telegram_720p'),
+                telegram_1080p: getVal('telegram_1080p'),
+                telegram_2160p: getVal('telegram_2160p'),
+                torrent_720p:  getVal('torrent_720p'),
+                torrent_1080p: getVal('torrent_1080p'),
+                torrent_2160p: getVal('torrent_2160p'),
+                download_720p: getVal('download_720p'),
+                download_720p_2: null,
+                download_720p_3: null,
+                download_1080p: getVal('download_1080p'),
+                download_1080p_2: null,
+                download_1080p_3: null,
+                download_2160p: getVal('download_2160p'),
+                download_2160p_2: null,
+                download_2160p_3: null,
+                seasons: Object.keys(seasons).length > 0 ? seasons : null,
                 total_seasons: Object.keys(seasons).length
             };
 
@@ -549,7 +533,7 @@
                     alert('TV Series Added Successfully!');
                     window.location.href = '/admin/search_and_edit';
                 } else {
-                    alert('Error: ' + result.message);
+                    alert('Error: ' + (result.message || 'Failed to add TV series'));
                 }
             } catch (err) { 
                 console.error(err);
