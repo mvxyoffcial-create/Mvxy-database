@@ -204,7 +204,7 @@
             <div id="screenshots-section" class="collapsible-content">
                 
                 <!-- 720p Screenshots -->
-                <h3>720p Screenshots (2 Required)</h3>
+                <h3>720p Screenshots</h3>
                 <div class="screenshot-grid">
                     <div class="screenshot-input-group">
                         <label for="screenshots_720p_1">720p Screenshot 1 URL:</label>
@@ -217,7 +217,7 @@
                 </div>
 
                 <!-- 1080p Screenshots -->
-                <h3>1080p Screenshots (2 Required)</h3>
+                <h3>1080p Screenshots</h3>
                 <div class="screenshot-grid">
                     <div class="screenshot-input-group">
                         <label for="screenshots_1080p_1">1080p Screenshot 1 URL:</label>
@@ -230,7 +230,7 @@
                 </div>
 
                 <!-- 2160p Screenshots -->
-                <h3>2160p Screenshots (2 Required)</h3>
+                <h3>2160p Screenshots</h3>
                 <div class="screenshot-grid">
                     <div class="screenshot-input-group">
                         <label for="screenshots_2160p_1">2160p Screenshot 1 URL:</label>
@@ -273,19 +273,19 @@
                 </div>
             </div>
 
-            <!-- Download Links Section (UPDATED WITH FILE SIZE) -->
+            <!-- Download Links Section -->
             <h2 class="section-toggle" onclick="toggleSection('download-links-section')">⬇️ Download Links</h2>
             <div id="download-links-section" class="collapsible-content">
                 
                 <!-- 720p Download Links -->
                 <div class="quality-header">
                     <h3>720p Download Links</h3>
-                    <span class="file-size-badge">File Size Required</span>
+                    <span class="file-size-badge">File Size</span>
                 </div>
                 <div class="form-group">
-                    <label for="size_720p">📦 720p File Size <span style="color: #ff6b6b;">*</span></label>
-                    <input type="text" id="size_720p" name="size_720p" placeholder="e.g. 800MB, 1.2GB, 2.5GB" required>
-                    <div class="help-text">Example: 800MB, 1.2GB, 2.5GB</div>
+                    <label for="size_720p">📦 720p File Size</label>
+                    <input type="text" id="size_720p" name="size_720p" placeholder="e.g. 800MB, 1.2GB">
+                    <div class="help-text">Example: 800MB, 1.2GB</div>
                 </div>
                 <div class="download-grid">
                     <div class="form-group">
@@ -305,12 +305,12 @@
                 <!-- 1080p Download Links -->
                 <div class="quality-header">
                     <h3>1080p Download Links</h3>
-                    <span class="file-size-badge">File Size Required</span>
+                    <span class="file-size-badge">File Size</span>
                 </div>
                 <div class="form-group">
-                    <label for="size_1080p">📦 1080p File Size <span style="color: #ff6b6b;">*</span></label>
-                    <input type="text" id="size_1080p" name="size_1080p" placeholder="e.g. 1.8GB, 2.5GB, 4.2GB" required>
-                    <div class="help-text">Example: 1.8GB, 2.5GB, 4.2GB</div>
+                    <label for="size_1080p">📦 1080p File Size</label>
+                    <input type="text" id="size_1080p" name="size_1080p" placeholder="e.g. 1.8GB, 2.5GB">
+                    <div class="help-text">Example: 1.8GB, 2.5GB</div>
                 </div>
                 <div class="download-grid">
                     <div class="form-group">
@@ -330,12 +330,12 @@
                 <!-- 2160p Download Links -->
                 <div class="quality-header">
                     <h3>2160p Download Links</h3>
-                    <span class="file-size-badge">File Size Required</span>
+                    <span class="file-size-badge">File Size</span>
                 </div>
                 <div class="form-group">
-                    <label for="size_2160p">📦 2160p File Size <span style="color: #ff6b6b;">*</span></label>
-                    <input type="text" id="size_2160p" name="size_2160p" placeholder="e.g. 5.5GB, 12GB, 25GB" required>
-                    <div class="help-text">Example: 5.5GB, 12GB, 25GB</div>
+                    <label for="size_2160p">📦 2160p File Size</label>
+                    <input type="text" id="size_2160p" name="size_2160p" placeholder="e.g. 5.5GB, 12GB">
+                    <div class="help-text">Example: 5.5GB, 12GB</div>
                 </div>
                 <div class="download-grid">
                     <div class="form-group">
@@ -433,7 +433,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-primary">Save Movie</button>
+            <button type="submit" class="btn-primary" style="margin-top: 20px;">Save Movie</button>
         </form>
     </div>
 
@@ -442,7 +442,7 @@
         const AUTH_HEADER = 'Basic ' + btoa('venura:venura');
         const genresContainer = document.getElementById('genres-container');
 
-        // Function to create a genre tag
+        // Create tag for genres
         function createGenreTag(genre) {
             const tag = document.createElement('span');
             tag.classList.add('tag');
@@ -455,7 +455,7 @@
             genresContainer.appendChild(tag);
         }
 
-        // Function to toggle section visibility
+        // Section toggle visibility handler
         function toggleSection(sectionId) {
             const section = document.getElementById(sectionId);
             const toggle = section.previousElementSibling;
@@ -464,13 +464,13 @@
             toggle.classList.toggle('collapsed');
         }
 
-        // Parse subtitle URLs from comma-separated string
+        // Parse comma-separated subtitle URLs
         function parseSubtitleUrls(input) {
             if (!input || input.trim() === '') return [];
             return input.split(',').map(url => url.trim()).filter(url => url !== '');
         }
 
-        // Fetch genres from TMDB and populate form
+        // TMDB Fetch Details Handler
         async function fetchTmdbData() {
             const tmdbId = document.getElementById('tmdb-id').value;
             if (!tmdbId) {
@@ -487,17 +487,17 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    document.getElementById('title').value = data.title;
-                    document.getElementById('description').value = data.description;
-                    document.getElementById('thumbnail').value = data.thumbnail;
-                    document.getElementById('backdrop').value = data.backdrop;
-                    document.getElementById('release_date').value = data.release_date;
-                    document.getElementById('language').value = data.language;
-                    document.getElementById('rating').value = data.rating;
+                    document.getElementById('title').value = data.title || '';
+                    document.getElementById('description').value = data.description || '';
+                    document.getElementById('thumbnail').value = data.thumbnail || '';
+                    document.getElementById('backdrop').value = data.backdrop || '';
+                    document.getElementById('release_date').value = data.release_date || '';
+                    document.getElementById('language').value = data.language || '';
+                    document.getElementById('rating').value = data.rating || '';
                     document.getElementById('file_type').value = data.file_type || 'webrip';
                     document.getElementById('source_type').value = data.source_type || 'original';
                     document.getElementById('youtube_trailer').value = data.youtube_trailer || '';
-                    document.getElementById('cast_members').value = JSON.stringify(data.cast_members, null, 2);
+                    document.getElementById('cast_members').value = JSON.stringify(data.cast_members || [], null, 2);
                     
                     // Populate genres
                     genresContainer.innerHTML = '';
@@ -508,60 +508,60 @@
                     alert(`Error: ${data.message}`);
                 }
             } catch (err) {
-                alert('An unexpected error occurred.');
+                alert('An unexpected error occurred while fetching TMDB data.');
             }
         }
 
+        // Form Submission Event
         document.getElementById('add-movie-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const form = e.target;
 
-            // Get all genre tags and convert to an array
-            const genres = Array.from(genresContainer.children).map(tag => tag.textContent.slice(0, -1).trim());
+            // Extract genres from DOM tags
+            const genres = Array.from(genresContainer.children).map(tag => tag.childNodes[0].nodeValue.trim());
 
-            // Collect screenshot URLs
+            // Collect Screenshots
             const screenshots_720p = [];
             const screenshots_1080p = [];
             const screenshots_2160p = [];
             const screenshots_trailer = [];
 
-            // Collect 720p screenshots
             if (form.screenshots_720p_1.value) screenshots_720p.push(form.screenshots_720p_1.value);
             if (form.screenshots_720p_2.value) screenshots_720p.push(form.screenshots_720p_2.value);
             
-            // Collect 1080p screenshots
             if (form.screenshots_1080p_1.value) screenshots_1080p.push(form.screenshots_1080p_1.value);
             if (form.screenshots_1080p_2.value) screenshots_1080p.push(form.screenshots_1080p_2.value);
             
-            // Collect 2160p screenshots
             if (form.screenshots_2160p_1.value) screenshots_2160p.push(form.screenshots_2160p_1.value);
             if (form.screenshots_2160p_2.value) screenshots_2160p.push(form.screenshots_2160p_2.value);
             
-            // Collect trailer screenshots (optional)
             if (form.screenshots_trailer_1.value) screenshots_trailer.push(form.screenshots_trailer_1.value);
             if (form.screenshots_trailer_2.value) screenshots_trailer.push(form.screenshots_trailer_2.value);
 
-            // Collect subtitle URLs
-            let englishSubtitles = [];
-            let sinhalaSubtitles = [];
-            
-            // Collect quality-specific English subtitles
+            // Collect Subtitles
             const english720p = parseSubtitleUrls(form.english_subtitles_720p.value);
             const english1080p = parseSubtitleUrls(form.english_subtitles_1080p.value);
             const english2160p = parseSubtitleUrls(form.english_subtitles_2160p.value);
             const englishAll = parseSubtitleUrls(form.english_subtitles_all.value);
             
-            // Collect quality-specific Sinhala subtitles
             const sinhala720p = parseSubtitleUrls(form.sinhala_subtitles_720p.value);
             const sinhala1080p = parseSubtitleUrls(form.sinhala_subtitles_1080p.value);
             const sinhala2160p = parseSubtitleUrls(form.sinhala_subtitles_2160p.value);
             const sinhalaAll = parseSubtitleUrls(form.sinhala_subtitles_all.value);
             
-            // Combine subtitles
-            englishSubtitles = [...new Set([...english720p, ...english1080p, ...english2160p, ...englishAll])];
-            sinhalaSubtitles = [...new Set([...sinhala720p, ...sinhala1080p, ...sinhala2160p, ...sinhalaAll])];
+            const englishSubtitles = [...new Set([...english720p, ...english1080p, ...english2160p, ...englishAll])];
+            const sinhalaSubtitles = [...new Set([...sinhala720p, ...sinhala1080p, ...sinhala2160p, ...sinhalaAll])];
 
-            // Build the data object with file sizes
+            // Parse Cast JSON safely
+            let castMembers = [];
+            try {
+                castMembers = form.cast_members.value ? JSON.parse(form.cast_members.value) : [];
+            } catch (err) {
+                alert('Invalid JSON in Cast Members field.');
+                return;
+            }
+
+            // Construct Main Payload
             const data = {
                 type: 'movie',
                 title: form.title.value,
@@ -574,17 +574,15 @@
                 source_type: form.source_type.value,
                 file_type: form.file_type.value,
                 youtube_trailer: form.youtube_trailer.value,
-                cast_members: JSON.parse(form.cast_members.value || '[]'),
+                cast_members: castMembers,
                 genres: genres,
-                // File sizes for download links
+                // Top-level file size values
                 file_size_720p: form.size_720p.value || null,
                 file_size_1080p: form.size_1080p.value || null,
                 file_size_2160p: form.size_2160p.value || null,
-                // File sizes for Telegram links
                 telegram_file_size_720p: form.telegram_size_720p.value || null,
                 telegram_file_size_1080p: form.telegram_size_1080p.value || null,
                 telegram_file_size_2160p: form.telegram_size_2160p.value || null,
-                // File sizes for Torrent links
                 torrent_file_size_720p: form.torrent_size_720p.value || null,
                 torrent_file_size_1080p: form.torrent_size_1080p.value || null,
                 torrent_file_size_2160p: form.torrent_size_2160p.value || null,
@@ -602,18 +600,12 @@
                 }
             };
 
-            // Collect video links
-            if (form.video_720p.value) {
-                data.video_links.video_720p = form.video_720p.value;
-            }
-            if (form.video_1080p.value) {
-                data.video_links.video_1080p = form.video_1080p.value;
-            }
-            if (form.video_2160p.value) {
-                data.video_links.video_2160p = form.video_2160p.value;
-            }
+            // Video Links
+            if (form.video_720p.value) data.video_links.video_720p = form.video_720p.value;
+            if (form.video_1080p.value) data.video_links.video_1080p = form.video_1080p.value;
+            if (form.video_2160p.value) data.video_links.video_2160p = form.video_2160p.value;
 
-            // Collect 720p download links
+            // Direct Download Links
             const dl720_1 = form.download_720p.value;
             const dl720_2 = form.download_720p_2.value;
             const dl720_3 = form.download_720p_3.value;
@@ -622,11 +614,11 @@
                     url: dl720_1, 
                     url_2: dl720_2,
                     url_3: dl720_3,
-                    file_type: data.file_type
+                    file_type: data.file_type,
+                    file_size: form.size_720p.value || null
                 };
             }
 
-            // Collect 1080p download links
             const dl1080_1 = form.download_1080p.value;
             const dl1080_2 = form.download_1080p_2.value;
             const dl1080_3 = form.download_1080p_3.value;
@@ -635,11 +627,11 @@
                     url: dl1080_1, 
                     url_2: dl1080_2,
                     url_3: dl1080_3,
-                    file_type: data.file_type
+                    file_type: data.file_type,
+                    file_size: form.size_1080p.value || null
                 };
             }
 
-            // Collect 2160p download links
             const dl2160_1 = form.download_2160p.value;
             const dl2160_2 = form.download_2160p_2.value;
             const dl2160_3 = form.download_2160p_3.value;
@@ -648,40 +640,61 @@
                     url: dl2160_1, 
                     url_2: dl2160_2,
                     url_3: dl2160_3,
-                    file_type: data.file_type
+                    file_type: data.file_type,
+                    file_size: form.size_2160p.value || null
                 };
             }
 
-            // Collect Telegram download links with file sizes
+            // Telegram Download Links
             if (form.telegram_720p.value) {
-                data.telegram_links.telegram_720p = form.telegram_720p.value;
+                data.telegram_links.telegram_720p = {
+                    url: form.telegram_720p.value,
+                    file_size: form.telegram_size_720p.value || null
+                };
             }
             if (form.telegram_1080p.value) {
-                data.telegram_links.telegram_1080p = form.telegram_1080p.value;
+                data.telegram_links.telegram_1080p = {
+                    url: form.telegram_1080p.value,
+                    file_size: form.telegram_size_1080p.value || null
+                };
             }
             if (form.telegram_2160p.value) {
-                data.telegram_links.telegram_2160p = form.telegram_2160p.value;
+                data.telegram_links.telegram_2160p = {
+                    url: form.telegram_2160p.value,
+                    file_size: form.telegram_size_2160p.value || null
+                };
             }
 
-            // Collect torrent links with file sizes
+            // Torrent Download Links
             if (form.torrent_720p.value) {
-                data.torrent_links.torrent_720p = form.torrent_720p.value;
+                data.torrent_links.torrent_720p = {
+                    url: form.torrent_720p.value,
+                    file_size: form.torrent_size_720p.value || null
+                };
             }
             if (form.torrent_1080p.value) {
-                data.torrent_links.torrent_1080p = form.torrent_1080p.value;
+                data.torrent_links.torrent_1080p = {
+                    url: form.torrent_1080p.value,
+                    file_size: form.torrent_size_1080p.value || null
+                };
             }
             if (form.torrent_2160p.value) {
-                data.torrent_links.torrent_2160p = form.torrent_2160p.value;
+                data.torrent_links.torrent_2160p = {
+                    url: form.torrent_2160p.value,
+                    file_size: form.torrent_size_2160p.value || null
+                };
             }
-
-            console.log('Submitting data with file sizes:', data);
 
             try {
                 const response = await fetch(`${ADMIN_API_BASE_URL}/media`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': AUTH_HEADER },
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': AUTH_HEADER 
+                    },
                     body: JSON.stringify(data)
                 });
+
                 const result = await response.json();
                 if (response.ok) {
                     alert('Movie added successfully!');
@@ -695,7 +708,7 @@
             }
         });
 
-        // Event listener for adding genres via the input field
+        // Add genre input keypress event
         document.getElementById('genres-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && e.target.value.trim() !== '') {
                 e.preventDefault();
@@ -704,7 +717,7 @@
             }
         });
 
-        // Initialize all sections as expanded
+        // Auto-expand all collapsible sections on DOM Load
         document.addEventListener('DOMContentLoaded', () => {
             const sections = [
                 'subtitles-section',
