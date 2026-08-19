@@ -16,7 +16,10 @@
         .tag-close { margin-left: 5px; cursor: pointer; font-weight: bold; }
         h2 { color: #6a11cb; border-bottom: 2px solid #6a11cb; padding-bottom: 5px; margin-top: 30px; }
         h3 { color: #8a2be2; margin-top: 20px; font-size: 16px; }
-        .screenshot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .screenshot-grid, .download-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media (min-width: 600px) {
+            .screenshot-grid { grid-template-columns: 1fr 1fr; }
+        }
         .screenshot-input-group { margin-bottom: 10px; }
         .screenshot-input-group label { font-size: 14px; color: #ccc; }
         .help-text { font-size: 12px; color: #999; margin-top: 5px; }
@@ -30,7 +33,7 @@
         .section-toggle { cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
         .section-toggle::after { content: "▼"; transition: transform 0.3s; }
         .section-toggle.collapsed::after { transform: rotate(-90deg); }
-        .collapsible-content { max-height: 1000px; overflow: hidden; transition: max-height 0.3s ease-in-out; }
+        .collapsible-content { max-height: 2000px; overflow: hidden; transition: max-height 0.3s ease-in-out; }
         .collapsible-content.collapsed { max-height: 0; }
     </style>
 </head>
@@ -73,7 +76,7 @@
                 <input type="number" step="0.1" id="rating" name="rating">
             </div>
             
-            <!-- NEW: Source Type Selection -->
+            <!-- Source Type Selection -->
             <div class="form-group">
                 <label for="source_type">Source Type:</label>
                 <select id="source_type" name="source_type">
@@ -103,7 +106,7 @@
                 </select>
             </div>
 
-            <!-- NEW: YouTube Trailer -->
+            <!-- YouTube Trailer -->
             <div class="form-group">
                 <label for="youtube_trailer">YouTube Trailer URL:</label>
                 <input type="text" id="youtube_trailer" name="youtube_trailer" placeholder="https://youtube.com/watch?v=... or https://youtu.be/...">
@@ -121,7 +124,7 @@
                 <div id="genres-container" class="tag-input-container"></div>
             </div>
 
-            <!-- NEW: Subtitles Section -->
+            <!-- Subtitles Section -->
             <h2 class="section-toggle" onclick="toggleSection('subtitles-section')">🎯 Subtitles (English & Sinhala)</h2>
             <div id="subtitles-section" class="subtitle-section collapsible-content">
                 <div class="subtitle-info">
@@ -253,20 +256,59 @@
                 </div>
             </div>
 
-            <!-- Download Links Section -->
+            <!-- Download Links Section (UPDATED) -->
             <h2 class="section-toggle" onclick="toggleSection('download-links-section')">⬇️ Download Links</h2>
             <div id="download-links-section" class="collapsible-content">
-                <div class="form-group">
-                    <label for="download_720p">Download 720p URL:</label>
-                    <input type="text" id="download_720p" name="download_720p">
+                
+                <!-- 720p Download Links -->
+                <h3>720p Download Links</h3>
+                <div class="download-grid">
+                    <div class="form-group">
+                        <label for="download_720p">Download 720p URL (Primary):</label>
+                        <input type="text" id="download_720p" name="download_720p" placeholder="https://example.com/download_720p_link1">
+                    </div>
+                    <div class="form-group">
+                        <label for="download_720p_2">Download 720p URL 2:</label>
+                        <input type="text" id="download_720p_2" name="download_720p_2" placeholder="https://example.com/download_720p_link2">
+                    </div>
+                    <div class="form-group">
+                        <label for="download_720p_3">Download 720p URL 3:</label>
+                        <input type="text" id="download_720p_3" name="download_720p_3" placeholder="https://example.com/download_720p_link3">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="download_1080p">Download 1080p URL:</label>
-                    <input type="text" id="download_1080p" name="download_1080p">
+
+                <!-- 1080p Download Links -->
+                <h3>1080p Download Links</h3>
+                <div class="download-grid">
+                    <div class="form-group">
+                        <label for="download_1080p">Download 1080p URL (Primary):</label>
+                        <input type="text" id="download_1080p" name="download_1080p" placeholder="https://example.com/download_1080p_link1">
+                    </div>
+                    <div class="form-group">
+                        <label for="download_1080p_2">Download 1080p URL 2:</label>
+                        <input type="text" id="download_1080p_2" name="download_1080p_2" placeholder="https://example.com/download_1080p_link2">
+                    </div>
+                    <div class="form-group">
+                        <label for="download_1080p_3">Download 1080p URL 3:</label>
+                        <input type="text" id="download_1080p_3" name="download_1080p_3" placeholder="https://example.com/download_1080p_link3">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="download_2160p">Download 2160p URL:</label>
-                    <input type="text" id="download_2160p" name="download_2160p">
+
+                <!-- 2160p Download Links -->
+                <h3>2160p Download Links</h3>
+                <div class="download-grid">
+                    <div class="form-group">
+                        <label for="download_2160p">Download 2160p URL (Primary):</label>
+                        <input type="text" id="download_2160p" name="download_2160p" placeholder="https://example.com/download_2160p_link1">
+                    </div>
+                    <div class="form-group">
+                        <label for="download_2160p_2">Download 2160p URL 2:</label>
+                        <input type="text" id="download_2160p_2" name="download_2160p_2" placeholder="https://example.com/download_2160p_link2">
+                    </div>
+                    <div class="form-group">
+                        <label for="download_2160p_3">Download 2160p URL 3:</label>
+                        <input type="text" id="download_2160p_3" name="download_2160p_3" placeholder="https://example.com/download_2160p_link3">
+                    </div>
                 </div>
             </div>
 
@@ -412,7 +454,7 @@
             if (form.screenshots_trailer_1.value) screenshots_trailer.push(form.screenshots_trailer_1.value);
             if (form.screenshots_trailer_2.value) screenshots_trailer.push(form.screenshots_trailer_2.value);
 
-            // NEW: Collect subtitle URLs
+            // Collect subtitle URLs
             let englishSubtitles = [];
             let sinhalaSubtitles = [];
             
@@ -428,7 +470,7 @@
             const sinhala2160p = parseSubtitleUrls(form.sinhala_subtitles_2160p.value);
             const sinhalaAll = parseSubtitleUrls(form.sinhala_subtitles_all.value);
             
-            // Combine subtitles: quality-specific first, then general
+            // Combine subtitles
             englishSubtitles = [...new Set([...english720p, ...english1080p, ...english2160p, ...englishAll])];
             sinhalaSubtitles = [...new Set([...sinhala720p, ...sinhala1080p, ...sinhala2160p, ...sinhalaAll])];
 
@@ -454,7 +496,6 @@
                 screenshots_1080p: screenshots_1080p,
                 screenshots_2160p: screenshots_2160p,
                 screenshots_trailer: screenshots_trailer,
-                // NEW: Subtitles data
                 subtitles: {
                     english: englishSubtitles,
                     sinhala: sinhalaSubtitles
@@ -472,15 +513,43 @@
                 data.video_links.video_2160p = form.video_2160p.value;
             }
 
-            // Collect download links
-            if (form.download_720p.value) {
-                data.download_links.download_720p = { url: form.download_720p.value, file_type: data.file_type };
+            // Collect 720p download links
+            const dl720_1 = form.download_720p.value;
+            const dl720_2 = form.download_720p_2.value;
+            const dl720_3 = form.download_720p_3.value;
+            if (dl720_1 || dl720_2 || dl720_3) {
+                data.download_links.download_720p = { 
+                    url: dl720_1 || dl720_2 || dl720_3, 
+                    url_2: dl720_2,
+                    url_3: dl720_3,
+                    file_type: data.file_type 
+                };
             }
-            if (form.download_1080p.value) {
-                data.download_links.download_1080p = { url: form.download_1080p.value, file_type: data.file_type };
+
+            // Collect 1080p download links
+            const dl1080_1 = form.download_1080p.value;
+            const dl1080_2 = form.download_1080p_2.value;
+            const dl1080_3 = form.download_1080p_3.value;
+            if (dl1080_1 || dl1080_2 || dl1080_3) {
+                data.download_links.download_1080p = { 
+                    url: dl1080_1 || dl1080_2 || dl1080_3, 
+                    url_2: dl1080_2,
+                    url_3: dl1080_3,
+                    file_type: data.file_type 
+                };
             }
-            if (form.download_2160p.value) {
-                data.download_links.download_2160p = { url: form.download_2160p.value, file_type: data.file_type };
+
+            // Collect 2160p download links
+            const dl2160_1 = form.download_2160p.value;
+            const dl2160_2 = form.download_2160p_2.value;
+            const dl2160_3 = form.download_2160p_3.value;
+            if (dl2160_1 || dl2160_2 || dl2160_3) {
+                data.download_links.download_2160p = { 
+                    url: dl2160_1 || dl2160_2 || dl2160_3, 
+                    url_2: dl2160_2,
+                    url_3: dl2160_3,
+                    file_type: data.file_type 
+                };
             }
 
             // Collect Telegram download links
@@ -505,7 +574,7 @@
                 data.torrent_links.torrent_2160p = form.torrent_2160p.value;
             }
 
-            console.log('Submitting data:', data); // For debugging
+            console.log('Submitting data:', data);
 
             try {
                 const response = await fetch(`${ADMIN_API_BASE_URL}/media`, {
@@ -537,7 +606,6 @@
 
         // Initialize all sections as expanded
         document.addEventListener('DOMContentLoaded', () => {
-            // All sections start expanded
             const sections = [
                 'subtitles-section',
                 'screenshots-section',
