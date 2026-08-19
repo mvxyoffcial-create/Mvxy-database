@@ -360,10 +360,6 @@
                     <h3>Telegram 720p</h3>
                 </div>
                 <div class="form-group">
-                    <label for="telegram_size_720p">📦 Telegram 720p File Size:</label>
-                    <input type="text" id="telegram_size_720p" name="telegram_size_720p" placeholder="e.g. 800MB, 1.2GB">
-                </div>
-                <div class="form-group">
                     <label for="telegram_720p">Telegram 720p URL:</label>
                     <input type="text" id="telegram_720p" name="telegram_720p" placeholder="https://t.me/...">
                 </div>
@@ -372,20 +368,12 @@
                     <h3>Telegram 1080p</h3>
                 </div>
                 <div class="form-group">
-                    <label for="telegram_size_1080p">📦 Telegram 1080p File Size:</label>
-                    <input type="text" id="telegram_size_1080p" name="telegram_size_1080p" placeholder="e.g. 1.8GB, 2.5GB">
-                </div>
-                <div class="form-group">
                     <label for="telegram_1080p">Telegram 1080p URL:</label>
                     <input type="text" id="telegram_1080p" name="telegram_1080p" placeholder="https://t.me/...">
                 </div>
 
                 <div class="quality-header">
                     <h3>Telegram 2160p</h3>
-                </div>
-                <div class="form-group">
-                    <label for="telegram_size_2160p">📦 Telegram 2160p File Size:</label>
-                    <input type="text" id="telegram_size_2160p" name="telegram_size_2160p" placeholder="e.g. 5.5GB, 12GB">
                 </div>
                 <div class="form-group">
                     <label for="telegram_2160p">Telegram 2160p URL:</label>
@@ -400,10 +388,6 @@
                     <h3>Torrent 720p</h3>
                 </div>
                 <div class="form-group">
-                    <label for="torrent_size_720p">📦 Torrent 720p File Size:</label>
-                    <input type="text" id="torrent_size_720p" name="torrent_size_720p" placeholder="e.g. 800MB, 1.2GB">
-                </div>
-                <div class="form-group">
                     <label for="torrent_720p">Torrent 720p URL:</label>
                     <input type="text" id="torrent_720p" name="torrent_720p" placeholder="magnet:?xt=urn:btih:...">
                 </div>
@@ -412,20 +396,12 @@
                     <h3>Torrent 1080p</h3>
                 </div>
                 <div class="form-group">
-                    <label for="torrent_size_1080p">📦 Torrent 1080p File Size:</label>
-                    <input type="text" id="torrent_size_1080p" name="torrent_size_1080p" placeholder="e.g. 1.8GB, 2.5GB">
-                </div>
-                <div class="form-group">
                     <label for="torrent_1080p">Torrent 1080p URL:</label>
                     <input type="text" id="torrent_1080p" name="torrent_1080p" placeholder="magnet:?xt=urn:btih:...">
                 </div>
 
                 <div class="quality-header">
                     <h3>Torrent 2160p</h3>
-                </div>
-                <div class="form-group">
-                    <label for="torrent_size_2160p">📦 Torrent 2160p File Size:</label>
-                    <input type="text" id="torrent_size_2160p" name="torrent_size_2160p" placeholder="e.g. 5.5GB, 12GB">
                 </div>
                 <div class="form-group">
                     <label for="torrent_2160p">Torrent 2160p URL:</label>
@@ -576,16 +552,10 @@
                 youtube_trailer: form.youtube_trailer.value,
                 cast_members: castMembers,
                 genres: genres,
-                // Top-level file size values
+                // Top-level direct download file size values only
                 file_size_720p: form.size_720p.value || null,
                 file_size_1080p: form.size_1080p.value || null,
                 file_size_2160p: form.size_2160p.value || null,
-                telegram_file_size_720p: form.telegram_size_720p.value || null,
-                telegram_file_size_1080p: form.telegram_size_1080p.value || null,
-                telegram_file_size_2160p: form.telegram_size_2160p.value || null,
-                torrent_file_size_720p: form.torrent_size_720p.value || null,
-                torrent_file_size_1080p: form.torrent_size_1080p.value || null,
-                torrent_file_size_2160p: form.torrent_size_2160p.value || null,
                 video_links: {},
                 download_links: {},
                 telegram_links: {},
@@ -648,40 +618,34 @@
             // Telegram Download Links
             if (form.telegram_720p.value) {
                 data.telegram_links.telegram_720p = {
-                    url: form.telegram_720p.value,
-                    file_size: form.telegram_size_720p.value || null
+                    url: form.telegram_720p.value
                 };
             }
             if (form.telegram_1080p.value) {
                 data.telegram_links.telegram_1080p = {
-                    url: form.telegram_1080p.value,
-                    file_size: form.telegram_size_1080p.value || null
+                    url: form.telegram_1080p.value
                 };
             }
             if (form.telegram_2160p.value) {
                 data.telegram_links.telegram_2160p = {
-                    url: form.telegram_2160p.value,
-                    file_size: form.telegram_size_2160p.value || null
+                    url: form.telegram_2160p.value
                 };
             }
 
             // Torrent Download Links
             if (form.torrent_720p.value) {
                 data.torrent_links.torrent_720p = {
-                    url: form.torrent_720p.value,
-                    file_size: form.torrent_size_720p.value || null
+                    url: form.torrent_720p.value
                 };
             }
             if (form.torrent_1080p.value) {
                 data.torrent_links.torrent_1080p = {
-                    url: form.torrent_1080p.value,
-                    file_size: form.torrent_size_1080p.value || null
+                    url: form.torrent_1080p.value
                 };
             }
             if (form.torrent_2160p.value) {
                 data.torrent_links.torrent_2160p = {
-                    url: form.torrent_2160p.value,
-                    file_size: form.torrent_size_2160p.value || null
+                    url: form.torrent_2160p.value
                 };
             }
 
