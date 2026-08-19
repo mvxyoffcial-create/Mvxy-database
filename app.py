@@ -292,13 +292,46 @@ def prepare_media_data(data):
     if data.get('download_links'):
         download_links = safe_json_loads(data.get('download_links'), {})
     else:
-        download_720p = clean_value(data.get('download_720p'))
-        download_1080p = clean_value(data.get('download_1080p'))
-        download_2160p = clean_value(data.get('download_2160p'))
         file_type = data.get('file_type', 'webrip')
-        if download_720p: download_links['download_720p'] = {'url': download_720p, 'file_type': file_type}
-        if download_1080p: download_links['download_1080p'] = {'url': download_1080p, 'file_type': file_type}
-        if download_2160p: download_links['download_2160p'] = {'url': download_2160p, 'file_type': file_type}
+
+        # 720p download links
+        download_720p_1 = clean_value(data.get('download_720p')) or clean_value(data.get('download_720p_1'))
+        download_720p_2 = clean_value(data.get('download_720p_2'))
+        download_720p_3 = clean_value(data.get('download_720p_3'))
+
+        # 1080p download links
+        download_1080p_1 = clean_value(data.get('download_1080p')) or clean_value(data.get('download_1080p_1'))
+        download_1080p_2 = clean_value(data.get('download_1080p_2'))
+        download_1080p_3 = clean_value(data.get('download_1080p_3'))
+
+        # 2160p download links
+        download_2160p_1 = clean_value(data.get('download_2160p')) or clean_value(data.get('download_2160p_1'))
+        download_2160p_2 = clean_value(data.get('download_2160p_2'))
+        download_2160p_3 = clean_value(data.get('download_2160p_3'))
+
+        if download_720p_1 or download_720p_2 or download_720p_3:
+            download_links['download_720p'] = {
+                'url': download_720p_1,
+                'url_2': download_720p_2,
+                'url_3': download_720p_3,
+                'file_type': file_type
+            }
+
+        if download_1080p_1 or download_1080p_2 or download_1080p_3:
+            download_links['download_1080p'] = {
+                'url': download_1080p_1,
+                'url_2': download_1080p_2,
+                'url_3': download_1080p_3,
+                'file_type': file_type
+            }
+
+        if download_2160p_1 or download_2160p_2 or download_2160p_3:
+            download_links['download_2160p'] = {
+                'url': download_2160p_1,
+                'url_2': download_2160p_2,
+                'url_3': download_2160p_3,
+                'file_type': file_type
+            }
     
     telegram_links = {}
     if data.get('telegram_links'):
