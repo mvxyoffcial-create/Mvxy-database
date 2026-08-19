@@ -698,24 +698,12 @@
 
                         <h2>📱 Telegram Download Links</h2>
                         <div class="form-group">
-                            <label for="telegram_size_720p">📦 Telegram 720p File Size:</label>
-                            <input type="text" id="telegram_size_720p" name="telegram_size_720p" value="${tgLinks.telegram_720p?.file_size || ''}">
-                        </div>
-                        <div class="form-group">
                             <label for="telegram_720p">720p Telegram URL:</label>
                             <input type="text" id="telegram_720p" name="telegram_720p" value="${tgLinks.telegram_720p?.url || (typeof tgLinks.telegram_720p === 'string' ? tgLinks.telegram_720p : '')}">
                         </div>
                         <div class="form-group">
-                            <label for="telegram_size_1080p">📦 Telegram 1080p File Size:</label>
-                            <input type="text" id="telegram_size_1080p" name="telegram_size_1080p" value="${tgLinks.telegram_1080p?.file_size || ''}">
-                        </div>
-                        <div class="form-group">
                             <label for="telegram_1080p">1080p Telegram URL:</label>
                             <input type="text" id="telegram_1080p" name="telegram_1080p" value="${tgLinks.telegram_1080p?.url || (typeof tgLinks.telegram_1080p === 'string' ? tgLinks.telegram_1080p : '')}">
-                        </div>
-                        <div class="form-group">
-                            <label for="telegram_size_2160p">📦 Telegram 2160p File Size:</label>
-                            <input type="text" id="telegram_size_2160p" name="telegram_size_2160p" value="${tgLinks.telegram_2160p?.file_size || ''}">
                         </div>
                         <div class="form-group">
                             <label for="telegram_2160p">2160p Telegram URL:</label>
@@ -724,24 +712,12 @@
 
                         <h2>🧲 Torrent Links</h2>
                         <div class="form-group">
-                            <label for="torrent_size_720p">📦 Torrent 720p File Size:</label>
-                            <input type="text" id="torrent_size_720p" name="torrent_size_720p" value="${trLinks.torrent_720p?.file_size || ''}">
-                        </div>
-                        <div class="form-group">
                             <label for="torrent_720p">720p Torrent URL:</label>
                             <input type="text" id="torrent_720p" name="torrent_720p" value="${trLinks.torrent_720p?.url || (typeof trLinks.torrent_720p === 'string' ? trLinks.torrent_720p : '')}">
                         </div>
                         <div class="form-group">
-                            <label for="torrent_size_1080p">📦 Torrent 1080p File Size:</label>
-                            <input type="text" id="torrent_size_1080p" name="torrent_size_1080p" value="${trLinks.torrent_1080p?.file_size || ''}">
-                        </div>
-                        <div class="form-group">
                             <label for="torrent_1080p">1080p Torrent URL:</label>
                             <input type="text" id="torrent_1080p" name="torrent_1080p" value="${trLinks.torrent_1080p?.url || (typeof trLinks.torrent_1080p === 'string' ? trLinks.torrent_1080p : '')}">
-                        </div>
-                        <div class="form-group">
-                            <label for="torrent_size_2160p">📦 Torrent 2160p File Size:</label>
-                            <input type="text" id="torrent_size_2160p" name="torrent_size_2160p" value="${trLinks.torrent_2160p?.file_size || ''}">
                         </div>
                         <div class="form-group">
                             <label for="torrent_2160p">2160p Torrent URL:</label>
@@ -970,18 +946,12 @@
                 data.download_2160p_2 = document.getElementById('download_2160p_2').value.trim() || null;
                 data.download_2160p_3 = document.getElementById('download_2160p_3').value.trim() || null;
 
-                data.telegram_file_size_720p = document.getElementById('telegram_size_720p').value.trim() || null;
                 data.telegram_720p = document.getElementById('telegram_720p').value.trim() || null;
-                data.telegram_file_size_1080p = document.getElementById('telegram_size_1080p').value.trim() || null;
                 data.telegram_1080p = document.getElementById('telegram_1080p').value.trim() || null;
-                data.telegram_file_size_2160p = document.getElementById('telegram_size_2160p').value.trim() || null;
                 data.telegram_2160p = document.getElementById('telegram_2160p').value.trim() || null;
 
-                data.torrent_file_size_720p = document.getElementById('torrent_size_720p').value.trim() || null;
                 data.torrent_720p = document.getElementById('torrent_720p').value.trim() || null;
-                data.torrent_file_size_1080p = document.getElementById('torrent_size_1080p').value.trim() || null;
                 data.torrent_1080p = document.getElementById('torrent_1080p').value.trim() || null;
-                data.torrent_file_size_2160p = document.getElementById('torrent_size_2160p').value.trim() || null;
                 data.torrent_2160p = document.getElementById('torrent_2160p').value.trim() || null;
             } else if (mediaType === 'tv') {
                 data.status = document.getElementById('status').value.trim() || null;
