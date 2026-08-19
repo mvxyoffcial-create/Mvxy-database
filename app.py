@@ -288,6 +288,11 @@ def prepare_media_data(data):
         if video_1080p: video_links['video_1080p'] = video_1080p
         if video_2160p: video_links['video_2160p'] = video_2160p
     
+    # File Sizes for each quality
+    size_720p = clean_value(data.get('size_720p'))
+    size_1080p = clean_value(data.get('size_1080p'))
+    size_2160p = clean_value(data.get('size_2160p'))
+
     download_links = {}
     if data.get('download_links'):
         download_links = safe_json_loads(data.get('download_links'), {})
@@ -314,7 +319,8 @@ def prepare_media_data(data):
                 'url': download_720p_1,
                 'url_2': download_720p_2,
                 'url_3': download_720p_3,
-                'file_type': file_type
+                'file_type': file_type,
+                'size': size_720p
             }
 
         if download_1080p_1 or download_1080p_2 or download_1080p_3:
@@ -322,7 +328,8 @@ def prepare_media_data(data):
                 'url': download_1080p_1,
                 'url_2': download_1080p_2,
                 'url_3': download_1080p_3,
-                'file_type': file_type
+                'file_type': file_type,
+                'size': size_1080p
             }
 
         if download_2160p_1 or download_2160p_2 or download_2160p_3:
@@ -330,7 +337,8 @@ def prepare_media_data(data):
                 'url': download_2160p_1,
                 'url_2': download_2160p_2,
                 'url_3': download_2160p_3,
-                'file_type': file_type
+                'file_type': file_type,
+                'size': size_2160p
             }
     
     telegram_links = {}
@@ -406,6 +414,9 @@ def prepare_media_data(data):
         'download_links': download_links,
         'telegram_links': telegram_links,
         'torrent_links': torrent_links,
+        'size_720p': size_720p,
+        'size_1080p': size_1080p,
+        'size_2160p': size_2160p,
         'total_seasons': total_seasons,
         'seasons': seasons_data,
         'genres': genres,
@@ -723,6 +734,11 @@ def add_episode(media_id):
         telegram_links = data.get('telegram_links', {})
         torrent_links = data.get('torrent_links', {})
 
+        # Extracting size fields for episode
+        size_720p = clean_value(data.get('size_720p'))
+        size_1080p = clean_value(data.get('size_1080p'))
+        size_2160p = clean_value(data.get('size_2160p'))
+
         episode_data = {
             'episode_number': data.get('episode_number'),
             'episode_name': data.get('episode_name'),
@@ -738,6 +754,9 @@ def add_episode(media_id):
             'torrent_720p': torrent_links.get('torrent_720p'),
             'torrent_1080p': torrent_links.get('torrent_1080p'),
             'torrent_2160p': torrent_links.get('torrent_2160p'),
+            'size_720p': size_720p,
+            'size_1080p': size_1080p,
+            'size_2160p': size_2160p,
             'subtitles': episode_subtitles
         }
         
