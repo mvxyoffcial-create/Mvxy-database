@@ -24,6 +24,8 @@
         .ep-section-label { font-size: 11px; font-weight: bold; color: #8a8a8a; text-transform: uppercase; letter-spacing: 0.5px; margin: 6px 0 3px; }
         .ep-subtitle-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
         .ep-subtitle-row input { font-size: 12px; padding: 7px 9px; }
+        .ep-file-size-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 6px 0; }
+        .ep-file-size-row input { font-size: 12px; padding: 7px 9px; }
 
         .remove-btn { background: #ff4d4d; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; white-space: nowrap; }
         h2 { color: #6a11cb; border-bottom: 2px solid #6a11cb; padding-bottom: 5px; margin-top: 30px; }
@@ -40,6 +42,28 @@
         .ep-telegram input::placeholder { color: #36bffa; }
         .ep-torrent input::placeholder  { color: #f5a623; }
         .ep-sub input::placeholder      { color: #d47aff; }
+        .ep-size input::placeholder     { color: #ff6b6b; }
+
+        .file-size-badge {
+            display: inline-block;
+            background: #6a11cb;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 8px;
+            color: #fff;
+        }
+
+        .quality-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .quality-header label {
+            margin-bottom: 0;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -196,14 +220,17 @@
                         <input type="text" id="tv_video_2160p" placeholder="2160p Video">
                     </div>
                 </div>
+                
                 <div class="form-group">
-                    <label>Telegram Links</label>
+                    <label>File Sizes for Download Links <span class="file-size-badge">Required</span></label>
                     <div class="inline-group">
-                        <input type="text" id="telegram_720p" placeholder="720p Telegram">
-                        <input type="text" id="telegram_1080p" placeholder="1080p Telegram">
-                        <input type="text" id="telegram_2160p" placeholder="2160p Telegram">
+                        <input type="text" id="file_size_720p" placeholder="720p Size (e.g. 800MB)">
+                        <input type="text" id="file_size_1080p" placeholder="1080p Size (e.g. 1.8GB)">
+                        <input type="text" id="file_size_2160p" placeholder="2160p Size (e.g. 5.5GB)">
                     </div>
+                    <div class="help-text">Example: 800MB, 1.2GB, 2.5GB, 5.5GB</div>
                 </div>
+
                 <div class="form-group">
                     <label>Download Links</label>
                     <div class="inline-group">
@@ -212,6 +239,16 @@
                         <input type="text" id="download_2160p" placeholder="2160p Download">
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label>Telegram Links</label>
+                    <div class="inline-group">
+                        <input type="text" id="telegram_720p" placeholder="720p Telegram">
+                        <input type="text" id="telegram_1080p" placeholder="1080p Telegram">
+                        <input type="text" id="telegram_2160p" placeholder="2160p Telegram">
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Torrent Links</label>
                     <div class="inline-group">
@@ -268,6 +305,14 @@
                     <input type="text" placeholder="720p Video URL">
                     <input type="text" placeholder="1080p Video URL">
                     <input type="text" placeholder="2160p Video URL">
+                </div>
+
+                <!-- File Sizes for Episode Downloads -->
+                <div class="ep-section-label">📦 File Sizes <span style="color: #ff6b6b; font-size: 10px;">(for download links)</span></div>
+                <div class="ep-file-size-row ep-size">
+                    <input type="text" placeholder="720p Size (e.g. 800MB)">
+                    <input type="text" placeholder="1080p Size (e.g. 1.8GB)">
+                    <input type="text" placeholder="2160p Size (e.g. 5.5GB)">
                 </div>
 
                 <!-- Download links -->
@@ -334,6 +379,11 @@
             const formData = new FormData(e.target);
             const fileType = document.getElementById('file_type').value;
 
+            // Collect file sizes for series-level download links
+            const fileSize720p = document.getElementById('file_size_720p').value.trim() || null;
+            const fileSize1080p = document.getElementById('file_size_1080p').value.trim() || null;
+            const fileSize2160p = document.getElementById('file_size_2160p').value.trim() || null;
+
             const seasons = {};
             document.querySelectorAll('.season-container').forEach((sDiv, sIdx) => {
                 const sNum = sIdx + 1;
@@ -345,6 +395,8 @@
 
                     // Video inputs (3)
                     const videoInputs = row.querySelectorAll('.ep-video input');
+                    // File size inputs (3)
+                    const sizeInputs = row.querySelectorAll('.ep-size input');
                     // Download inputs (3)
                     const dlInputs = row.querySelectorAll('.ep-download input');
                     // Telegram inputs (3)
@@ -356,6 +408,30 @@
 
                     const v = (inp, i) => inp[i] ? inp[i].value.trim() : '';
 
+                    // Get file sizes for this episode
+                    const epFileSize720p = v(sizeInputs, 0) || null;
+                    const epFileSize1080p = v(sizeInputs, 1) || null;
+                    const epFileSize2160p = v(sizeInputs, 2) || null;
+
+                    // Build download objects with file sizes
+                    const download720p = v(dlInputs, 0) ? { 
+                        url: v(dlInputs, 0), 
+                        file_type: fileType,
+                        file_size: epFileSize720p || fileSize720p // Use episode-specific or fallback to series-level
+                    } : null;
+                    
+                    const download1080p = v(dlInputs, 1) ? { 
+                        url: v(dlInputs, 1), 
+                        file_type: fileType,
+                        file_size: epFileSize1080p || fileSize1080p
+                    } : null;
+                    
+                    const download2160p = v(dlInputs, 2) ? { 
+                        url: v(dlInputs, 2), 
+                        file_type: fileType,
+                        file_size: epFileSize2160p || fileSize2160p
+                    } : null;
+
                     episodes.push({
                         episode_number: eIdx + 1,
                         episode_name: nameInput ? nameInput.value.trim() : '',
@@ -366,9 +442,9 @@
                         video_2160p: v(videoInputs, 2) || null,
 
                         // Download
-                        download_720p:  v(dlInputs, 0) ? { url: v(dlInputs, 0),  file_type: fileType } : null,
-                        download_1080p: v(dlInputs, 1) ? { url: v(dlInputs, 1), file_type: fileType } : null,
-                        download_2160p: v(dlInputs, 2) ? { url: v(dlInputs, 2), file_type: fileType } : null,
+                        download_720p: download720p,
+                        download_1080p: download1080p,
+                        download_2160p: download2160p,
 
                         // Telegram
                         telegram_720p:  v(tgInputs, 0) || null,
@@ -388,53 +464,79 @@
                     });
                 });
 
-                seasons[`season_${sNum}`] = { season_number: sNum, episodes };
+                seasons[`season_${sNum}`] = { 
+                    season_number: sNum, 
+                    total_episodes: episodes.length,
+                    episodes 
+                };
             });
+
+            // Helper function to get value or null
+            const getVal = (id) => document.getElementById(id).value.trim() || null;
 
             const data = {
                 type: 'tv',
-                title: formData.get('title'),
-                description: formData.get('description'),
-                thumbnail: formData.get('thumbnail'),
-                backdrop: formData.get('backdrop'),
-                release_date: formData.get('release_date'),
-                language: formData.get('language'),
-                rating: parseFloat(formData.get('rating')),
-                status: formData.get('status'),
-                source_type: formData.get('source_type'),
+                title: getVal('title'),
+                description: getVal('description'),
+                thumbnail: getVal('poster-url'),
+                backdrop: getVal('backdrop-url'),
+                release_date: getVal('release-date'),
+                language: getVal('language'),
+                rating: parseFloat(getVal('rating')) || null,
+                status: getVal('status'),
+                source_type: getVal('source_type'),
                 file_type: fileType,
-                youtube_trailer: formData.get('youtube_trailer'),
-                sub_sinhala: formData.get('sub_sinhala'),
-                sub_english: formData.get('sub_english'),
-                genres: formData.get('genres').split(',').map(g => g.trim()),
-                cast_members: JSON.parse(formData.get('cast_members') || '[]'),
-                screenshots_720p:  [document.getElementById('screenshots_720p_1').value,  document.getElementById('screenshots_720p_2').value].filter(i => i),
-                screenshots_1080p: [document.getElementById('screenshots_1080p_1').value, document.getElementById('screenshots_1080p_2').value].filter(i => i),
-                screenshots_2160p: [document.getElementById('screenshots_2160p_1').value, document.getElementById('screenshots_2160p_2').value].filter(i => i),
-                screenshots_trailer: [document.getElementById('screenshots_trailer_1').value, document.getElementById('screenshots_trailer_2').value].filter(i => i),
-                video_links: {
-                    video_720p:  document.getElementById('tv_video_720p').value,
-                    video_1080p: document.getElementById('tv_video_1080p').value,
-                    video_2160p: document.getElementById('tv_video_2160p').value
+                youtube_trailer: getVal('youtube_trailer'),
+                subtitles: {
+                    sinhala: getVal('sub_sinhala') ? [getVal('sub_sinhala')] : [],
+                    english: getVal('sub_english') ? [getVal('sub_english')] : []
                 },
+                genres: getVal('genres') ? getVal('genres').split(',').map(g => g.trim()) : [],
+                cast_members: JSON.parse(getVal('cast-members') || '[]'),
+                screenshots_720p:  [getVal('screenshots_720p_1'), getVal('screenshots_720p_2')].filter(i => i),
+                screenshots_1080p: [getVal('screenshots_1080p_1'), getVal('screenshots_1080p_2')].filter(i => i),
+                screenshots_2160p: [getVal('screenshots_2160p_1'), getVal('screenshots_2160p_2')].filter(i => i),
+                screenshots_trailer: [getVal('screenshots_trailer_1'), getVal('screenshots_trailer_2')].filter(i => i),
+                video_links: {
+                    video_720p:  getVal('tv_video_720p'),
+                    video_1080p: getVal('tv_video_1080p'),
+                    video_2160p: getVal('tv_video_2160p')
+                },
+                file_size_720p: fileSize720p,
+                file_size_1080p: fileSize1080p,
+                file_size_2160p: fileSize2160p,
                 telegram_links: {
-                    telegram_720p:  document.getElementById('telegram_720p').value,
-                    telegram_1080p: document.getElementById('telegram_1080p').value,
-                    telegram_2160p: document.getElementById('telegram_2160p').value
+                    telegram_720p:  getVal('telegram_720p'),
+                    telegram_1080p: getVal('telegram_1080p'),
+                    telegram_2160p: getVal('telegram_2160p')
                 },
                 torrent_links: {
-                    torrent_720p:  document.getElementById('torrent_720p').value,
-                    torrent_1080p: document.getElementById('torrent_1080p').value,
-                    torrent_2160p: document.getElementById('torrent_2160p').value
+                    torrent_720p:  getVal('torrent_720p'),
+                    torrent_1080p: getVal('torrent_1080p'),
+                    torrent_2160p: getVal('torrent_2160p')
                 },
                 download_links: {
-                    download_720p:  document.getElementById('download_720p').value  ? { url: document.getElementById('download_720p').value,  file_type: fileType } : null,
-                    download_1080p: document.getElementById('download_1080p').value ? { url: document.getElementById('download_1080p').value, file_type: fileType } : null,
-                    download_2160p: document.getElementById('download_2160p').value ? { url: document.getElementById('download_2160p').value, file_type: fileType } : null
+                    download_720p: getVal('download_720p') ? { 
+                        url: getVal('download_720p'), 
+                        file_type: fileType,
+                        file_size: fileSize720p
+                    } : null,
+                    download_1080p: getVal('download_1080p') ? { 
+                        url: getVal('download_1080p'), 
+                        file_type: fileType,
+                        file_size: fileSize1080p
+                    } : null,
+                    download_2160p: getVal('download_2160p') ? { 
+                        url: getVal('download_2160p'), 
+                        file_type: fileType,
+                        file_size: fileSize2160p
+                    } : null
                 },
                 seasons: seasons,
                 total_seasons: Object.keys(seasons).length
             };
+
+            console.log('Submitting TV series with data:', data);
 
             try {
                 const res = await fetch(`${API_BASE_URL}/media`, {
@@ -442,11 +544,17 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': AUTH_HEADER },
                     body: JSON.stringify(data)
                 });
+                const result = await res.json();
                 if (res.ok) {
-                    alert('TV Series Added!');
+                    alert('TV Series Added Successfully!');
                     window.location.href = '/admin/search_and_edit';
+                } else {
+                    alert('Error: ' + result.message);
                 }
-            } catch (err) { alert('Error saving'); }
+            } catch (err) { 
+                console.error(err);
+                alert('Error saving TV series'); 
+            }
         });
     </script>
 </body>
