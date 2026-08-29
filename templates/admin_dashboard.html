@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Complete Media Management</title>
+    <title>Admin Dashboard - Koyeb Backend</title>
     <!-- SortableJS for drag & drop -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
@@ -12,7 +12,6 @@
             margin: 0;
             padding: 0;
         }
-        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #1a1a2e;
@@ -20,8 +19,6 @@
             padding: 20px;
             min-height: 100vh;
         }
-
-        /* Header */
         .admin-header {
             background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             padding: 30px 40px;
@@ -34,24 +31,20 @@
             gap: 20px;
             box-shadow: 0 10px 30px rgba(106, 17, 203, 0.3);
         }
-        
         .admin-header h1 {
             font-size: 2em;
             margin: 0;
         }
-        
         .admin-header h1 span {
             font-size: 0.6em;
             opacity: 0.8;
             display: block;
         }
-        
         .admin-header .user-info {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        
         .admin-header .user-info .logout-btn {
             background: rgba(255, 255, 255, 0.2);
             color: #fff;
@@ -61,12 +54,9 @@
             text-decoration: none;
             transition: all 0.3s ease;
         }
-        
         .admin-header .user-info .logout-btn:hover {
             background: rgba(255, 255, 255, 0.3);
         }
-
-        /* Quick Actions */
         .quick-actions {
             display: flex;
             flex-wrap: wrap;
@@ -77,7 +67,6 @@
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
         .quick-actions .btn {
             padding: 12px 24px;
             border: none;
@@ -88,49 +77,16 @@
             text-decoration: none;
             display: inline-block;
             font-size: 14px;
-        }
-        
-        .quick-actions .btn-primary {
-            background: linear-gradient(135deg, #6a11cb, #2575fc);
             color: #fff;
         }
-        
-        .quick-actions .btn-primary:hover {
+        .quick-actions .btn-primary { background: linear-gradient(135deg, #6a11cb, #2575fc); }
+        .quick-actions .btn-success { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .quick-actions .btn-warning { background: linear-gradient(135deg, #f7971e, #ffd200); color: #333; }
+        .quick-actions .btn-danger { background: linear-gradient(135deg, #eb3349, #f45c43); }
+        .quick-actions .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(106, 17, 203, 0.4);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
-        
-        .quick-actions .btn-success {
-            background: linear-gradient(135deg, #11998e, #38ef7d);
-            color: #fff;
-        }
-        
-        .quick-actions .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
-        }
-        
-        .quick-actions .btn-warning {
-            background: linear-gradient(135deg, #f7971e, #ffd200);
-            color: #333;
-        }
-        
-        .quick-actions .btn-warning:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(247, 151, 30, 0.4);
-        }
-        
-        .quick-actions .btn-danger {
-            background: linear-gradient(135deg, #eb3349, #f45c43);
-            color: #fff;
-        }
-        
-        .quick-actions .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(235, 51, 73, 0.4);
-        }
-
-        /* Sections */
         .section {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
@@ -138,7 +94,6 @@
             margin-bottom: 30px;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -147,12 +102,10 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-        
         .section-header h2 {
             font-size: 1.5em;
             margin: 0;
         }
-        
         .section-header h2 .badge {
             background: rgba(255, 255, 255, 0.1);
             padding: 2px 12px;
@@ -160,13 +113,11 @@
             font-size: 0.6em;
             margin-left: 10px;
         }
-        
         .section-header .actions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
-        
         .section-header .actions .btn-sm {
             padding: 6px 15px;
             font-size: 12px;
@@ -176,31 +127,16 @@
             transition: all 0.3s ease;
             color: #fff;
         }
-        
-        .btn-sm.save {
-            background: #11998e;
-        }
-        
-        .btn-sm.save:hover {
-            background: #0d7a6f;
-        }
-        
-        .btn-sm.refresh {
-            background: #2575fc;
-        }
-        
-        .btn-sm.refresh:hover {
-            background: #1a5fc4;
-        }
-
-        /* Sortable Lists */
+        .btn-sm.save { background: #11998e; }
+        .btn-sm.save:hover { background: #0d7a6f; }
+        .btn-sm.refresh { background: #2575fc; }
+        .btn-sm.refresh:hover { background: #1a5fc4; }
         .sortable-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 15px;
             min-height: 100px;
         }
-        
         .sortable-item {
             background: rgba(255, 255, 255, 0.08);
             border-radius: 10px;
@@ -210,18 +146,15 @@
             border: 2px solid transparent;
             position: relative;
         }
-        
         .sortable-item:hover {
             background: rgba(255, 255, 255, 0.15);
             border-color: rgba(106, 17, 203, 0.5);
             transform: translateY(-3px);
         }
-        
         .sortable-item.dragging {
             opacity: 0.5;
             transform: scale(0.95);
         }
-        
         .sortable-item .drag-handle {
             cursor: grab;
             font-size: 18px;
@@ -229,13 +162,11 @@
             margin-right: 8px;
             display: inline-block;
         }
-        
         .sortable-item .item-content {
             display: flex;
             gap: 10px;
             align-items: center;
         }
-        
         .sortable-item .item-thumb {
             width: 50px;
             height: 70px;
@@ -244,12 +175,10 @@
             background: rgba(255, 255, 255, 0.1);
             flex-shrink: 0;
         }
-        
         .sortable-item .item-info {
             flex: 1;
             min-width: 0;
         }
-        
         .sortable-item .item-info .title {
             font-weight: 600;
             font-size: 14px;
@@ -257,19 +186,16 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
         .sortable-item .item-info .meta {
             font-size: 12px;
             opacity: 0.7;
         }
-        
         .sortable-item .item-actions {
             display: flex;
             gap: 5px;
             margin-top: 8px;
             flex-wrap: wrap;
         }
-        
         .sortable-item .item-actions .btn-icon {
             padding: 4px 10px;
             border: none;
@@ -279,45 +205,15 @@
             transition: all 0.2s ease;
             color: #fff;
         }
-        
-        .btn-icon.edit {
-            background: #2575fc;
-        }
-        
-        .btn-icon.edit:hover {
-            background: #1a5fc4;
-        }
-        
-        .btn-icon.delete {
-            background: #eb3349;
-        }
-        
-        .btn-icon.delete:hover {
-            background: #c92a3e;
-        }
-        
-        .btn-icon.episode {
-            background: #f7971e;
-        }
-        
-        .btn-icon.episode:hover {
-            background: #d4811a;
-        }
-        
-        .btn-icon.hero-toggle {
-            background: #6a11cb;
-        }
-        
-        .btn-icon.hero-toggle.active {
-            background: #38ef7d;
-            color: #1a1a2e;
-        }
-        
-        .btn-icon.hero-toggle:hover {
-            opacity: 0.8;
-        }
-
-        /* Hero Section Specific */
+        .btn-icon.edit { background: #2575fc; }
+        .btn-icon.edit:hover { background: #1a5fc4; }
+        .btn-icon.delete { background: #eb3349; }
+        .btn-icon.delete:hover { background: #c92a3e; }
+        .btn-icon.episode { background: #f7971e; }
+        .btn-icon.episode:hover { background: #d4811a; }
+        .btn-icon.hero-toggle { background: #6a11cb; }
+        .btn-icon.hero-toggle.active { background: #38ef7d; color: #1a1a2e; }
+        .btn-icon.hero-toggle:hover { opacity: 0.8; }
         .hero-slot {
             border: 2px dashed rgba(255, 255, 255, 0.2);
             background: rgba(255, 255, 255, 0.03);
@@ -328,7 +224,6 @@
             color: rgba(255, 255, 255, 0.3);
             border-radius: 10px;
         }
-        
         .hero-slot .sortable-item {
             width: 100%;
             height: 100%;
@@ -339,16 +234,10 @@
             justify-content: center;
             background: rgba(255, 255, 255, 0.08);
         }
-        
         .hero-slot .sortable-item .item-thumb {
             width: 80px;
             height: 110px;
         }
-        
-        .hero-slot .sortable-item .item-info .title {
-            font-size: 13px;
-        }
-        
         .hero-slot .sortable-item .hero-badge {
             background: #38ef7d;
             color: #1a1a2e;
@@ -360,8 +249,6 @@
             top: -8px;
             right: -8px;
         }
-
-        /* Hero Pool (Available Movies) */
         .hero-pool {
             display: flex;
             flex-wrap: wrap;
@@ -373,7 +260,6 @@
             border: 1px dashed rgba(255, 255, 255, 0.1);
             margin-top: 15px;
         }
-        
         .hero-pool .pool-item {
             background: rgba(255, 255, 255, 0.08);
             padding: 6px 15px;
@@ -385,11 +271,9 @@
             align-items: center;
             gap: 8px;
         }
-        
         .hero-pool .pool-item:hover {
             background: rgba(106, 17, 203, 0.3);
         }
-        
         .hero-pool .pool-item .add-btn {
             background: #11998e;
             border: none;
@@ -403,26 +287,20 @@
             align-items: center;
             justify-content: center;
         }
-        
         .hero-pool .pool-item .add-btn:hover {
             background: #0d7a6f;
         }
-
-        /* Loading & Empty States */
         .loading {
             text-align: center;
             padding: 40px;
             opacity: 0.5;
         }
-        
         .empty-state {
             text-align: center;
             padding: 40px;
             opacity: 0.3;
             font-style: italic;
         }
-        
-        /* Notification Toast */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -437,83 +315,31 @@
             transition: all 0.4s ease;
             z-index: 9999;
         }
-        
         .toast.show {
             transform: translateY(0);
             opacity: 1;
         }
-        
-        .toast.error {
-            background: #eb3349;
-        }
-        
-        .toast.success {
-            background: #11998e;
-        }
-
-        /* Responsive */
+        .toast.error { background: #eb3349; }
+        .toast.success { background: #11998e; }
         @media (max-width: 768px) {
-            .admin-header {
-                flex-direction: column;
-                text-align: center;
-                padding: 20px;
-            }
-            
-            .admin-header h1 {
-                font-size: 1.5em;
-            }
-            
-            .quick-actions {
-                justify-content: center;
-            }
-            
-            .quick-actions .btn {
-                width: 100%;
-                text-align: center;
-            }
-            
-            .sortable-list {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .section-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
+            .admin-header { flex-direction: column; text-align: center; padding: 20px; }
+            .admin-header h1 { font-size: 1.5em; }
+            .quick-actions { justify-content: center; }
+            .quick-actions .btn { width: 100%; text-align: center; }
+            .sortable-list { grid-template-columns: 1fr 1fr; }
+            .section-header { flex-direction: column; align-items: stretch; }
         }
-        
         @media (max-width: 480px) {
-            .sortable-list {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+            .sortable-list { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <header class="admin-header">
         <div>
             <h1>🎬 Admin Dashboard
-                <span>Complete Media Management System</span>
+                <span>Koyeb Backend – Complete Management</span>
             </h1>
         </div>
         <div class="user-info">
@@ -523,7 +349,6 @@
         </div>
     </header>
 
-    <!-- Quick Actions -->
     <div class="quick-actions">
         <a href="/admin/add_movie" class="btn btn-primary">🎬 Add Movie</a>
         <a href="/admin/add_tv" class="btn btn-success">📺 Add TV Series</a>
@@ -532,28 +357,21 @@
         <a href="/api/docs" class="btn btn-primary" style="background: rgba(255,255,255,0.1);">📚 API Docs</a>
     </div>
 
-    <!-- Hero Section Manager -->
+    <!-- Hero Section -->
     <div class="section" id="heroSection">
         <div class="section-header">
-            <h2>
-                ⭐ Hero Section 
-                <span class="badge" id="heroCount">0 / 15</span>
-            </h2>
+            <h2>⭐ Hero Section <span class="badge" id="heroCount">0 / 15</span></h2>
             <div class="actions">
                 <button class="btn-sm save" onclick="saveHeroOrder()">💾 Save Hero Order</button>
                 <button class="btn-sm refresh" onclick="loadHeroData()">🔄 Refresh</button>
             </div>
         </div>
         <p style="opacity:0.6; margin-bottom:15px; font-size:14px;">
-            Drag to reorder. First 8 movies will appear in the carousel. Maximum 15 movies.
+            Drag to reorder. First 8 movies appear in the carousel. Maximum 15.
         </p>
-        
-        <!-- Hero List (Sortable) -->
         <div id="heroList" class="sortable-list" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
             <div class="loading">Loading hero section...</div>
         </div>
-        
-        <!-- Available Movies Pool -->
         <div style="margin-top:20px;">
             <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">📦 Available Movies (Click + to add to Hero)</h3>
             <div id="moviePool" class="hero-pool">
@@ -565,10 +383,7 @@
     <!-- Latest Movies -->
     <div class="section" id="moviesSection">
         <div class="section-header">
-            <h2>
-                🎬 Latest Movies 
-                <span class="badge" id="movieCount">12</span>
-            </h2>
+            <h2>🎬 Latest Movies <span class="badge" id="movieCount">12</span></h2>
             <div class="actions">
                 <button class="btn-sm save" onclick="saveMovieOrder()">💾 Save Order</button>
                 <button class="btn-sm refresh" onclick="loadMovies()">🔄 Refresh</button>
@@ -583,10 +398,7 @@
     <!-- Latest TV Series -->
     <div class="section" id="tvSection">
         <div class="section-header">
-            <h2>
-                📺 Latest TV Series 
-                <span class="badge" id="tvCount">12</span>
-            </h2>
+            <h2>📺 Latest TV Series <span class="badge" id="tvCount">12</span></h2>
             <div class="actions">
                 <button class="btn-sm save" onclick="saveTVOrder()">💾 Save Order</button>
                 <button class="btn-sm refresh" onclick="loadTV()">🔄 Refresh</button>
@@ -598,27 +410,24 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
     <script>
-        // ============================================
-        // CONFIGURATION
-        // ============================================
-        const API_BASE = '';
+        // ================================================================
+        //  ADMIN DASHBOARD – Koyeb Backend
+        //  API Base: https://yodelling-leland-zerodev-156c74fd.koyeb.app
+        // ================================================================
+
+        const API_BASE = 'https://yodelling-leland-zerodev-156c74fd.koyeb.app';
         const AUTH = 'Basic ' + btoa('venura:venura');
 
-        // ============================================
-        // HELPER FUNCTIONS
-        // ============================================
+        // ===== HELPERS =====
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = 'toast ' + type + ' show';
             clearTimeout(toast._timeout);
-            toast._timeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
         function getHeaders() {
@@ -628,101 +437,89 @@
             };
         }
 
-        function getThumbnail(item) {
-            if (item.thumbnail) return item.thumbnail;
-            if (item.poster) return item.poster;
-            return '';
-        }
-
-        function getRating(item) {
-            if (item.rating) return item.rating;
-            return 'N/A';
-        }
-
+        function getThumb(item) { return item.thumbnail || item.poster || ''; }
+        function getRating(item) { return item.rating || 'N/A'; }
         function getStatus(item) {
             if (item.status === 'complete' || item.status === 'finished') return '✅ Complete';
             if (item.status === 'ongoing') return '🔄 Ongoing';
             return '';
         }
 
-        // ============================================
-        // LOAD DATA
-        // ============================================
+        // ===== LOAD DATA =====
         async function loadMovies() {
             try {
-                const response = await fetch('/api/movies/latest?limit=12');
-                const movies = await response.json();
-                renderMovieList(movies);
-                document.getElementById('movieCount').textContent = movies.length;
-            } catch (error) {
-                console.error('Error loading movies:', error);
+                const res = await fetch(`${API_BASE}/api/movies/latest?limit=12`);
+                const movies = await res.json();
+                renderMovieList(Array.isArray(movies) ? movies : []);
+                document.getElementById('movieCount').textContent = movies.length || 0;
+            } catch (e) {
+                console.error(e);
                 document.getElementById('movieList').innerHTML = '<div class="empty-state">❌ Failed to load movies</div>';
             }
         }
 
         async function loadTV() {
             try {
-                const response = await fetch('/api/tvseries/latest?limit=12');
-                const tv = await response.json();
-                renderTVList(tv);
-                document.getElementById('tvCount').textContent = tv.length;
-            } catch (error) {
-                console.error('Error loading TV series:', error);
+                const res = await fetch(`${API_BASE}/api/tvseries/latest?limit=12`);
+                const tv = await res.json();
+                renderTVList(Array.isArray(tv) ? tv : []);
+                document.getElementById('tvCount').textContent = tv.length || 0;
+            } catch (e) {
+                console.error(e);
                 document.getElementById('tvList').innerHTML = '<div class="empty-state">❌ Failed to load TV series</div>';
             }
         }
 
         async function loadHeroData() {
             try {
-                const response = await fetch('/api/hero');
-                const data = await response.json();
-                renderHeroList(data.all || []);
-                document.getElementById('heroCount').textContent = (data.all ? data.all.length : 0) + ' / 15';
-                
-                // Load available movies for pool
-                await loadMoviePool();
-            } catch (error) {
-                console.error('Error loading hero data:', error);
-                document.getElementById('heroList').innerHTML = '<div class="empty-state">❌ Failed to load hero section</div>';
+                const res = await fetch(`${API_BASE}/api/hero`);
+                const data = await res.json();
+                const heroList = data.all || [];
+                renderHeroList(heroList);
+                document.getElementById('heroCount').textContent = heroList.length + ' / 15';
+                await loadMoviePool(); // update pool after hero load
+            } catch (e) {
+                console.error(e);
+                document.getElementById('heroList').innerHTML = '<div class="empty-state">❌ Failed to load hero</div>';
             }
         }
 
         async function loadMoviePool() {
             try {
-                const response = await fetch('/api/movies/latest?limit=50');
-                const movies = await response.json();
-                
+                // Fetch ALL movies from /api/media, filter by type='movie'
+                const res = await fetch(`${API_BASE}/api/media`);
+                const allMedia = await res.json();
+                const allMovies = (Array.isArray(allMedia) ? allMedia : [])
+                    .filter(item => item.type === 'movie');
+
                 // Get current hero IDs
-                const heroResponse = await fetch('/api/hero');
-                const heroData = await heroResponse.json();
+                const heroRes = await fetch(`${API_BASE}/api/hero`);
+                const heroData = await heroRes.json();
                 const heroIds = new Set((heroData.all || []).map(m => m.id));
-                
-                const available = movies.filter(m => !heroIds.has(m.id));
+
+                const available = allMovies.filter(m => !heroIds.has(m.id));
                 renderMoviePool(available);
-            } catch (error) {
-                console.error('Error loading movie pool:', error);
-                document.getElementById('moviePool').innerHTML = '<div class="empty-state">Failed to load available movies</div>';
+            } catch (e) {
+                console.error(e);
+                document.getElementById('moviePool').innerHTML = '<div class="empty-state">Failed to load movies</div>';
             }
         }
 
-        // ============================================
-        // RENDER FUNCTIONS
-        // ============================================
+        // ===== RENDER FUNCTIONS =====
         function renderMovieList(movies) {
             const container = document.getElementById('movieList');
-            if (!movies || movies.length === 0) {
-                container.innerHTML = '<div class="empty-state">📭 No movies found. Add one!</div>';
+            if (!movies.length) {
+                container.innerHTML = '<div class="empty-state">📭 No movies found.</div>';
                 return;
             }
-            
-            container.innerHTML = movies.map((movie, index) => `
-                <div class="sortable-item" data-id="${movie.id}" data-order="${index}">
+            container.innerHTML = movies.map((movie, idx) => `
+                <div class="sortable-item" data-id="${movie.id}" data-order="${idx}">
                     <div class="item-content">
                         <span class="drag-handle">⠿</span>
-                        ${movie.thumbnail ? `<img src="${movie.thumbnail}" class="item-thumb" alt="${movie.title}" onerror="this.style.display='none'">` : '<div class="item-thumb" style="display:flex;align-items:center;justify-content:center;font-size:24px;">🎬</div>'}
+                        ${movie.thumbnail ? `<img src="${movie.thumbnail}" class="item-thumb" onerror="this.style.display='none'">` : '<div class="item-thumb" style="display:flex;align-items:center;justify-content:center;font-size:24px;">🎬</div>'}
                         <div class="item-info">
                             <div class="title">${movie.title}</div>
-                            <div class="meta">⭐ ${getRating(movie)} • ${getStatus(movie)}</div>
+                            <div class="meta">⭐ ${getRating(movie)} ${getStatus(movie)}</div>
                             ${movie.is_hero ? '<span style="color:#38ef7d;font-size:11px;">⭐ Hero</span>' : ''}
                             <div class="item-actions">
                                 <button class="btn-icon edit" onclick="editItem(${movie.id})">✏️ Edit</button>
@@ -733,33 +530,26 @@
                     </div>
                 </div>
             `).join('');
-            
-            // Initialize Sortable
-            if (window.Sortable) {
-                new Sortable(container, {
-                    animation: 150,
-                    handle: '.drag-handle',
-                    ghostClass: 'dragging',
-                    onEnd: function() {
-                        // Auto-save after drag
-                        saveMovieOrder();
-                    }
-                });
-            }
+
+            new Sortable(container, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'dragging',
+                onEnd: () => saveMovieOrder()
+            });
         }
 
         function renderTVList(tv) {
             const container = document.getElementById('tvList');
-            if (!tv || tv.length === 0) {
-                container.innerHTML = '<div class="empty-state">📭 No TV series found. Add one!</div>';
+            if (!tv.length) {
+                container.innerHTML = '<div class="empty-state">📭 No TV series found.</div>';
                 return;
             }
-            
-            container.innerHTML = tv.map((series, index) => `
-                <div class="sortable-item" data-id="${series.id}" data-order="${index}">
+            container.innerHTML = tv.map((series, idx) => `
+                <div class="sortable-item" data-id="${series.id}" data-order="${idx}">
                     <div class="item-content">
                         <span class="drag-handle">⠿</span>
-                        ${series.thumbnail ? `<img src="${series.thumbnail}" class="item-thumb" alt="${series.title}" onerror="this.style.display='none'">` : '<div class="item-thumb" style="display:flex;align-items:center;justify-content:center;font-size:24px;">📺</div>'}
+                        ${series.thumbnail ? `<img src="${series.thumbnail}" class="item-thumb" onerror="this.style.display='none'">` : '<div class="item-thumb" style="display:flex;align-items:center;justify-content:center;font-size:24px;">📺</div>'}
                         <div class="item-info">
                             <div class="title">${series.title}</div>
                             <div class="meta">⭐ ${getRating(series)} • ${series.total_seasons || '?'} Seasons</div>
@@ -772,40 +562,31 @@
                     </div>
                 </div>
             `).join('');
-            
-            if (window.Sortable) {
-                new Sortable(container, {
-                    animation: 150,
-                    handle: '.drag-handle',
-                    ghostClass: 'dragging',
-                    onEnd: function() {
-                        saveTVOrder();
-                    }
-                });
-            }
+
+            new Sortable(container, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'dragging',
+                onEnd: () => saveTVOrder()
+            });
         }
 
         function renderHeroList(heroMovies) {
             const container = document.getElementById('heroList');
-            if (!heroMovies || heroMovies.length === 0) {
-                container.innerHTML = `
-                    <div class="hero-slot" style="grid-column:1/-1;min-height:200px;">
-                        <div style="text-align:center;">
-                            <div style="font-size:48px;margin-bottom:10px;">⭐</div>
-                            <div>No hero movies selected</div>
-                            <div style="font-size:12px;opacity:0.5;">Add movies from the pool below</div>
-                        </div>
-                    </div>
-                `;
+            if (!heroMovies.length) {
+                container.innerHTML = `<div class="hero-slot" style="grid-column:1/-1;min-height:200px;">
+                    <div style="text-align:center;font-size:48px;margin-bottom:10px;">⭐</div>
+                    <div>No hero movies selected</div>
+                    <div style="font-size:12px;opacity:0.5;">Add from pool below</div>
+                </div>`;
                 return;
             }
-            
-            // Fill remaining slots with empty placeholders
-            let html = heroMovies.map((movie, index) => `
-                <div class="sortable-item" data-id="${movie.id}" data-order="${index}" style="min-height:160px;display:flex;flex-direction:column;align-items:center;text-align:center;">
-                    <span class="hero-badge">#${index + 1}</span>
+
+            let html = heroMovies.map((movie, idx) => `
+                <div class="sortable-item" data-id="${movie.id}" data-order="${idx}" style="min-height:160px;display:flex;flex-direction:column;align-items:center;text-align:center;">
+                    <span class="hero-badge">#${idx + 1}</span>
                     <div style="position:relative;width:100%;">
-                        ${movie.thumbnail ? `<img src="${movie.thumbnail}" class="item-thumb" alt="${movie.title}" onerror="this.style.display='none'" style="width:80px;height:110px;object-fit:cover;border-radius:8px;margin:0 auto;">` : '<div style="width:80px;height:110px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;font-size:32px;">🎬</div>'}
+                        ${movie.thumbnail ? `<img src="${movie.thumbnail}" class="item-thumb" style="width:80px;height:110px;object-fit:cover;border-radius:8px;margin:0 auto;" onerror="this.style.display='none'">` : '<div style="width:80px;height:110px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;font-size:32px;">🎬</div>'}
                         <span class="drag-handle" style="position:absolute;top:5px;left:5px;cursor:grab;opacity:0.5;font-size:20px;">⠿</span>
                         <button class="btn-icon delete" onclick="removeFromHero(${movie.id})" style="position:absolute;top:5px;right:5px;background:#eb3349;padding:2px 8px;font-size:10px;">✕</button>
                     </div>
@@ -815,41 +596,32 @@
                     </div>
                 </div>
             `).join('');
-            
-            // Add empty slots
+
+            // Empty slots
             const emptySlots = 15 - heroMovies.length;
             for (let i = 0; i < emptySlots; i++) {
-                html += `
-                    <div class="hero-slot" style="min-height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(255,255,255,0.2);">
-                        <div style="font-size:32px;">➕</div>
-                        <div style="font-size:12px;">Empty Slot</div>
-                    </div>
-                `;
+                html += `<div class="hero-slot" style="min-height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(255,255,255,0.2);">
+                    <div style="font-size:32px;">➕</div>
+                    <div style="font-size:12px;">Empty Slot</div>
+                </div>`;
             }
-            
             container.innerHTML = html;
-            
-            if (window.Sortable) {
-                new Sortable(container, {
-                    animation: 150,
-                    handle: '.drag-handle',
-                    ghostClass: 'dragging',
-                    onEnd: function() {
-                        // Auto-save hero order after drag
-                        saveHeroOrder();
-                    }
-                });
-            }
+
+            new Sortable(container, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'dragging',
+                onEnd: () => saveHeroOrder()
+            });
         }
 
-        function renderMoviePool(availableMovies) {
+        function renderMoviePool(available) {
             const container = document.getElementById('moviePool');
-            if (!availableMovies || availableMovies.length === 0) {
-                container.innerHTML = '<div style="opacity:0.5;">✅ All movies are in the hero section or no movies available</div>';
+            if (!available.length) {
+                container.innerHTML = '<div style="opacity:0.5;">✅ All movies are in hero or no movies available</div>';
                 return;
             }
-            
-            container.innerHTML = availableMovies.slice(0, 30).map(movie => `
+            container.innerHTML = available.slice(0, 50).map(movie => `
                 <div class="pool-item">
                     <span>${movie.title}</span>
                     <button class="add-btn" onclick="addToHero(${movie.id})" title="Add to Hero">+</button>
@@ -857,219 +629,150 @@
             `).join('');
         }
 
-        // ============================================
-        // ACTIONS
-        // ============================================
+        // ===== ACTIONS =====
         async function saveMovieOrder() {
             const items = [];
-            document.querySelectorAll('#movieList .sortable-item').forEach((el, index) => {
-                items.push({
-                    id: parseInt(el.dataset.id),
-                    sort_order: index,
-                    is_hero: false
-                });
+            document.querySelectorAll('#movieList .sortable-item').forEach((el, idx) => {
+                items.push({ id: parseInt(el.dataset.id), sort_order: idx, is_hero: false });
             });
-            
             try {
-                const response = await fetch('/api/admin/content/reorder', {
+                const res = await fetch(`${API_BASE}/api/admin/content/reorder`, {
                     method: 'PUT',
                     headers: getHeaders(),
                     body: JSON.stringify({ items })
                 });
-                const data = await response.json();
-                showToast('✅ Movie order saved successfully!');
-            } catch (error) {
-                showToast('❌ Failed to save movie order', 'error');
-            }
+                if (res.ok) showToast('✅ Movie order saved');
+                else showToast('❌ Failed to save movie order', 'error');
+            } catch (e) { showToast('❌ Error saving movie order', 'error'); }
         }
 
         async function saveTVOrder() {
             const items = [];
-            document.querySelectorAll('#tvList .sortable-item').forEach((el, index) => {
-                items.push({
-                    id: parseInt(el.dataset.id),
-                    sort_order: index,
-                    is_hero: false
-                });
+            document.querySelectorAll('#tvList .sortable-item').forEach((el, idx) => {
+                items.push({ id: parseInt(el.dataset.id), sort_order: idx, is_hero: false });
             });
-            
             try {
-                const response = await fetch('/api/admin/content/reorder', {
+                const res = await fetch(`${API_BASE}/api/admin/content/reorder`, {
                     method: 'PUT',
                     headers: getHeaders(),
                     body: JSON.stringify({ items })
                 });
-                const data = await response.json();
-                showToast('✅ TV series order saved successfully!');
-            } catch (error) {
-                showToast('❌ Failed to save TV series order', 'error');
-            }
+                if (res.ok) showToast('✅ TV order saved');
+                else showToast('❌ Failed to save TV order', 'error');
+            } catch (e) { showToast('❌ Error saving TV order', 'error'); }
         }
 
         async function saveHeroOrder() {
             const items = [];
-            document.querySelectorAll('#heroList .sortable-item').forEach((el) => {
+            document.querySelectorAll('#heroList .sortable-item').forEach(el => {
                 const id = parseInt(el.dataset.id);
-                if (id) {
-                    items.push({ id });
-                }
+                if (id) items.push({ id });
             });
-            
-            if (items.length === 0) {
+            if (!items.length) {
                 showToast('⚠️ No hero movies to save', 'error');
                 return;
             }
-            
             try {
-                const response = await fetch('/api/admin/hero/batch', {
+                const res = await fetch(`${API_BASE}/api/admin/hero/batch`, {
                     method: 'PUT',
                     headers: getHeaders(),
                     body: JSON.stringify({ hero_items: items })
                 });
-                const data = await response.json();
-                showToast('✅ Hero section updated successfully!');
-                document.getElementById('heroCount').textContent = items.length + ' / 15';
-                await loadHeroData();
-            } catch (error) {
-                showToast('❌ Failed to save hero section', 'error');
-            }
+                if (res.ok) {
+                    showToast('✅ Hero section updated');
+                    document.getElementById('heroCount').textContent = items.length + ' / 15';
+                    await loadHeroData();
+                } else showToast('❌ Failed to save hero', 'error');
+            } catch (e) { showToast('❌ Error saving hero', 'error'); }
         }
 
         async function toggleHero(id) {
             try {
-                // Check current status
-                const response = await fetch('/api/hero');
-                const heroData = await response.json();
-                const isHero = heroData.all ? heroData.all.some(m => m.id === id) : false;
-                
+                const heroRes = await fetch(`${API_BASE}/api/hero`);
+                const heroData = await heroRes.json();
+                const isHero = (heroData.all || []).some(m => m.id === id);
                 const newStatus = !isHero;
                 const heroOrder = isHero ? null : (heroData.all ? heroData.all.length : 0);
-                
-                const updateResponse = await fetch(`/api/admin/content/${id}/hero`, {
+                const res = await fetch(`${API_BASE}/api/admin/content/${id}/hero`, {
                     method: 'PUT',
                     headers: getHeaders(),
-                    body: JSON.stringify({
-                        is_hero: newStatus,
-                        hero_order: heroOrder
-                    })
+                    body: JSON.stringify({ is_hero: newStatus, hero_order: heroOrder })
                 });
-                
-                if (updateResponse.ok) {
-                    showToast(newStatus ? '⭐ Added to hero section!' : 'Removed from hero section');
+                if (res.ok) {
+                    showToast(newStatus ? '⭐ Added to hero' : 'Removed from hero');
                     await Promise.all([loadMovies(), loadHeroData()]);
-                } else {
-                    showToast('❌ Failed to update hero status', 'error');
-                }
-            } catch (error) {
-                showToast('❌ Error updating hero status', 'error');
-            }
+                } else showToast('❌ Failed to update hero', 'error');
+            } catch (e) { showToast('❌ Error updating hero', 'error'); }
         }
 
         async function addToHero(id) {
             try {
-                const response = await fetch('/api/hero');
-                const heroData = await response.json();
-                const currentCount = heroData.all ? heroData.all.length : 0;
-                
+                const heroRes = await fetch(`${API_BASE}/api/hero`);
+                const heroData = await heroRes.json();
+                const currentCount = (heroData.all || []).length;
                 if (currentCount >= 15) {
-                    showToast('⚠️ Hero section is full (max 15 movies)', 'error');
+                    showToast('⚠️ Hero section is full (max 15)', 'error');
                     return;
                 }
-                
-                const updateResponse = await fetch(`/api/admin/content/${id}/hero`, {
+                const res = await fetch(`${API_BASE}/api/admin/content/${id}/hero`, {
                     method: 'PUT',
                     headers: getHeaders(),
-                    body: JSON.stringify({
-                        is_hero: true,
-                        hero_order: currentCount
-                    })
+                    body: JSON.stringify({ is_hero: true, hero_order: currentCount })
                 });
-                
-                if (updateResponse.ok) {
-                    showToast('⭐ Added to hero section!');
+                if (res.ok) {
+                    showToast('⭐ Added to hero');
                     await Promise.all([loadMovies(), loadHeroData()]);
-                } else {
-                    showToast('❌ Failed to add to hero', 'error');
-                }
-            } catch (error) {
-                showToast('❌ Error adding to hero', 'error');
-            }
+                } else showToast('❌ Failed to add to hero', 'error');
+            } catch (e) { showToast('❌ Error adding to hero', 'error'); }
         }
 
         async function removeFromHero(id) {
             try {
-                const response = await fetch(`/api/admin/content/${id}/hero`, {
+                const res = await fetch(`${API_BASE}/api/admin/content/${id}/hero`, {
                     method: 'PUT',
                     headers: getHeaders(),
-                    body: JSON.stringify({
-                        is_hero: false,
-                        hero_order: null
-                    })
+                    body: JSON.stringify({ is_hero: false, hero_order: null })
                 });
-                
-                if (response.ok) {
-                    showToast('Removed from hero section');
+                if (res.ok) {
+                    showToast('Removed from hero');
                     await Promise.all([loadMovies(), loadHeroData()]);
-                } else {
-                    showToast('❌ Failed to remove from hero', 'error');
-                }
-            } catch (error) {
-                showToast('❌ Error removing from hero', 'error');
-            }
+                } else showToast('❌ Failed to remove', 'error');
+            } catch (e) { showToast('❌ Error removing', 'error'); }
         }
 
-        function editItem(id) {
-            window.location.href = `/admin/edit?id=${id}`;
-        }
-
-        function addEpisode(id) {
-            window.location.href = `/admin/add_episode?media_id=${id}`;
-        }
+        function editItem(id) { window.location.href = `/admin/edit?id=${id}`; }
+        function addEpisode(id) { window.location.href = `/admin/add_episode?media_id=${id}`; }
 
         async function deleteItem(id) {
-            if (!confirm('⚠️ Are you sure you want to delete this item? This action cannot be undone!')) {
-                return;
-            }
-            
+            if (!confirm('⚠️ Delete this item permanently?')) return;
             try {
-                const response = await fetch(`/api/admin/media/${id}`, {
+                const res = await fetch(`${API_BASE}/api/admin/media/${id}`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
-                
-                if (response.ok) {
-                    showToast('🗑️ Item deleted successfully');
+                if (res.ok) {
+                    showToast('🗑️ Deleted');
                     await Promise.all([loadMovies(), loadTV(), loadHeroData()]);
-                } else {
-                    showToast('❌ Failed to delete item', 'error');
-                }
-            } catch (error) {
-                showToast('❌ Error deleting item', 'error');
-            }
+                } else showToast('❌ Failed to delete', 'error');
+            } catch (e) { showToast('❌ Error deleting', 'error'); }
         }
 
         function refreshAll() {
-            showToast('🔄 Refreshing all data...');
+            showToast('🔄 Refreshing...');
             Promise.all([loadMovies(), loadTV(), loadHeroData()])
-                .then(() => showToast('✅ All data refreshed!'));
+                .then(() => showToast('✅ All refreshed'));
         }
 
         function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                // Clear basic auth cache
-                window.location.href = '/';
-            }
+            if (confirm('Logout?')) window.location.href = '/';
         }
 
-        // ============================================
-        // INITIALIZATION
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
             loadMovies();
             loadTV();
             loadHeroData();
-            
-            // Auto-refresh every 60 seconds
+            // Auto-refresh every 60s
             setInterval(() => {
                 loadMovies();
                 loadTV();
@@ -1077,15 +780,10 @@
             }, 60000);
         });
 
-        // ============================================
-        // KEYBOARD SHORTCUTS
-        // ============================================
-        document.addEventListener('keydown', function(e) {
-            // Ctrl+R to refresh
-            if (e.ctrlKey && e.key === 'r') {
-                e.preventDefault();
-                refreshAll();
-            }
+        // Ctrl+R shortcut
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'r') { e.preventDefault();
+                refreshAll(); }
         });
     </script>
 </body>
