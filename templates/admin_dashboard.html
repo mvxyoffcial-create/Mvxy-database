@@ -31,10 +31,19 @@
         .btn-sm.save:hover { background: #0d7a6f; }
         .btn-sm.refresh { background: #2575fc; }
         .btn-sm.refresh:hover { background: #1a5fc4; }
-        .sortable-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; min-height: 100px; }
-        .sortable-item { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; cursor: grab; transition: all 0.3s ease; border: 2px solid transparent; position: relative; }
+        .sortable-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; min-height: 100px; padding: 4px; }
+        .sortable-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            user-select: none;
+        }
         .sortable-item:hover { background: rgba(255,255,255,0.15); border-color: rgba(106,17,203,0.5); transform: translateY(-3px); }
-        .sortable-item.dragging { opacity: 0.5; transform: scale(0.95); }
+        .sortable-item.dragging { opacity: 0.4; transform: scale(0.95); border-color: #38ef7d; }
         .sortable-item .drag-handle { cursor: grab; font-size: 18px; opacity: 0.5; margin-right: 8px; display: inline-block; }
         .sortable-item .item-content { display: flex; gap: 10px; align-items: center; }
         .sortable-item .item-thumb { width: 50px; height: 70px; border-radius: 6px; object-fit: cover; background: rgba(255,255,255,0.1); flex-shrink: 0; }
@@ -54,29 +63,45 @@
         .btn-icon.hero-toggle:hover { opacity: 0.8; }
         .btn-icon.remove { background: #eb3349; }
         .btn-icon.remove:hover { background: #c92a3e; }
-        .hero-slot { border: 2px dashed rgba(255,255,255,0.2); background: rgba(255,255,255,0.03); min-height: 150px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); border-radius: 10px; }
+        .hero-slot {
+            border: 2px dashed rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.02);
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 13px;
+        }
         .hero-slot .sortable-item { width: 100%; height: 100%; min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.08); }
         .hero-slot .sortable-item .item-thumb { width: 80px; height: 110px; }
         .hero-slot .sortable-item .hero-badge { background: #38ef7d; color: #1a1a2e; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; position: absolute; top: -8px; right: -8px; }
         .hero-slot .sortable-item .type-badge { position: absolute; bottom: -8px; right: -8px; background: rgba(0,0,0,0.7); padding: 1px 8px; border-radius: 10px; font-size: 9px; color: #fff; border: 1px solid rgba(255,255,255,0.1); }
         .pool-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; min-height: 60px; border: 1px dashed rgba(255,255,255,0.1); margin-top: 15px; }
         .pool-item { background: rgba(255,255,255,0.08); padding: 6px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
-        .pool-item:hover { background: rgba(106,17,203,0.3); }
-        .pool-item .add-btn { background: #11998e; border: none; color: #fff; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
-        .pool-item .add-btn:hover { background: #0d7a6f; }
+        .pool-item:hover { background: rgba(106,17,203,0.3); transform: scale(1.03); }
+        .pool-item .add-btn { background: #11998e; border: none; color: #fff; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+        .pool-item .add-btn:hover { background: #0d7a6f; transform: scale(1.15); }
         .loading { text-align: center; padding: 40px; opacity: 0.5; }
         .empty-state { text-align: center; padding: 40px; opacity: 0.3; font-style: italic; }
         .toast { position: fixed; bottom: 30px; right: 30px; background: #11998e; color: #fff; padding: 15px 25px; border-radius: 10px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transform: translateY(100px); opacity: 0; transition: all 0.4s ease; z-index: 9999; }
         .toast.show { transform: translateY(0); opacity: 1; }
         .toast.error { background: #eb3349; }
         .toast.success { background: #11998e; }
+
+        /* Drop zone highlight */
+        .sortable-ghost { opacity: 0.3; background: rgba(56,239,125,0.15); border-color: #38ef7d; }
+        .sortable-chosen { border-color: #6a11cb; box-shadow: 0 0 20px rgba(106,17,203,0.3); }
+
         @media (max-width: 768px) { .admin-header { flex-direction: column; text-align: center; padding: 20px; } .admin-header h1 { font-size: 1.5em; } .quick-actions { justify-content: center; } .quick-actions .btn { width: 100%; text-align: center; } .sortable-list { grid-template-columns: 1fr 1fr; } .section-header { flex-direction: column; align-items: stretch; } }
         @media (max-width: 480px) { .sortable-list { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <header class="admin-header">
-        <div><h1>🎬 Admin Dashboard <span>Full Manual Control</span></h1></div>
+        <div><h1>🎬 Admin Dashboard <span>Drag & Drop – Add & Reorder Easily</span></h1></div>
         <div class="user-info">
             <span>👤 Admin</span>
             <a href="/" class="logout-btn">🏠 Home</a>
@@ -101,12 +126,12 @@
                 <button class="btn-sm refresh" onclick="loadHeroData()">🔄 Refresh</button>
             </div>
         </div>
-        <p style="opacity:0.6; margin-bottom:15px; font-size:14px;">Max 15 items (movies + TV). First 8 appear in carousel.</p>
+        <p style="opacity:0.6; margin-bottom:15px; font-size:14px;">Max 15 items (movies + TV). Drag to reorder. First 8 appear in carousel.</p>
         <div id="heroList" class="sortable-list" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
             <div class="loading">Loading...</div>
         </div>
         <div style="margin-top:20px;">
-            <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">📦 Available Media (Click + to add to Hero)</h3>
+            <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">📦 Available Media <span style="font-weight:normal;font-size:12px;opacity:0.5;">(click + to add, then drag to reorder)</span></h3>
             <div id="heroPool" class="pool-container"><div class="loading">Loading...</div></div>
         </div>
     </div>
@@ -120,12 +145,12 @@
                 <button class="btn-sm refresh" onclick="loadLatestMovies()">🔄 Refresh</button>
             </div>
         </div>
-        <p style="opacity:0.6; margin-bottom:15px; font-size:14px;">Manually pick up to 12 movies. Drag to reorder.</p>
+        <p style="opacity:0.6; margin-bottom:15px; font-size:14px;">Pick up to 12 movies. Click + to add, then drag to reorder.</p>
         <div id="latestMovieList" class="sortable-list" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
             <div class="loading">Loading...</div>
         </div>
         <div style="margin-top:20px;">
-            <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">📦 Available Movies (Click + to add)</h3>
+            <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">📦 Available Movies <span style="font-weight:normal;font-size:12px;opacity:0.5;">(click + to add, then drag to reorder)</span></h3>
             <div id="moviePool" class="pool-container"><div class="loading">Loading...</div></div>
         </div>
     </div>
@@ -139,12 +164,12 @@
                 <button class="btn-sm refresh" onclick="loadLatestTV()">🔄 Refresh</button>
             </div>
         </div>
-        <p style="opacity:0.6; margin-bottom:15px; font-size:14px;">Manually pick up to 12 TV series. Drag to reorder.</p>
+        <p style="opacity:0.6; margin-bottom:15px; font-size:14px;">Pick up to 12 TV series. Click + to add, then drag to reorder.</p>
         <div id="latestTVList" class="sortable-list" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
             <div class="loading">Loading...</div>
         </div>
         <div style="margin-top:20px;">
-            <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">📦 Available TV Series (Click + to add)</h3>
+            <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">📦 Available TV Series <span style="font-weight:normal;font-size:12px;opacity:0.5;">(click + to add, then drag to reorder)</span></h3>
             <div id="tvPool" class="pool-container"><div class="loading">Loading...</div></div>
         </div>
     </div>
@@ -154,13 +179,13 @@
     <script>
         // ================================================================
         //  ADMIN DASHBOARD – Koyeb Backend
-        //  Full manual control for Hero, Latest Movies, Latest TV
+        //  Smooth Drag & Drop – Add items from pool, reorder instantly
         // ================================================================
 
         const API_BASE = 'https://yodelling-leland-zerodev-156c74fd.koyeb.app';
         const AUTH = 'Basic ' + btoa('venura:venura');
 
-        // ---------- Helpers ----------
+        // ---------- Toast ----------
         function showToast(msg, type='success') {
             const t = document.getElementById('toast');
             t.textContent = msg;
@@ -168,14 +193,17 @@
             clearTimeout(t._timeout);
             t._timeout = setTimeout(() => t.classList.remove('show'), 3000);
         }
+
+        // ---------- Headers ----------
         function getHeaders() {
             return { 'Authorization': AUTH, 'Content-Type': 'application/json' };
         }
+
         function getThumb(item) { return item.thumbnail || item.poster || ''; }
         function getRating(item) { return item.rating || 'N/A'; }
         function getTypeIcon(type) { return type === 'tv' ? '📺' : '🎬'; }
 
-        // ---------- Load All Data ----------
+        // ---------- Load All ----------
         async function loadAll() {
             await Promise.all([
                 loadHeroData(),
@@ -184,7 +212,9 @@
             ]);
         }
 
-        // ---------- HERO ----------
+        // ================================================================
+        //  HERO
+        // ================================================================
         async function loadHeroData() {
             try {
                 const res = await fetch(`${API_BASE}/api/hero`);
@@ -215,7 +245,7 @@
         function renderHeroList(items) {
             const container = document.getElementById('heroList');
             if (!items.length) {
-                container.innerHTML = `<div class="hero-slot" style="grid-column:1/-1;min-height:200px;"><div style="text-align:center;font-size:48px;">⭐</div><div>No hero items</div></div>`;
+                container.innerHTML = `<div class="hero-slot" style="grid-column:1/-1;min-height:200px;"><div style="text-align:center;font-size:48px;">⭐</div><div>No hero items</div><div style="font-size:12px;opacity:0.5;">Add from pool below</div></div>`;
                 return;
             }
             let html = items.map((item, idx) => `
@@ -224,7 +254,7 @@
                     <span class="type-badge">${getTypeIcon(item.type)} ${item.type.toUpperCase()}</span>
                     <div style="position:relative;">
                         ${item.thumbnail ? `<img src="${item.thumbnail}" class="item-thumb" style="width:80px;height:110px;object-fit:cover;border-radius:8px;margin:0 auto;" onerror="this.style.display='none'">` : `<div style="width:80px;height:110px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;font-size:32px;">${getTypeIcon(item.type)}</div>`}
-                        <span class="drag-handle" style="position:absolute;top:5px;left:5px;cursor:grab;opacity:0.5;font-size:20px;">⠿</span>
+                        <span class="drag-handle" style="position:absolute;top:5px;left:5px;cursor:grab;opacity:0.6;font-size:20px;">⠿</span>
                         <button class="btn-icon remove" onclick="removeFromHero(${item.id})" style="position:absolute;top:5px;right:5px;padding:2px 8px;font-size:10px;">✕</button>
                     </div>
                     <div class="item-info" style="margin-top:8px;">
@@ -235,15 +265,10 @@
             `).join('');
             const empty = 15 - items.length;
             for (let i = 0; i < empty; i++) {
-                html += `<div class="hero-slot" style="min-height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(255,255,255,0.2);"><div style="font-size:32px;">➕</div><div>Empty</div></div>`;
+                html += `<div class="hero-slot" style="min-height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(255,255,255,0.2);"><div style="font-size:32px;">➕</div><div>Empty Slot</div></div>`;
             }
             container.innerHTML = html;
-            new Sortable(container, {
-                animation: 150,
-                handle: '.drag-handle',
-                ghostClass: 'dragging',
-                onEnd: () => saveHeroOrder()
-            });
+            initSortable(container, saveHeroOrder);
         }
 
         async function saveHeroOrder() {
@@ -274,7 +299,7 @@
                     headers: getHeaders(),
                     body: JSON.stringify({ is_hero: true, hero_order: count })
                 });
-                if (res.ok) { showToast('⭐ Added'); await loadHeroData(); }
+                if (res.ok) { showToast('⭐ Added – drag to reorder!'); await loadHeroData(); }
                 else showToast('❌ Failed', 'error');
             } catch (e) { showToast('❌ Error', 'error'); }
         }
@@ -286,12 +311,14 @@
                     headers: getHeaders(),
                     body: JSON.stringify({ is_hero: false, hero_order: null })
                 });
-                if (res.ok) { showToast('Removed'); await loadHeroData(); }
+                if (res.ok) { showToast('Removed from hero'); await loadHeroData(); }
                 else showToast('❌ Failed', 'error');
             } catch (e) { showToast('❌ Error', 'error'); }
         }
 
-        // ---------- LATEST MOVIES ----------
+        // ================================================================
+        //  LATEST MOVIES
+        // ================================================================
         async function loadLatestMovies() {
             try {
                 const res = await fetch(`${API_BASE}/api/movies/latest?limit=12`);
@@ -348,7 +375,7 @@
                     headers: getHeaders(),
                     body: JSON.stringify({ latest_type: 'movie', latest_order: count })
                 });
-                if (res.ok) { showToast('➕ Added'); await loadLatestMovies(); }
+                if (res.ok) { showToast('➕ Added – drag to reorder!'); await loadLatestMovies(); }
                 else showToast('❌ Failed', 'error');
             } catch (e) { showToast('❌ Error', 'error'); }
         }
@@ -365,7 +392,9 @@
             } catch (e) { showToast('❌ Error', 'error'); }
         }
 
-        // ---------- LATEST TV ----------
+        // ================================================================
+        //  LATEST TV
+        // ================================================================
         async function loadLatestTV() {
             try {
                 const res = await fetch(`${API_BASE}/api/tvseries/latest?limit=12`);
@@ -422,7 +451,7 @@
                     headers: getHeaders(),
                     body: JSON.stringify({ latest_type: 'tv', latest_order: count })
                 });
-                if (res.ok) { showToast('➕ Added'); await loadLatestTV(); }
+                if (res.ok) { showToast('➕ Added – drag to reorder!'); await loadLatestTV(); }
                 else showToast('❌ Failed', 'error');
             } catch (e) { showToast('❌ Error', 'error'); }
         }
@@ -439,18 +468,21 @@
             } catch (e) { showToast('❌ Error', 'error'); }
         }
 
-        // ---------- Shared Render Functions ----------
+        // ================================================================
+        //  SHARED RENDER FUNCTIONS
+        // ================================================================
+
         function renderLatestList(containerId, items, type) {
             const container = document.getElementById(containerId);
             if (!items.length) {
-                container.innerHTML = `<div class="hero-slot" style="grid-column:1/-1;min-height:150px;"><div style="text-align:center;font-size:32px;">📭</div><div>No items</div></div>`;
+                container.innerHTML = `<div class="hero-slot" style="grid-column:1/-1;min-height:150px;"><div style="text-align:center;font-size:32px;">📭</div><div>No items</div><div style="font-size:12px;opacity:0.5;">Add from pool below</div></div>`;
                 return;
             }
             let html = items.map((item, idx) => `
                 <div class="sortable-item" data-id="${item.id}" data-order="${idx}">
                     <div style="position:relative;">
                         ${item.thumbnail ? `<img src="${item.thumbnail}" class="item-thumb" style="width:80px;height:110px;object-fit:cover;border-radius:8px;margin:0 auto;" onerror="this.style.display='none'">` : `<div style="width:80px;height:110px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;font-size:32px;">${getTypeIcon(type)}</div>`}
-                        <span class="drag-handle" style="position:absolute;top:5px;left:5px;cursor:grab;opacity:0.5;font-size:20px;">⠿</span>
+                        <span class="drag-handle" style="position:absolute;top:5px;left:5px;cursor:grab;opacity:0.6;font-size:20px;">⠿</span>
                         <button class="btn-icon remove" onclick="${type === 'movie' ? 'removeFromLatestMovies' : 'removeFromLatestTV'}(${item.id})" style="position:absolute;top:5px;right:5px;padding:2px 8px;font-size:10px;">✕</button>
                     </div>
                     <div class="item-info" style="margin-top:8px;">
@@ -461,32 +493,59 @@
             `).join('');
             const empty = 12 - items.length;
             for (let i = 0; i < empty; i++) {
-                html += `<div class="hero-slot" style="min-height:150px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(255,255,255,0.2);"><div style="font-size:24px;">➕</div><div>Empty</div></div>`;
+                html += `<div class="hero-slot" style="min-height:150px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(255,255,255,0.2);"><div style="font-size:24px;">➕</div><div>Empty Slot</div></div>`;
             }
             container.innerHTML = html;
-            new Sortable(container, {
-                animation: 150,
-                handle: '.drag-handle',
-                ghostClass: 'dragging',
-                onEnd: () => { if (type === 'movie') saveLatestMovies(); else saveLatestTV(); }
-            });
+            const saveFn = type === 'movie' ? saveLatestMovies : saveLatestTV;
+            initSortable(container, saveFn);
         }
 
         function renderPool(containerId, items, addCallback) {
             const container = document.getElementById(containerId);
             if (!items.length) {
-                container.innerHTML = '<div style="opacity:0.5;">✅ All items are in the list or no items available</div>';
+                container.innerHTML = '<div style="opacity:0.5;padding:10px;">✅ All items are in the list or no items available</div>';
                 return;
             }
             container.innerHTML = items.slice(0, 50).map(item => `
                 <div class="pool-item">
                     <span>${getTypeIcon(item.type)} ${item.title}</span>
-                    <button class="add-btn" onclick="(${addCallback.toString()})(${item.id})">+</button>
+                    <button class="add-btn" onclick="(${addCallback.toString()})(${item.id})" title="Click to add to list">+</button>
                 </div>
             `).join('');
         }
 
-        // ---------- Global Actions ----------
+        // ================================================================
+        //  SORTABLE INIT (with visual feedback)
+        // ================================================================
+
+        function initSortable(container, onSave) {
+            if (!container) return;
+            new Sortable(container, {
+                animation: 200,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'dragging',
+                delay: 100,
+                delayOnTouchOnly: true,
+                onEnd: function() {
+                    // Auto-save after drag
+                    onSave();
+                },
+                onStart: function() {
+                    // Optional: add a subtle glow to the container while dragging
+                    container.style.background = 'rgba(56,239,125,0.03)';
+                },
+                onEnd: function() {
+                    container.style.background = '';
+                }
+            });
+        }
+
+        // ================================================================
+        //  GLOBAL ACTIONS
+        // ================================================================
+
         function refreshAll() {
             showToast('🔄 Refreshing...');
             loadAll().then(() => showToast('✅ All refreshed'));
@@ -494,7 +553,10 @@
 
         function logout() { if (confirm('Logout?')) window.location.href = '/'; }
 
-        // ---------- Init ----------
+        // ================================================================
+        //  INIT
+        // ================================================================
+
         document.addEventListener('DOMContentLoaded', loadAll);
         document.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'r') { e.preventDefault(); refreshAll(); } });
     </script>
