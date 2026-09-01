@@ -1,1660 +1,586 @@
-<!DOCTYPE html><html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin – Full Manual Control</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #1a1a2e;
-        color: #fff;
-        padding: 20px;
-        min-height: 100vh;
-    }
-
-    .admin-header {
-        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-        padding: 30px 40px;
-        border-radius: 15px;
-        margin-bottom: 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 20px;
-        box-shadow: 0 10px 30px rgba(106,17,203,0.3);
-    }
-
-    .admin-header h1 { font-size: 2em; margin: 0; }
-
-    .admin-header h1 span {
-        font-size: 0.6em;
-        opacity: 0.8;
-        display: block;
-    }
-
-    .admin-header .user-info {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .admin-header .user-info .logout-btn {
-        background: rgba(255,255,255,0.2);
-        color: #fff;
-        padding: 8px 20px;
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 8px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-
-    .admin-header .user-info .logout-btn:hover {
-        background: rgba(255,255,255,0.3);
-    }
-
-    .quick-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 30px;
-        padding: 20px;
-        background: rgba(255,255,255,0.05);
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .quick-actions .btn {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 14px;
-        color: #fff;
-    }
-
-    .quick-actions .btn-primary {
-        background: linear-gradient(135deg, #6a11cb, #2575fc);
-    }
-
-    .quick-actions .btn-success {
-        background: linear-gradient(135deg, #11998e, #38ef7d);
-    }
-
-    .quick-actions .btn-warning {
-        background: linear-gradient(135deg, #f7971e, #ffd200);
-        color: #333;
-    }
-
-    .quick-actions .btn-danger {
-        background: linear-gradient(135deg, #eb3349, #f45c43);
-    }
-
-    .quick-actions .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-    }
-
-    .section {
-        background: rgba(255,255,255,0.05);
-        border-radius: 12px;
-        padding: 25px;
-        margin-bottom: 30px;
-        border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-
-    .section-header h2 {
-        font-size: 1.5em;
-        margin: 0;
-    }
-
-    .section-header h2 .badge {
-        background: rgba(255,255,255,0.1);
-        padding: 2px 12px;
-        border-radius: 20px;
-        font-size: 0.6em;
-        margin-left: 10px;
-    }
-
-    .section-header .actions {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .section-header .actions .btn-sm {
-        padding: 6px 15px;
-        font-size: 12px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: #fff;
-    }
-
-    .btn-sm.save { background: #11998e; }
-    .btn-sm.save:hover { background: #0d7a6f; }
-
-    .btn-sm.refresh { background: #2575fc; }
-    .btn-sm.refresh:hover { background: #1a5fc4; }
-
-    .sortable-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 15px;
-        min-height: 100px;
-        padding: 4px;
-    }
-
-    .sortable-item {
-        background: rgba(255,255,255,0.08);
-        border-radius: 10px;
-        padding: 12px;
-        cursor: grab;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
-        position: relative;
-        user-select: none;
-        -webkit-user-select: none;
-        -webkit-touch-callout: none;
-        touch-action: pan-y;
-    }
-
-    .sortable-item:active {
-        cursor: grabbing;
-    }
-
-    .sortable-item:hover {
-        background: rgba(255,255,255,0.15);
-        border-color: rgba(106,17,203,0.5);
-        transform: translateY(-3px);
-    }
-
-    .sortable-item.dragging {
-        opacity: 0.4;
-        transform: scale(0.95);
-        border-color: #38ef7d;
-    }
-
-    .sortable-item .drag-handle {
-        display: inline-block;
-        font-size: 24px;
-        opacity: 0.4;
-        margin-right: 8px;
-        cursor: grab;
-        padding: 4px 8px;
-        touch-action: none;
-    }
-
-    .sortable-item .item-content {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
-
-    .sortable-item .item-thumb {
-        width: 50px;
-        height: 70px;
-        border-radius: 6px;
-        object-fit: cover;
-        background: rgba(255,255,255,0.1);
-        flex-shrink: 0;
-    }
-
-    .sortable-item .item-info {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .sortable-item .item-info .title {
-        font-weight: 600;
-        font-size: 14px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .sortable-item .item-info .meta {
-        font-size: 12px;
-        opacity: 0.7;
-    }
-
-    .sortable-item .item-actions {
-        display: flex;
-        gap: 5px;
-        margin-top: 8px;
-        flex-wrap: wrap;
-    }
-
-    .sortable-item .item-actions .btn-icon {
-        padding: 4px 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 11px;
-        transition: all 0.2s ease;
-        color: #fff;
-    }
-
-    .btn-icon.edit { background: #2575fc; }
-    .btn-icon.edit:hover { background: #1a5fc4; }
-
-    .btn-icon.delete { background: #eb3349; }
-    .btn-icon.delete:hover { background: #c92a3e; }
-
-    .btn-icon.episode { background: #f7971e; }
-    .btn-icon.episode:hover { background: #d4811a; }
-
-    .btn-icon.hero-toggle { background: #6a11cb; }
-    .btn-icon.hero-toggle.active {
-        background: #38ef7d;
-        color: #1a1a2e;
-    }
-
-    .btn-icon.hero-toggle:hover { opacity: 0.8; }
-
-    .btn-icon.remove { background: #eb3349; }
-    .btn-icon.remove:hover { background: #c92a3e; }
-
-    .hero-slot {
-        border: 2px dashed rgba(255,255,255,0.15);
-        background: rgba(255,255,255,0.02);
-        min-height: 150px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: rgba(255,255,255,0.2);
-        border-radius: 10px;
-        transition: all 0.3s ease;
-        font-size: 13px;
-        pointer-events: none;
-    }
-
-    .hero-slot .sortable-item {
-        width: 100%;
-        height: 100%;
-        min-height: 140px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255,255,255,0.08);
-    }
-
-    .hero-slot .sortable-item .item-thumb {
-        width: 80px;
-        height: 110px;
-    }
-
-    .hero-slot .sortable-item .hero-badge {
-        background: #38ef7d;
-        color: #1a1a2e;
-        padding: 2px 10px;
-        border-radius: 12px;
-        font-size: 10px;
-        font-weight: 700;
-        position: absolute;
-        top: -8px;
-        right: -8px;
-    }
-
-    .hero-slot .sortable-item .type-badge {
-        position: absolute;
-        bottom: -8px;
-        right: -8px;
-        background: rgba(0,0,0,0.7);
-        padding: 1px 8px;
-        border-radius: 10px;
-        font-size: 9px;
-        color: #fff;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .pool-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 15px;
-        background: rgba(255,255,255,0.03);
-        border-radius: 8px;
-        min-height: 60px;
-        border: 1px dashed rgba(255,255,255,0.1);
-        margin-top: 15px;
-    }
-
-    .pool-item {
-        background: rgba(255,255,255,0.08);
-        padding: 6px 15px;
-        border-radius: 20px;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .pool-item:hover {
-        background: rgba(106,17,203,0.3);
-        transform: scale(1.03);
-    }
-
-    .pool-item .add-btn {
-        background: #11998e;
-        border: none;
-        color: #fff;
-        border-radius: 50%;
-        width: 22px;
-        height: 22px;
-        cursor: pointer;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-    }
-
-    .pool-item .add-btn:hover {
-        background: #0d7a6f;
-        transform: scale(1.15);
-    }
-
-    .loading {
-        text-align: center;
-        padding: 40px;
-        opacity: 0.5;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 40px;
-        opacity: 0.3;
-        font-style: italic;
-    }
-
-    .toast {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background: #11998e;
-        color: #fff;
-        padding: 15px 25px;
-        border-radius: 10px;
-        box-shadow: 0 5px 30px rgba(0,0,0,0.3);
-        transform: translateY(100px);
-        opacity: 0;
-        transition: all 0.4s ease;
-        z-index: 9999;
-    }
-
-    .toast.show {
-        transform: translateY(0);
-        opacity: 1;
-    }
-
-    .toast.error { background: #eb3349; }
-    .toast.success { background: #11998e; }
-
-    .sortable-ghost {
-        opacity: 0.3;
-        background: rgba(56,239,125,0.15);
-        border-color: #38ef7d;
-    }
-
-    .sortable-chosen {
-        border-color: #6a11cb;
-        box-shadow: 0 0 20px rgba(106,17,203,0.3);
-    }
-
-    .sortable-drag {
-        opacity: 0.95;
-        transform: rotate(1deg) scale(1.02);
-        z-index: 9999;
-    }
-
-    @media (max-width: 768px) {
-        .admin-header {
-            flex-direction: column;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .admin-header h1 {
-            font-size: 1.5em;
-        }
-
-        .quick-actions {
-            justify-content: center;
-        }
-
-        .quick-actions .btn {
-            width: 100%;
-            text-align: center;
-        }
-
-        .sortable-list {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .section-header {
-            flex-direction: column;
-            align-items: stretch;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .sortable-list {
-            grid-template-columns: 1fr;
-        }
-
-        .sortable-item {
-            padding: 16px;
-            touch-action: pan-y;
-        }
-
-        .btn-icon {
-            padding: 6px 14px;
-            font-size: 13px;
-        }
-
-        .pool-item .add-btn {
-            width: 28px;
-            height: 28px;
-            font-size: 18px;
-        }
-    }
+<!DOCTYPE html>  <html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Admin – Full Manual Control</title>  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>  
+    <style>  
+        * { box-sizing: border-box; margin: 0; padding: 0; }  
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a2e; color: #fff; padding: 20px; min-height: 100vh; }  
+        .admin-header { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); padding: 30px 40px; border-radius: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 10px 30px rgba(106,17,203,0.3); }  
+        .admin-header h1 { font-size: 2em; margin: 0; }  
+        .admin-header h1 span { font-size: 0.6em; opacity: 0.8; display: block; }  
+        .admin-header .user-info { display: flex; align-items: center; gap: 15px; }  
+        .admin-header .user-info .logout-btn { background: rgba(255,255,255,0.2); color: #fff; padding: 8px 20px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; text-decoration: none; transition: all 0.3s ease; }  
+        .admin-header .user-info .logout-btn:hover { background: rgba(255,255,255,0.3); }  
+        .quick-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }  
+        .quick-actions .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; font-size: 14px; color: #fff; }  
+        .quick-actions .btn-primary { background: linear-gradient(135deg, #6a11cb, #2575fc); }  
+        .quick-actions .btn-success { background: linear-gradient(135deg, #11998e, #38ef7d); }  
+        .quick-actions .btn-warning { background: linear-gradient(135deg, #f7971e, #ffd200); color: #333; }  
+        .quick-actions .btn-danger { background: linear-gradient(135deg, #eb3349, #f45c43); }  
+        .quick-actions .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0,0,0,0.3); }  
+        .section { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 25px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.08); }  
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }  
+        .section-header h2 { font-size: 1.5em; margin: 0; }  
+        .section-header h2 .badge { background: rgba(255,255,255,0.1); padding: 2px 12px; border-radius: 20px; font-size: 0.6em; margin-left: 10px; }  
+        .section-header .actions { display: flex; gap: 10px; flex-wrap: wrap; }  
+        .section-header .actions .btn-sm { padding: 6px 15px; font-size: 12px; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; color: #fff; }  
+        .btn-sm.save { background: #11998e; }  
+        .btn-sm.save:hover { background: #0d7a6f; }  
+        .btn-sm.refresh { background: #2575fc; }  
+        .btn-sm.refresh:hover { background: #1a5fc4; }  
+        .sortable-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; min-height: 100px; padding: 4px; }  
+        .sortable-item {  
+            background: rgba(255,255,255,0.08);  
+            border-radius: 10px;  
+            padding: 12px;  
+            cursor: grab;  
+            transition: all 0.3s ease;  
+            border: 2px solid transparent;  
+            position: relative;  
+            user-select: none;  
+            -webkit-touch-callout: none; /* prevent iOS popup */  
+        }  
+        .sortable-item:hover { background: rgba(255,255,255,0.15); border-color: rgba(106,17,203,0.5); transform: translateY(-3px); }  
+        .sortable-item.dragging { opacity: 0.4; transform: scale(0.95); border-color: #38ef7d; }  
+        /* Visual drag handle – optional, but we keep it for desktop users */  
+        .sortable-item .drag-handle {   
+            display: inline-block;   
+            font-size: 24px;   
+            opacity: 0.4;   
+            margin-right: 8px;   
+            cursor: grab;   
+            padding: 4px 8px; /* larger touch area */  
+        }  
+        .sortable-item .item-content { display: flex; gap: 10px; align-items: center; }  
+        .sortable-item .item-thumb { width: 50px; height: 70px; border-radius: 6px; object-fit: cover; background: rgba(255,255,255,0.1); flex-shrink: 0; }  
+        .sortable-item .item-info { flex: 1; min-width: 0; }  
+        .sortable-item .item-info .title { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }  
+        .sortable-item .item-info .meta { font-size: 12px; opacity: 0.7; }  
+        .sortable-item .item-actions { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }  
+        .sortable-item .item-actions .btn-icon { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; transition: all 0.2s ease; color: #fff; }  
+        .btn-icon.edit { background: #2575fc; }  
+        .btn-icon.edit:hover { background: #1a5fc4; }  
+        .btn-icon.delete { background: #eb3349; }  
+        .btn-icon.delete:hover { background: #c92a3e; }  
+        .btn-icon.episode { background: #f7971e; }  
+        .btn-icon.episode:hover { background: #d4811a; }  
+        .btn-icon.hero-toggle { background: #6a11cb; }  
+        .btn-icon.hero-toggle.active { background: #38ef7d; color: #1a1a2e; }  
+        .btn-icon.hero-toggle:hover { opacity: 0.8; }  
+        .btn-icon.remove { background: #eb3349; }  
+        .btn-icon.remove:hover { background: #c92a3e; }  
+        .hero-slot {  
+            border: 2px dashed rgba(255,255,255,0.15);  
+            background: rgba(255,255,255,0.02);  
+            min-height: 150px;  
+            display: flex;  
+            align-items: center;  
+            justify-content: center;  
+            color: rgba(255,255,255,0.2);  
+            border-radius: 10px;  
+            transition: all 0.3s ease;  
+            font-size: 13px;  
+        }  
+        .hero-slot .sortable-item { width: 100%; height: 100%; min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.08); }  
+        .hero-slot .sortable-item .item-thumb { width: 80px; height: 110px; }  
+        .hero-slot .sortable-item .hero-badge { background: #38ef7d; color: #1a1a2e; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; position: absolute; top: -8px; right: -8px; }  
+        .hero-slot .sortable-item .type-badge { position: absolute; bottom: -8px; right: -8px; background: rgba(0,0,0,0.7); padding: 1px 8px; border-radius: 10px; font-size: 9px; color: #fff; border: 1px solid rgba(255,255,255,0.1); }  
+        .pool-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; min-height: 60px; border: 1px dashed rgba(255,255,255,0.1); margin-top: 15px; }  
+        .pool-item { background: rgba(255,255,255,0.08); padding: 6px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }  
+        .pool-item:hover { background: rgba(106,17,203,0.3); transform: scale(1.03); }  
+        .pool-item .add-btn { background: #11998e; border: none; color: #fff; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }  
+        .pool-item .add-btn:hover { background: #0d7a6f; transform: scale(1.15); }  
+        .loading { text-align: center; padding: 40px; opacity: 0.5; }  
+        .empty-state { text-align: center; padding: 40px; opacity: 0.3; font-style: italic; }  
+        .toast { position: fixed; bottom: 30px; right: 30px; background: #11998e; color: #fff; padding: 15px 25px; border-radius: 10px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); transform: translateY(100px); opacity: 0; transition: all 0.4s ease; z-index: 9999; }  
+        .toast.show { transform: translateY(0); opacity: 1; }  
+        .toast.error { background: #eb3349; }  
+        .toast.success { background: #11998e; }  /* Drop zone highlight */  
+    .sortable-ghost { opacity: 0.3; background: rgba(56,239,125,0.15); border-color: #38ef7d; }  
+    .sortable-chosen { border-color: #6a11cb; box-shadow: 0 0 20px rgba(106,17,203,0.3); }  
+
+    @media (max-width: 768px) {   
+        .admin-header { flex-direction: column; text-align: center; padding: 20px; }   
+        .admin-header h1 { font-size: 1.5em; }   
+        .quick-actions { justify-content: center; }   
+        .quick-actions .btn { width: 100%; text-align: center; }   
+        .sortable-list { grid-template-columns: 1fr 1fr; }   
+        .section-header { flex-direction: column; align-items: stretch; }   
+    }  
+    @media (max-width: 480px) {   
+        .sortable-list { grid-template-columns: 1fr; }   
+        /* larger touch targets on mobile */  
+        .sortable-item { padding: 16px; }  
+        .btn-icon { padding: 6px 14px; font-size: 13px; }  
+        .pool-item .add-btn { width: 28px; height: 28px; font-size: 18px; }  
+    }  
 </style>
 
-</head><body><header class="admin-header">
-    <div>
-        <h1>
-            🎬 Admin Dashboard
-            <span>Drag & Drop – Add & Reorder Easily</span>
-        </h1>
-    </div><div class="user-info">
-    <span>👤 Admin</span>
-    <a href="/" class="logout-btn">🏠 Home</a>
-    <a href="#" onclick="logout()" class="logout-btn">🚪 Logout</a>
-</div>
-
-</header><div class="quick-actions">
-    <a href="/admin/add_movie" class="btn btn-primary">🎬 Add Movie</a>
-    <a href="/admin/add_tv" class="btn btn-success">📺 Add TV Series</a>
-    <a href="/admin/search_and_edit" class="btn btn-warning">🔍 Search & Edit</a>
-    <button class="btn btn-danger" onclick="refreshAll()">🔄 Refresh Data</button>
-    <a href="/api/docs" class="btn btn-primary" style="background: rgba(255,255,255,0.1);">📚 API Docs</a>
-</div><!-- HERO SECTION --><div class="section" id="heroSection"><div class="section-header">
-    <h2>
-        ⭐ Hero Section
-        <span class="badge" id="heroCount">0 / 15</span>
-    </h2>
-
-    <div class="actions">
-        <button class="btn-sm save" onclick="saveHeroOrder()">💾 Save Hero</button>
-        <button class="btn-sm refresh" onclick="loadHeroData()">🔄 Refresh</button>
-    </div>
-</div>
-
-<p style="opacity:0.6; margin-bottom:15px; font-size:14px;">
-    Max 15 items (movies + TV). Drag to reorder. First 8 appear in carousel.
-</p>
-
-<div id="heroList"
-     class="sortable-list"
-     style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
-    <div class="loading">Loading...</div>
-</div>
-
-<div style="margin-top:20px;">
-    <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">
-        📦 Available Media
-        <span style="font-weight:normal;font-size:12px;opacity:0.5;">
-            (tap + to add, then drag to reorder)
-        </span>
-    </h3>
-
-    <div id="heroPool" class="pool-container">
-        <div class="loading">Loading...</div>
-    </div>
-</div>
-
-</div><!-- LATEST MOVIES --><div class="section" id="moviesSection"><div class="section-header">
-    <h2>
-        🎬 Latest Movies
-        <span class="badge" id="movieCount">0 / 12</span>
-    </h2>
-
-    <div class="actions">
-        <button class="btn-sm save" onclick="saveLatestMovies()">💾 Save Movies</button>
-        <button class="btn-sm refresh" onclick="loadLatestMovies()">🔄 Refresh</button>
-    </div>
-</div>
-
-<p style="opacity:0.6; margin-bottom:15px; font-size:14px;">
-    Pick up to 12 movies. Tap + to add, then drag to reorder.
-</p>
-
-<div id="latestMovieList"
-     class="sortable-list"
-     style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
-    <div class="loading">Loading...</div>
-</div>
-
-<div style="margin-top:20px;">
-    <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">
-        📦 Available Movies
-        <span style="font-weight:normal;font-size:12px;opacity:0.5;">
-            (tap + to add, then drag to reorder)
-        </span>
-    </h3>
-
-    <div id="moviePool" class="pool-container">
-        <div class="loading">Loading...</div>
-    </div>
-</div>
-
-</div><!-- LATEST TV --><div class="section" id="tvSection"><div class="section-header">
-    <h2>
-        📺 Latest TV Series
-        <span class="badge" id="tvCount">0 / 12</span>
-    </h2>
-
-    <div class="actions">
-        <button class="btn-sm save" onclick="saveLatestTV()">💾 Save TV</button>
-        <button class="btn-sm refresh" onclick="loadLatestTV()">🔄 Refresh</button>
-    </div>
-</div>
-
-<p style="opacity:0.6; margin-bottom:15px; font-size:14px;">
-    Pick up to 12 TV series. Tap + to add, then drag to reorder.
-</p>
-
-<div id="latestTVList"
-     class="sortable-list"
-     style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
-    <div class="loading">Loading...</div>
-</div>
-
-<div style="margin-top:20px;">
-    <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">
-        📦 Available TV Series
-        <span style="font-weight:normal;font-size:12px;opacity:0.5;">
-            (tap + to add, then drag to reorder)
-        </span>
-    </h3>
-
-    <div id="tvPool" class="pool-container">
-        <div class="loading">Loading...</div>
-    </div>
-</div>
-
-</div><div id="toast" class="toast"></div><script>
-
-const API_BASE = 'https://yodelling-leland-zerodev-156c74fd.koyeb.app';
-const AUTH = 'Basic ' + btoa('venura:venura');
-
-function showToast(msg, type='success') {
-    const t = document.getElementById('toast');
-
-    t.textContent = msg;
-    t.className = 'toast ' + type + ' show';
-
-    clearTimeout(t._timeout);
-
-    t._timeout = setTimeout(() => {
-        t.classList.remove('show');
-    }, 3000);
-}
-
-function getHeaders() {
-    return {
-        'Authorization': AUTH,
-        'Content-Type': 'application/json'
-    };
-}
-
-function getThumb(item) {
-    return item.thumbnail || item.poster || '';
-}
-
-function getRating(item) {
-    return item.rating || 'N/A';
-}
-
-function getTypeIcon(type) {
-    return type === 'tv' ? '📺' : '🎬';
-}
-
-/* ================================================================
-   LOAD ALL
-================================================================ */
-
-async function loadAll() {
-
-    await Promise.all([
-        loadHeroData(),
-        loadLatestMovies(),
-        loadLatestTV()
-    ]);
-}
-
-/* ================================================================
-   HERO
-================================================================ */
-
-async function loadHeroData() {
-
-    try {
-
-        const res = await fetch(`${API_BASE}/api/hero`);
-        const data = await res.json();
-
-        const hero = data.all || [];
-
-        renderHeroList(hero);
-
-        document.getElementById('heroCount').textContent =
-            hero.length + ' / 15';
-
-        await loadHeroPool();
-
-    } catch (e) {
-
-        document.getElementById('heroList').innerHTML =
-            '<div class="empty-state">❌ Failed to load hero</div>';
-    }
-}
-
-async function loadHeroPool() {
-
-    try {
-
-        const res = await fetch(`${API_BASE}/api/media`);
-        const all = await res.json();
-
-        const heroRes = await fetch(`${API_BASE}/api/hero`);
-        const heroData = await heroRes.json();
-
-        const heroIds =
-            new Set((heroData.all || []).map(i => i.id));
-
-        const available =
-            (Array.isArray(all) ? all : [])
-            .filter(i => !heroIds.has(i.id));
-
-        renderPool('heroPool', available, addToHero);
-
-    } catch (e) {
-
-        document.getElementById('heroPool').innerHTML =
-            '<div class="empty-state">Failed to load pool</div>';
-    }
-}
-
-function renderHeroList(items) {
-
-    const container = document.getElementById('heroList');
-
-    if (!items.length) {
-
-        container.innerHTML = `
-            <div class="hero-slot"
-                 style="grid-column:1/-1;min-height:200px;">
-                <div style="text-align:center;font-size:48px;">⭐</div>
-                <div>No hero items</div>
-                <div style="font-size:12px;opacity:0.5;">
-                    Add from pool below
-                </div>
-            </div>
-        `;
-
-        return;
-    }
-
-    let html = items.map((item, idx) => `
-
-        <div class="sortable-item"
-             data-id="${item.id}"
-             data-order="${idx}">
-
-            <span class="hero-badge">
-                #${idx + 1}
-            </span>
-
-            <span class="type-badge">
-                ${getTypeIcon(item.type)}
-                ${item.type.toUpperCase()}
-            </span>
-
-            <div style="position:relative;">
-
-                ${
-                    item.thumbnail
-                    ?
-                    `<img src="${item.thumbnail}"
-                          class="item-thumb"
-                          style="width:80px;height:110px;object-fit:cover;border-radius:8px;margin:0 auto;"
-                          onerror="this.style.display='none'">`
-                    :
-                    `<div style="width:80px;height:110px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;font-size:32px;">
-                        ${getTypeIcon(item.type)}
-                    </div>`
-                }
-
-                <span class="drag-handle"
-                      style="position:absolute;top:5px;left:5px;opacity:0.4;font-size:24px;">
-                    ⠿
-                </span>
-
-                <button
-                    class="btn-icon remove"
-                    onclick="removeFromHero(${item.id})"
-                    style="position:absolute;top:5px;right:5px;padding:2px 8px;font-size:10px;">
-                    ✕
-                </button>
-
-            </div>
-
-            <div class="item-info" style="margin-top:8px;">
-
-                <div class="title">
-                    ${item.title}
-                </div>
-
-                <div class="meta">
-                    ⭐ ${getRating(item)}
-                </div>
-
-            </div>
-
-        </div>
-
-    `).join('');
-
-    const empty = 15 - items.length;
-
-    for (let i = 0; i < empty; i++) {
-
-        html += `
-            <div class="hero-slot"
-                 style="min-height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(255,255,255,0.2);">
-
-                <div style="font-size:32px;">➕</div>
-                <div>Empty Slot</div>
-
-            </div>
-        `;
-    }
-
-    container.innerHTML = html;
-
-    initSortable(container, saveHeroOrder);
-}
-
-async function saveHeroOrder() {
-
-    const items = [];
-
-    document.querySelectorAll(
-        '#heroList .sortable-item[data-id]'
-    ).forEach(el => {
-
-        items.push({
-            id: parseInt(el.dataset.id)
-        });
-    });
-
-    if (!items.length) {
-
-        showToast('⚠️ No hero items', 'error');
-        return;
-    }
-
-    try {
-
-        const res = await fetch(
-            `${API_BASE}/api/admin/hero/batch`,
-            {
-                method: 'PUT',
-                headers: getHeaders(),
-                body: JSON.stringify({
-                    hero_items: items
-                })
-            }
-        );
-
-        if (res.ok) {
-
-            showToast('✅ Hero saved');
-
-            await loadHeroData();
-
-        } else {
-
-            showToast('❌ Failed', 'error');
-        }
-
-    } catch (e) {
-
-        showToast('❌ Error', 'error');
-    }
-}
-
-async function addToHero(id) {
-
-    try {
-
-        const heroRes =
-            await fetch(`${API_BASE}/api/hero`);
-
-        const heroData =
-            await heroRes.json();
-
-        const count =
-            (heroData.all || []).length;
-
-        if (count >= 15) {
-
-            showToast(
-                '⚠️ Hero full (15 max)',
-                'error'
-            );
-
-            return;
-        }
-
-        const res = await fetch(
-            `${API_BASE}/api/admin/content/${id}/hero`,
-            {
-                method: 'PUT',
-                headers: getHeaders(),
-                body: JSON.stringify({
-                    is_hero: true,
-                    hero_order: count
-                })
-            }
-        );
-
-        if (res.ok) {
-
-            showToast(
-                '⭐ Added – drag to reorder!'
-            );
-
-            await loadHeroData();
-
-        } else {
-
-            showToast('❌ Failed', 'error');
-        }
-
-    } catch (e) {
-
-        showToast('❌ Error', 'error');
-    }
-}
-
-async function removeFromHero(id) {
-
-    try {
-
-        const res = await fetch(
-            `${API_BASE}/api/admin/content/${id}/hero`,
-            {
-                method: 'PUT',
-                headers: getHeaders(),
-                body: JSON.stringify({
-                    is_hero: false,
-                    hero_order: null
-                })
-            }
-        );
-
-        if (res.ok) {
-
-            showToast('Removed from hero');
-
-            await loadHeroData();
-
-        } else {
-
-            showToast('❌ Failed', 'error');
-        }
-
-    } catch (e) {
-
-        showToast('❌ Error', 'error');
-    }
-}
-
-/* ================================================================
-   LATEST MOVIES
-================================================================ */
-
-async function loadLatestMovies() {
-
-    try {
-
-        const res =
-            await fetch(`${API_BASE}/api/movies/latest?limit=12`);
-
-        const movies =
-            await res.json();
-
-        const list =
-            Array.isArray(movies) ? movies : [];
-
-        renderLatestList(
-            'latestMovieList',
-            list,
-            'movie'
-        );
-
-        document.getElementById('movieCount').textContent =
-            list.length + ' / 12';
-
-        await loadMoviePool();
-
-    } catch (e) {
-
-        document.getElementById('latestMovieList').innerHTML =
-            '<div class="empty-state">❌ Failed</div>';
-    }
-}
-
-async function loadMoviePool() {
-
-    try {
-
-        const res =
-            await fetch(`${API_BASE}/api/media`);
-
-        const all =
-            await res.json();
-
-        const movieRes =
-            await fetch(`${API_BASE}/api/movies/latest?limit=12`);
-
-        const latest =
-            await movieRes.json();
-
-        const latestIds =
-            new Set(
-                (Array.isArray(latest) ? latest : [])
-                .map(i => i.id)
-            );
-
-        const available =
-            (Array.isArray(all) ? all : [])
-            .filter(i =>
-                i.type === 'movie' &&
-                !latestIds.has(i.id)
-            );
-
-        renderPool(
-            'moviePool',
-            available,
-            addToLatestMovies
-        );
-
-    } catch (e) {
-
-        document.getElementById('moviePool').innerHTML =
-            '<div class="empty-state">Failed</div>';
-    }
-}
-
-async function saveLatestMovies() {
-
-    const items = [];
-
-    document.querySelectorAll(
-        '#latestMovieList .sortable-item[data-id]'
-    ).forEach(el => {
-
-        items.push({
-            id: parseInt(el.dataset.id)
-        });
-    });
-
-    if (items.length > 12) {
-
-        showToast(
-            '⚠️ Max 12 movies',
-            'error'
-        );
-
-        return;
-    }
-
-    try {
-
-        const res = await fetch(
-            `${API_BASE}/api/admin/latest/batch`,
-            {
-                method: 'PUT',
-                headers: getHeaders(),
-                body: JSON.stringify({
-                    items,
-                    latest_type: 'movie'
-                })
-            }
-        );
-
-        if (res.ok) {
-
-            showToast('✅ Movies saved');
-
-            await loadLatestMovies();
-
-        } else {
-
-            showToast('❌ Failed', 'error');
-        }
-
-    } catch (e) {
-
-        showToast('❌ Error', 'error');
-    }
-}
-
-async function addToLatestMovies(id) {
-
-    try {
-
-        const movieRes =
-            await fetch(`${API_BASE}/api/movies/latest?limit=12`);
-
-        const latest =
-            await movieRes.json();
-
-        const count =
-            (Array.isArray(latest) ? latest : []).length;
-
-        if (count >= 12) {
-
-            showToast(
-                '⚠️ Movies list full (12 max)',
-                'error'
-            );
-
-            return;
-        }
-
-        const res = await fetch(
-            `${API_BASE}/api/admin/content/${id}/latest`,
-            {
-                method: 'PUT',
-                headers: getHeaders(),
-                body: JSON.stringify({
-                    latest_type: 'movie',
-                    latest_order: count
-                })
-            }
-        );
-
-        if (res.ok) {
-
-            showToast(
-                '➕ Added – drag to reorder!'
-            );
-
-            await loadLatestMovies();
-
-        } else {
-
-            showToast('❌ Failed', 'error');
-        }
-
-    } catch (e) {
-
-        showToast('❌ Error', 'error');
-    }
-}
-
-async function removeFromLatestMovies(id) {
-
-    try {
-
-        const res = await fetch(
-            `${API_BASE}/api/admin/content/${id}/latest`,
-            {
-                method: 'PUT',
-                headers: getHeaders(),
-                body: JSON.stringify({
-                    latest_type: null,
-                    latest_order: null
-                })
-            }
-        );
-
-        if (res.ok) {
-
-            showToast('Removed');
-
-            await loadLatestMovies();
-
-        } else {
-
-            showToast('❌ Failed', 'error');
-        }
-
-    } catch (e) {
-
-        showToast('❌ Error', 'error');
-    }
-}
-
-/* ================================================================
-   LATEST TV
-================================================================ */
-
-async function loadLatestTV() {
-
-    try {
-
-        const res =
-            await fetch(`${API_BASE}/api/tvseries/latest?limit=12`);
-
-        const tv =
-            await res.json();
-
-        const list =
-            Array.isArray(tv) ? tv : [];
-
-        renderLatestList(
-            'latestTVList',
-            list,
-            'tv'
-        );
-
-        document.getElementById('tvCount').textContent =
-            list.length + ' / 12';
-
-        await loadTVPool();
-
-    } catch (e) {
-
-        document.getElementById('latestTVList').innerHTML =
-            '<div class="empty-state">❌ Failed</div>';
-    }
-}
-
-async function loadTVPool() {
-
-    try {
-
-        const res =
-            await fetch(`${API_BASE}/api/media`);
-
-        const all =
-            await res.json();
-
-        const tvRes =
-            await fetch(`${API_BASE}/api/tvseries/latest?limit=12`);
-
-        const latest =
-            await tvRes.json();
-
-        const latestIds =
-            new Set(
-                (Array.isArray(latest) ? latest : [])
-                .map(i => i.id)
-            );
-
-        const available =
-            (Array.isArray(all) ? all : [])
-            .filter(i =>
-                i.type === 'tv' &&
-                !latestIds.has(i.id)
-            );
-
-        renderPool(
-            'tvPool',
-            available,
-            addToLatestTV
-        );
-
-    } catch (e) {
-
-        document.getElementById('tvPool').innerHTML =
-            '<div class="empty-state">Failed</div>';
-    }
-}
-
-async function saveLatestTV() {
-
-    const items = [];
-
-    document.querySelectorAll(
-        '#latestTVList .sortable-item[data-id]'
-    ).forEach(el => {
-
-        items.push({
-            id: parseInt(el.dataset.id)
-        });
-    });
-
-    if (items.length > 12) {
-
-        showToast(
-            '⚠️ Max 12 TV',
-            'error'
-        );
-
-        return;
-    }
-
-    try {
-
-        const res = await fetch(
-            `${API_BASE}/api/admin/latest/batch`,
-            {
-                method: 'PUT',
-                headers: getHeaders(),
-                body: JSON.stringify({
-                    items,
-                    latest_type: 'tv'
-                })
-            }
-        );
-
-        if (res.ok) {
-
-            showToast('✅ TV saved');
-
-            await loadLatestTV();
-
-        } else {
-
-            showToast('❌ Failed', 'error');
-        }
-
-    } catch (e) {
-
-        showToast('❌ Error', 'error');
-    }
-}
-
-async function addToLatestTV(id) {
-
-    try {
-
-        const tvRes =
-            await fetch(`${API_BASE}/api/tvseries/latest?limit=12`);
-
-        const latest =
-            await tvRes.json();
-
-        const count =
-            (Array.isArray(latest) ? latest : []).length;
-
-        if (count >= 12) {
-
-            showToast(
-                '⚠️ TV list full (12 max)',
-                'error'
-            );
-
-            return;
-        }
-
-        const res = await fetch(
-            `${API_BASE}/api/admin/content/${id}/latest`,
-            {
-                method: 'PUT',
-                headers: getHeaders(),
-                body: JSON.stringify({
-                    latest_type: 'tv',
-                    latest_order: count
-                })
-            }
-        );
-
-        if (res.ok) {
-
-            showToast(
-                '➕ Added – drag to reorder!'
-            );
-
-            await loadLatestTV();
-
-        } else {
-
-            showToast('❌ Failed', 'error');
-        }
-
-    } catch (e) {
-
-        showToast('❌ Error', 'error');
-    }
-}
-
-async function removeFromLatestTV(id) {
-
-    try {
-
-        const res = await fetch(
-            `${API_BASE}/api/admin/content/${id}/latest`,
-            {
-                method: 'PUT',
-                headers: getHeaders(),
-                body: JSON.stringify({
-                    latest_type: null,
-                    latest_order: null
-                })
-            }
-        );
-
-        if (res.ok) {
-
-            showToast('Removed');
-
-            await loadLatestTV();
-
-        } else {
-
-            showToast('❌ Failed', 'error');
-        }
-
-    } catch (e) {
-
-        showToast('❌ Error', 'error');
-    }
-}
-
-/* ================================================================
-   SHARED RENDER
-================================================================ */
-
-function renderLatestList(containerId, items, type) {
-
-    const container =
-        document.getElementById(containerId);
-
-    if (!items.length) {
-
-        container.innerHTML = `
-            <div class="hero-slot"
-                 style="grid-column:1/-1;min-height:150px;">
-
-                <div style="text-align:center;font-size:32px;">
-                    📭
-                </div>
-
-                <div>No items</div>
-
-                <div style="font-size:12px;opacity:0.5;">
-                    Add from pool below
-                </div>
-
-            </div>
-        `;
-
-        return;
-    }
-
-    let html = items.map((item, idx) => `
-
-        <div class="sortable-item"
-             data-id="${item.id}"
-             data-order="${idx}">
-
-            <div style="position:relative;">
-
-                ${
-                    item.thumbnail
-                    ?
-                    `<img src="${item.thumbnail}"
-                          class="item-thumb"
-                          style="width:80px;height:110px;object-fit:cover;border-radius:8px;margin:0 auto;"
-                          onerror="this.style.display='none'">`
-                    :
-                    `<div style="width:80px;height:110px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;font-size:32px;">
-                        ${getTypeIcon(type)}
-                    </div>`
-                }
-
-                <span class="drag-handle"
-                      style="position:absolute;top:5px;left:5px;opacity:0.4;font-size:24px;">
-                    ⠿
-                </span>
-
-                <button
-                    class="btn-icon remove"
-                    onclick="${type === 'movie'
-                        ? 'removeFromLatestMovies'
-                        : 'removeFromLatestTV'}(${item.id})"
-                    style="position:absolute;top:5px;right:5px;padding:2px 8px;font-size:10px;">
-                    ✕
-                </button>
-
-            </div>
-
-            <div class="item-info" style="margin-top:8px;">
-
-                <div class="title">
-                    ${item.title}
-                </div>
-
-                <div class="meta">
-                    ⭐ ${getRating(item)}
-                </div>
-
-            </div>
-
-        </div>
-
-    `).join('');
-
-    const empty = 12 - items.length;
-
-    for (let i = 0; i < empty; i++) {
-
-        html += `
-            <div class="hero-slot"
-                 style="min-height:150px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(255,255,255,0.2);">
-
-                <div style="font-size:24px;">➕</div>
-                <div>Empty Slot</div>
-
-            </div>
-        `;
-    }
-
-    container.innerHTML = html;
-
-    const saveFn =
-        type === 'movie'
-        ? saveLatestMovies
-        : saveLatestTV;
-
-    initSortable(container, saveFn);
-}
-
-function renderPool(containerId, items, addCallback) {
-
-    const container =
-        document.getElementById(containerId);
-
-    if (!items.length) {
-
-        container.innerHTML =
-            '<div style="opacity:0.5;padding:10px;">✅ All items are in the list or no items available</div>';
-
-        return;
-    }
-
-    container.innerHTML =
-        items.slice(0, 50).map(item => `
-
-            <div class="pool-item">
-
-                <span>
-                    ${getTypeIcon(item.type)}
-                    ${item.title}
-                </span>
-
-                <button
-                    class="add-btn"
-                    onclick="(${addCallback.toString()})(${item.id})"
-                    title="Tap to add to list">
-                    +
-                </button>
-
-            </div>
-
-        `).join('');
-}
-
-/* ================================================================
-   FIXED SORTABLE – UP/DOWN DRAGGING
-================================================================ */
-
-function initSortable(container, onSave) {
-
-    if (!container) return;
-
-    // Destroy old Sortable instance if this container already has one
-    if (container._sortableInstance) {
-        try {
-            container._sortableInstance.destroy();
-        } catch (e) {}
-    }
-
-    container._sortableInstance = new Sortable(container, {
-
-        animation: 200,
-
-        draggable: '.sortable-item',
-
-        ghostClass: 'sortable-ghost',
-
-        chosenClass: 'sortable-chosen',
-
-        dragClass: 'sortable-drag',
-
-        // Allows moving an item both DOWN and UP
-        direction: 'vertical',
-
-        // Better movement detection
-        swapThreshold: 0.55,
-
-        invertSwap: true,
-
-        invertedSwapThreshold: 0.65,
-
-        // Mobile
-        delay: 180,
-
-        delayOnTouchOnly: true,
-
-        touchStartThreshold: 3,
-
-        // Buttons should never start dragging
-        filter: 'button, .btn-icon, .add-btn, .remove',
-
-        preventOnFilter: true,
-
-        // Allow scrolling until the drag actually begins
-        forceFallback: false,
-
-        onStart: function(evt) {
-
-            container.style.background =
-                'rgba(56,239,125,0.03)';
-
-            if (evt.item) {
-                evt.item.classList.add('dragging');
-            }
-        },
-
-        onMove: function(evt) {
-
-            // Always allow movement between sortable items
-            return true;
-        },
-
-        onEnd: async function(evt) {
-
-            container.style.background = '';
-
-            if (evt.item) {
-                evt.item.classList.remove('dragging');
-            }
-
-            // If the item actually changed position,
-            // save the new order.
-            if (
-                evt.oldIndex !== evt.newIndex &&
-                evt.newIndex !== undefined
-            ) {
-
-                await onSave();
-            }
-        }
-
-    });
-}
-
-/* ================================================================
-   GLOBAL
-================================================================ */
-
-function refreshAll() {
-
-    showToast('🔄 Refreshing...');
-
-    loadAll().then(() => {
-
-        showToast('✅ All refreshed');
-
-    });
-}
-
-function logout() {
-
-    if (confirm('Logout?')) {
-
-        window.location.href = '/';
-    }
-}
-
-/* ================================================================
-   INIT
-================================================================ */
-
-document.addEventListener(
-    'DOMContentLoaded',
-    loadAll
-);
-
-document.addEventListener(
-    'keydown',
-    (e) => {
-
-        if (e.ctrlKey && e.key === 'r') {
-
-            e.preventDefault();
-
-            refreshAll();
-        }
-    }
-);
-
-</script></body>
+</head>  
+<body>  
+    <header class="admin-header">  
+        <div><h1>🎬 Admin Dashboard <span>Drag & Drop – Add & Reorder Easily</span></h1></div>  
+        <div class="user-info">  
+            <span>👤 Admin</span>  
+            <a href="/" class="logout-btn">🏠 Home</a>  
+            <a href="#" onclick="logout()" class="logout-btn">🚪 Logout</a>  
+        </div>  
+    </header>  <div class="quick-actions">  
+    <a href="/admin/add_movie" class="btn btn-primary">🎬 Add Movie</a>  
+    <a href="/admin/add_tv" class="btn btn-success">📺 Add TV Series</a>  
+    <a href="/admin/search_and_edit" class="btn btn-warning">🔍 Search & Edit</a>  
+    <button class="btn btn-danger" onclick="refreshAll()">🔄 Refresh Data</button>  
+    <a href="/api/docs" class="btn btn-primary" style="background: rgba(255,255,255,0.1);">📚 API Docs</a>  
+</div>  
+
+<!-- ====== HERO SECTION ====== -->  
+<div class="section" id="heroSection">  
+    <div class="section-header">  
+        <h2>⭐ Hero Section <span class="badge" id="heroCount">0 / 15</span></h2>  
+        <div class="actions">  
+            <button class="btn-sm save" onclick="saveHeroOrder()">💾 Save Hero</button>  
+            <button class="btn-sm refresh" onclick="loadHeroData()">🔄 Refresh</button>  
+        </div>  
+    </div>  
+    <p style="opacity:0.6; margin-bottom:15px; font-size:14px;">Max 15 items (movies + TV). Drag to reorder. First 8 appear in carousel.</p>  
+    <div id="heroList" class="sortable-list" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">  
+        <div class="loading">Loading...</div>  
+    </div>  
+    <div style="margin-top:20px;">  
+        <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">📦 Available Media <span style="font-weight:normal;font-size:12px;opacity:0.5;">(tap + to add, then drag to reorder)</span></h3>  
+        <div id="heroPool" class="pool-container"><div class="loading">Loading...</div></div>  
+    </div>  
+</div>  
+
+<!-- ====== LATEST MOVIES ====== -->  
+<div class="section" id="moviesSection">  
+    <div class="section-header">  
+        <h2>🎬 Latest Movies <span class="badge" id="movieCount">0 / 12</span></h2>  
+        <div class="actions">  
+            <button class="btn-sm save" onclick="saveLatestMovies()">💾 Save Movies</button>  
+            <button class="btn-sm refresh" onclick="loadLatestMovies()">🔄 Refresh</button>  
+        </div>  
+    </div>  
+    <p style="opacity:0.6; margin-bottom:15px; font-size:14px;">Pick up to 12 movies. Tap + to add, then drag to reorder.</p>  
+    <div id="latestMovieList" class="sortable-list" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">  
+        <div class="loading">Loading...</div>  
+    </div>  
+    <div style="margin-top:20px;">  
+        <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">📦 Available Movies <span style="font-weight:normal;font-size:12px;opacity:0.5;">(tap + to add, then drag to reorder)</span></h3>  
+        <div id="moviePool" class="pool-container"><div class="loading">Loading...</div></div>  
+    </div>  
+</div>  
+
+<!-- ====== LATEST TV SERIES ====== -->  
+<div class="section" id="tvSection">  
+    <div class="section-header">  
+        <h2>📺 Latest TV Series <span class="badge" id="tvCount">0 / 12</span></h2>  
+        <div class="actions">  
+            <button class="btn-sm save" onclick="saveLatestTV()">💾 Save TV</button>  
+            <button class="btn-sm refresh" onclick="loadLatestTV()">🔄 Refresh</button>  
+        </div>  
+    </div>  
+    <p style="opacity:0.6; margin-bottom:15px; font-size:14px;">Pick up to 12 TV series. Tap + to add, then drag to reorder.</p>  
+    <div id="latestTVList" class="sortable-list" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">  
+        <div class="loading">Loading...</div>  
+    </div>  
+    <div style="margin-top:20px;">  
+        <h3 style="font-size:16px; opacity:0.8; margin-bottom:10px;">📦 Available TV Series <span style="font-weight:normal;font-size:12px;opacity:0.5;">(tap + to add, then drag to reorder)</span></h3>  
+        <div id="tvPool" class="pool-container"><div class="loading">Loading...</div></div>  
+    </div>  
+</div>  
+
+<div id="toast" class="toast"></div>  
+
+<script>  
+    // ================================================================  
+    //  ADMIN DASHBOARD – Koyeb Backend  
+    //  Smooth Drag & Drop – Add items from pool, reorder instantly  
+    // ================================================================  
+
+    const API_BASE = 'https://yodelling-leland-zerodev-156c74fd.koyeb.app';  
+    const AUTH = 'Basic ' + btoa('venura:venura');  
+
+    // ---------- Toast ----------  
+    function showToast(msg, type='success') {  
+        const t = document.getElementById('toast');  
+        t.textContent = msg;  
+        t.className = 'toast ' + type + ' show';  
+        clearTimeout(t._timeout);  
+        t._timeout = setTimeout(() => t.classList.remove('show'), 3000);  
+    }  
+
+    // ---------- Headers ----------  
+    function getHeaders() {  
+        return { 'Authorization': AUTH, 'Content-Type': 'application/json' };  
+    }  
+
+    function getThumb(item) { return item.thumbnail || item.poster || ''; }  
+    function getRating(item) { return item.rating || 'N/A'; }  
+    function getTypeIcon(type) { return type === 'tv' ? '📺' : '🎬'; }  
+
+    // ---------- Load All ----------  
+    async function loadAll() {  
+        await Promise.all([  
+            loadHeroData(),  
+            loadLatestMovies(),  
+            loadLatestTV()  
+        ]);  
+    }  
+
+    // ================================================================  
+    //  HERO  
+    // ================================================================  
+    async function loadHeroData() {  
+        try {  
+            const res = await fetch(`${API_BASE}/api/hero`);  
+            const data = await res.json();  
+            const hero = data.all || [];  
+            renderHeroList(hero);  
+            document.getElementById('heroCount').textContent = hero.length + ' / 15';  
+            await loadHeroPool();  
+        } catch (e) {  
+            document.getElementById('heroList').innerHTML = '<div class="empty-state">❌ Failed to load hero</div>';  
+        }  
+    }  
+
+    async function loadHeroPool() {  
+        try {  
+            const res = await fetch(`${API_BASE}/api/media`);  
+            const all = await res.json();  
+            const heroRes = await fetch(`${API_BASE}/api/hero`);  
+            const heroData = await heroRes.json();  
+            const heroIds = new Set((heroData.all || []).map(i => i.id));  
+            const available = (Array.isArray(all) ? all : []).filter(i => !heroIds.has(i.id));  
+            renderPool('heroPool', available, addToHero);  
+        } catch (e) {  
+            document.getElementById('heroPool').innerHTML = '<div class="empty-state">Failed to load pool</div>';  
+        }  
+    }  
+
+    function renderHeroList(items) {  
+        const container = document.getElementById('heroList');  
+        if (!items.length) {  
+            container.innerHTML = `<div class="hero-slot" style="grid-column:1/-1;min-height:200px;"><div style="text-align:center;font-size:48px;">⭐</div><div>No hero items</div><div style="font-size:12px;opacity:0.5;">Add from pool below</div></div>`;  
+            return;  
+        }  
+        let html = items.map((item, idx) => `  
+            <div class="sortable-item" data-id="${item.id}" data-order="${idx}">  
+                <span class="hero-badge">#${idx+1}</span>  
+                <span class="type-badge">${getTypeIcon(item.type)} ${item.type.toUpperCase()}</span>  
+                <div style="position:relative;">  
+                    ${item.thumbnail ? `<img src="${item.thumbnail}" class="item-thumb" style="width:80px;height:110px;object-fit:cover;border-radius:8px;margin:0 auto;" onerror="this.style.display='none'">` : `<div style="width:80px;height:110px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;font-size:32px;">${getTypeIcon(item.type)}</div>`}  
+                    <!-- drag handle (visual only) -->  
+                    <span class="drag-handle" style="position:absolute;top:5px;left:5px;opacity:0.4;font-size:24px;">⠿</span>  
+                    <button class="btn-icon remove" onclick="removeFromHero(${item.id})" style="position:absolute;top:5px;right:5px;padding:2px 8px;font-size:10px;">✕</button>  
+                </div>  
+                <div class="item-info" style="margin-top:8px;">  
+                    <div class="title">${item.title}</div>  
+                    <div class="meta">⭐ ${getRating(item)}</div>  
+                </div>  
+            </div>  
+        `).join('');  
+        const empty = 15 - items.length;  
+        for (let i = 0; i < empty; i++) {  
+            html += `<div class="hero-slot" style="min-height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(255,255,255,0.2);"><div style="font-size:32px;">➕</div><div>Empty Slot</div></div>`;  
+        }  
+        container.innerHTML = html;  
+        initSortable(container, saveHeroOrder);  
+    }  
+
+    async function saveHeroOrder() {  
+        const items = [];  
+        document.querySelectorAll('#heroList .sortable-item[data-id]').forEach(el => {  
+            items.push({ id: parseInt(el.dataset.id) });  
+        });  
+        if (!items.length) { showToast('⚠️ No hero items', 'error'); return; }  
+        try {  
+            const res = await fetch(`${API_BASE}/api/admin/hero/batch`, {  
+                method: 'PUT',  
+                headers: getHeaders(),  
+                body: JSON.stringify({ hero_items: items })  
+            });  
+            if (res.ok) { showToast('✅ Hero saved'); await loadHeroData(); }  
+            else showToast('❌ Failed', 'error');  
+        } catch (e) { showToast('❌ Error', 'error'); }  
+    }  
+
+    async function addToHero(id) {  
+        try {  
+            const heroRes = await fetch(`${API_BASE}/api/hero`);  
+            const heroData = await heroRes.json();  
+            const count = (heroData.all || []).length;  
+            if (count >= 15) { showToast('⚠️ Hero full (15 max)', 'error'); return; }  
+            const res = await fetch(`${API_BASE}/api/admin/content/${id}/hero`, {  
+                method: 'PUT',  
+                headers: getHeaders(),  
+                body: JSON.stringify({ is_hero: true, hero_order: count })  
+            });  
+            if (res.ok) { showToast('⭐ Added – drag to reorder!'); await loadHeroData(); }  
+            else showToast('❌ Failed', 'error');  
+        } catch (e) { showToast('❌ Error', 'error'); }  
+    }  
+
+    async function removeFromHero(id) {  
+        try {  
+            const res = await fetch(`${API_BASE}/api/admin/content/${id}/hero`, {  
+                method: 'PUT',  
+                headers: getHeaders(),  
+                body: JSON.stringify({ is_hero: false, hero_order: null })  
+            });  
+            if (res.ok) { showToast('Removed from hero'); await loadHeroData(); }  
+            else showToast('❌ Failed', 'error');  
+        } catch (e) { showToast('❌ Error', 'error'); }  
+    }  
+
+    // ================================================================  
+    //  LATEST MOVIES  
+    // ================================================================  
+    async function loadLatestMovies() {  
+        try {  
+            const res = await fetch(`${API_BASE}/api/movies/latest?limit=12`);  
+            const movies = await res.json();  
+            const list = Array.isArray(movies) ? movies : [];  
+            renderLatestList('latestMovieList', list, 'movie');  
+            document.getElementById('movieCount').textContent = list.length + ' / 12';  
+            await loadMoviePool();  
+        } catch (e) {  
+            document.getElementById('latestMovieList').innerHTML = '<div class="empty-state">❌ Failed</div>';  
+        }  
+    }  
+
+    async function loadMoviePool() {  
+        try {  
+            const res = await fetch(`${API_BASE}/api/media`);  
+            const all = await res.json();  
+            const movieRes = await fetch(`${API_BASE}/api/movies/latest?limit=12`);  
+            const latest = await movieRes.json();  
+            const latestIds = new Set((Array.isArray(latest) ? latest : []).map(i => i.id));  
+            const available = (Array.isArray(all) ? all : [])  
+                .filter(i => i.type === 'movie' && !latestIds.has(i.id));  
+            renderPool('moviePool', available, addToLatestMovies);  
+        } catch (e) {  
+            document.getElementById('moviePool').innerHTML = '<div class="empty-state">Failed</div>';  
+        }  
+    }  
+
+    async function saveLatestMovies() {  
+        const items = [];  
+        document.querySelectorAll('#latestMovieList .sortable-item[data-id]').forEach(el => {  
+            items.push({ id: parseInt(el.dataset.id) });  
+        });  
+        if (items.length > 12) { showToast('⚠️ Max 12 movies', 'error'); return; }  
+        try {  
+            const res = await fetch(`${API_BASE}/api/admin/latest/batch`, {  
+                method: 'PUT',  
+                headers: getHeaders(),  
+                body: JSON.stringify({ items, latest_type: 'movie' })  
+            });  
+            if (res.ok) { showToast('✅ Movies saved'); await loadLatestMovies(); }  
+            else showToast('❌ Failed', 'error');  
+        } catch (e) { showToast('❌ Error', 'error'); }  
+    }  
+
+    async function addToLatestMovies(id) {  
+        try {  
+            const movieRes = await fetch(`${API_BASE}/api/movies/latest?limit=12`);  
+            const latest = await movieRes.json();  
+            const count = (Array.isArray(latest) ? latest : []).length;  
+            if (count >= 12) { showToast('⚠️ Movies list full (12 max)', 'error'); return; }  
+            const res = await fetch(`${API_BASE}/api/admin/content/${id}/latest`, {  
+                method: 'PUT',  
+                headers: getHeaders(),  
+                body: JSON.stringify({ latest_type: 'movie', latest_order: count })  
+            });  
+            if (res.ok) { showToast('➕ Added – drag to reorder!'); await loadLatestMovies(); }  
+            else showToast('❌ Failed', 'error');  
+        } catch (e) { showToast('❌ Error', 'error'); }  
+    }  
+
+    async function removeFromLatestMovies(id) {  
+        try {  
+            const res = await fetch(`${API_BASE}/api/admin/content/${id}/latest`, {  
+                method: 'PUT',  
+                headers: getHeaders(),  
+                body: JSON.stringify({ latest_type: null, latest_order: null })  
+            });  
+            if (res.ok) { showToast('Removed'); await loadLatestMovies(); }  
+            else showToast('❌ Failed', 'error');  
+        } catch (e) { showToast('❌ Error', 'error'); }  
+    }  
+
+    // ================================================================  
+    //  LATEST TV  
+    // ================================================================  
+    async function loadLatestTV() {  
+        try {  
+            const res = await fetch(`${API_BASE}/api/tvseries/latest?limit=12`);  
+            const tv = await res.json();  
+            const list = Array.isArray(tv) ? tv : [];  
+            renderLatestList('latestTVList', list, 'tv');  
+            document.getElementById('tvCount').textContent = list.length + ' / 12';  
+            await loadTVPool();  
+        } catch (e) {  
+            document.getElementById('latestTVList').innerHTML = '<div class="empty-state">❌ Failed</div>';  
+        }  
+    }  
+
+    async function loadTVPool() {  
+        try {  
+            const res = await fetch(`${API_BASE}/api/media`);  
+            const all = await res.json();  
+            const tvRes = await fetch(`${API_BASE}/api/tvseries/latest?limit=12`);  
+            const latest = await tvRes.json();  
+            const latestIds = new Set((Array.isArray(latest) ? latest : []).map(i => i.id));  
+            const available = (Array.isArray(all) ? all : [])  
+                .filter(i => i.type === 'tv' && !latestIds.has(i.id));  
+            renderPool('tvPool', available, addToLatestTV);  
+        } catch (e) {  
+            document.getElementById('tvPool').innerHTML = '<div class="empty-state">Failed</div>';  
+        }  
+    }  
+
+    async function saveLatestTV() {  
+        const items = [];  
+        document.querySelectorAll('#latestTVList .sortable-item[data-id]').forEach(el => {  
+            items.push({ id: parseInt(el.dataset.id) });  
+        });  
+        if (items.length > 12) { showToast('⚠️ Max 12 TV', 'error'); return; }  
+        try {  
+            const res = await fetch(`${API_BASE}/api/admin/latest/batch`, {  
+                method: 'PUT',  
+                headers: getHeaders(),  
+                body: JSON.stringify({ items, latest_type: 'tv' })  
+            });  
+            if (res.ok) { showToast('✅ TV saved'); await loadLatestTV(); }  
+            else showToast('❌ Failed', 'error');  
+        } catch (e) { showToast('❌ Error', 'error'); }  
+    }  
+
+    async function addToLatestTV(id) {  
+        try {  
+            const tvRes = await fetch(`${API_BASE}/api/tvseries/latest?limit=12`);  
+            const latest = await tvRes.json();  
+            const count = (Array.isArray(latest) ? latest : []).length;  
+            if (count >= 12) { showToast('⚠️ TV list full (12 max)', 'error'); return; }  
+            const res = await fetch(`${API_BASE}/api/admin/content/${id}/latest`, {  
+                method: 'PUT',  
+                headers: getHeaders(),  
+                body: JSON.stringify({ latest_type: 'tv', latest_order: count })  
+            });  
+            if (res.ok) { showToast('➕ Added – drag to reorder!'); await loadLatestTV(); }  
+            else showToast('❌ Failed', 'error');  
+        } catch (e) { showToast('❌ Error', 'error'); }  
+    }  
+
+    async function removeFromLatestTV(id) {  
+        try {  
+            const res = await fetch(`${API_BASE}/api/admin/content/${id}/latest`, {  
+                method: 'PUT',  
+                headers: getHeaders(),  
+                body: JSON.stringify({ latest_type: null, latest_order: null })  
+            });  
+            if (res.ok) { showToast('Removed'); await loadLatestTV(); }  
+            else showToast('❌ Failed', 'error');  
+        } catch (e) { showToast('❌ Error', 'error'); }  
+    }  
+
+    // ================================================================  
+    //  SHARED RENDER FUNCTIONS  
+    // ================================================================  
+
+    function renderLatestList(containerId, items, type) {  
+        const container = document.getElementById(containerId);  
+        if (!items.length) {  
+            container.innerHTML = `<div class="hero-slot" style="grid-column:1/-1;min-height:150px;"><div style="text-align:center;font-size:32px;">📭</div><div>No items</div><div style="font-size:12px;opacity:0.5;">Add from pool below</div></div>`;  
+            return;  
+        }  
+        let html = items.map((item, idx) => `  
+            <div class="sortable-item" data-id="${item.id}" data-order="${idx}">  
+                <div style="position:relative;">  
+                    ${item.thumbnail ? `<img src="${item.thumbnail}" class="item-thumb" style="width:80px;height:110px;object-fit:cover;border-radius:8px;margin:0 auto;" onerror="this.style.display='none'">` : `<div style="width:80px;height:110px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;font-size:32px;">${getTypeIcon(type)}</div>`}  
+                    <span class="drag-handle" style="position:absolute;top:5px;left:5px;opacity:0.4;font-size:24px;">⠿</span>  
+                    <button class="btn-icon remove" onclick="${type === 'movie' ? 'removeFromLatestMovies' : 'removeFromLatestTV'}(${item.id})" style="position:absolute;top:5px;right:5px;padding:2px 8px;font-size:10px;">✕</button>  
+                </div>  
+                <div class="item-info" style="margin-top:8px;">  
+                    <div class="title">${item.title}</div>  
+                    <div class="meta">⭐ ${getRating(item)}</div>  
+                </div>  
+            </div>  
+        `).join('');  
+        const empty = 12 - items.length;  
+        for (let i = 0; i < empty; i++) {  
+            html += `<div class="hero-slot" style="min-height:150px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(255,255,255,0.2);"><div style="font-size:24px;">➕</div><div>Empty Slot</div></div>`;  
+        }  
+        container.innerHTML = html;  
+        const saveFn = type === 'movie' ? saveLatestMovies : saveLatestTV;  
+        initSortable(container, saveFn);  
+    }  
+
+    function renderPool(containerId, items, addCallback) {  
+        const container = document.getElementById(containerId);  
+        if (!items.length) {  
+            container.innerHTML = '<div style="opacity:0.5;padding:10px;">✅ All items are in the list or no items available</div>';  
+            return;  
+        }  
+        container.innerHTML = items.slice(0, 50).map(item => `  
+            <div class="pool-item">  
+                <span>${getTypeIcon(item.type)} ${item.title}</span>  
+                <button class="add-btn" onclick="(${addCallback.toString()})(${item.id})" title="Tap to add to list">+</button>  
+            </div>  
+        `).join('');  
+    }  
+
+    // ================================================================  
+    //  SORTABLE INIT – Mobile optimised  
+    // ================================================================  
+
+    function initSortable(container, onSave) {  
+        if (!container) return;  
+        new Sortable(container, {  
+            animation: 200,  
+            ghostClass: 'sortable-ghost',  
+            chosenClass: 'sortable-chosen',  
+            dragClass: 'dragging',  
+            // ----- MOBILE-FRIENDLY SETTINGS -----  
+            delay: 200,                 // prevents accidental drag while scrolling  
+            delayOnTouchOnly: true,     // only apply delay on touch devices  
+            touchStartThreshold: 5,     // pixels to move before drag starts (avoids conflicts with taps)  
+            filter: '.btn-icon, .add-btn, .remove, button', // buttons are not draggable  
+            preventOnFilter: true,  
+            // ------------------------------------  
+            onEnd: function() {  
+                onSave();  
+            },  
+            onStart: function() {  
+                container.style.background = 'rgba(56,239,125,0.03)';  
+            },  
+            onEnd: function() {  
+                container.style.background = '';  
+            }  
+        });  
+    }  
+
+    // ================================================================  
+    //  GLOBAL ACTIONS  
+    // ================================================================  
+
+    function refreshAll() {  
+        showToast('🔄 Refreshing...');  
+        loadAll().then(() => showToast('✅ All refreshed'));  
+    }  
+
+    function logout() { if (confirm('Logout?')) window.location.href = '/'; }  
+
+    // ================================================================  
+    //  INIT  
+    // ================================================================  
+
+    document.addEventListener('DOMContentLoaded', loadAll);  
+    document.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'r') { e.preventDefault(); refreshAll(); } });  
+</script>
+
+</body>  
 </html>
