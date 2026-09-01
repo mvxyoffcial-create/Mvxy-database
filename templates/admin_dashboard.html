@@ -41,18 +41,18 @@
             border: 2px solid transparent;
             position: relative;
             user-select: none;
-            -webkit-touch-callout: none; /* prevent iOS popup */
+            -webkit-touch-callout: none;
+            touch-action: none; /* Prevents mobile browser from locking up vertical/horizontal scroll during touch drag */
         }
         .sortable-item:hover { background: rgba(255,255,255,0.15); border-color: rgba(106,17,203,0.5); transform: translateY(-3px); }
         .sortable-item.dragging { opacity: 0.4; transform: scale(0.95); border-color: #38ef7d; }
-        /* Visual drag handle – optional, but we keep it for desktop users */
         .sortable-item .drag-handle { 
             display: inline-block; 
             font-size: 24px; 
             opacity: 0.4; 
             margin-right: 8px; 
             cursor: grab; 
-            padding: 4px 8px; /* larger touch area */
+            padding: 4px 8px; 
         }
         .sortable-item .item-content { display: flex; gap: 10px; align-items: center; }
         .sortable-item .item-thumb { width: 50px; height: 70px; border-radius: 6px; object-fit: cover; background: rgba(255,255,255,0.1); flex-shrink: 0; }
@@ -100,7 +100,6 @@
         .toast.error { background: #eb3349; }
         .toast.success { background: #11998e; }
 
-        /* Drop zone highlight */
         .sortable-ghost { opacity: 0.3; background: rgba(56,239,125,0.15); border-color: #38ef7d; }
         .sortable-chosen { border-color: #6a11cb; box-shadow: 0 0 20px rgba(106,17,203,0.3); }
 
@@ -114,7 +113,6 @@
         }
         @media (max-width: 480px) { 
             .sortable-list { grid-template-columns: 1fr; } 
-            /* larger touch targets on mobile */
             .sortable-item { padding: 16px; }
             .btn-icon { padding: 6px 14px; font-size: 13px; }
             .pool-item .add-btn { width: 28px; height: 28px; font-size: 18px; }
@@ -199,15 +197,9 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // ================================================================
-        //  ADMIN DASHBOARD – Koyeb Backend
-        //  Smooth Drag & Drop – Add items from pool, reorder instantly
-        // ================================================================
-
         const API_BASE = 'https://yodelling-leland-zerodev-156c74fd.koyeb.app';
         const AUTH = 'Basic ' + btoa('venura:venura');
 
-        // ---------- Toast ----------
         function showToast(msg, type='success') {
             const t = document.getElementById('toast');
             t.textContent = msg;
@@ -216,7 +208,6 @@
             t._timeout = setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        // ---------- Headers ----------
         function getHeaders() {
             return { 'Authorization': AUTH, 'Content-Type': 'application/json' };
         }
@@ -225,7 +216,6 @@
         function getRating(item) { return item.rating || 'N/A'; }
         function getTypeIcon(type) { return type === 'tv' ? '📺' : '🎬'; }
 
-        // ---------- Load All ----------
         async function loadAll() {
             await Promise.all([
                 loadHeroData(),
@@ -234,9 +224,6 @@
             ]);
         }
 
-        // ================================================================
-        //  HERO
-        // ================================================================
         async function loadHeroData() {
             try {
                 const res = await fetch(`${API_BASE}/api/hero`);
@@ -276,7 +263,6 @@
                     <span class="type-badge">${getTypeIcon(item.type)} ${item.type.toUpperCase()}</span>
                     <div style="position:relative;">
                         ${item.thumbnail ? `<img src="${item.thumbnail}" class="item-thumb" style="width:80px;height:110px;object-fit:cover;border-radius:8px;margin:0 auto;" onerror="this.style.display='none'">` : `<div style="width:80px;height:110px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;font-size:32px;">${getTypeIcon(item.type)}</div>`}
-                        <!-- drag handle (visual only) -->
                         <span class="drag-handle" style="position:absolute;top:5px;left:5px;opacity:0.4;font-size:24px;">⠿</span>
                         <button class="btn-icon remove" onclick="removeFromHero(${item.id})" style="position:absolute;top:5px;right:5px;padding:2px 8px;font-size:10px;">✕</button>
                     </div>
@@ -339,9 +325,6 @@
             } catch (e) { showToast('❌ Error', 'error'); }
         }
 
-        // ================================================================
-        //  LATEST MOVIES
-        // ================================================================
         async function loadLatestMovies() {
             try {
                 const res = await fetch(`${API_BASE}/api/movies/latest?limit=12`);
@@ -415,9 +398,6 @@
             } catch (e) { showToast('❌ Error', 'error'); }
         }
 
-        // ================================================================
-        //  LATEST TV
-        // ================================================================
         async function loadLatestTV() {
             try {
                 const res = await fetch(`${API_BASE}/api/tvseries/latest?limit=12`);
@@ -491,10 +471,6 @@
             } catch (e) { showToast('❌ Error', 'error'); }
         }
 
-        // ================================================================
-        //  SHARED RENDER FUNCTIONS
-        // ================================================================
-
         function renderLatestList(containerId, items, type) {
             const container = document.getElementById(containerId);
             if (!items.length) {
@@ -537,24 +513,18 @@
             `).join('');
         }
 
-        // ================================================================
-        //  SORTABLE INIT – Mobile optimised
-        // ================================================================
-
         function initSortable(container, onSave) {
             if (!container) return;
             new Sortable(container, {
-                animation: 200,
+                animation: 150,
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
                 dragClass: 'dragging',
-                // ----- MOBILE-FRIENDLY SETTINGS -----
-                delay: 200,                 // prevents accidental drag while scrolling
-                delayOnTouchOnly: true,     // only apply delay on touch devices
-                touchStartThreshold: 5,     // pixels to move before drag starts (avoids conflicts with taps)
-                filter: '.btn-icon, .add-btn, .remove, button', // buttons are not draggable
+                delay: 0,
+                touchStartThreshold: 3,
+                forceFallback: false,
+                filter: '.btn-icon, .add-btn, .remove, button',
                 preventOnFilter: true,
-                // ------------------------------------
                 onEnd: function() {
                     onSave();
                 },
@@ -563,13 +533,10 @@
                 },
                 onEnd: function() {
                     container.style.background = '';
+                    onSave();
                 }
             });
         }
-
-        // ================================================================
-        //  GLOBAL ACTIONS
-        // ================================================================
 
         function refreshAll() {
             showToast('🔄 Refreshing...');
@@ -577,10 +544,6 @@
         }
 
         function logout() { if (confirm('Logout?')) window.location.href = '/'; }
-
-        // ================================================================
-        //  INIT
-        // ================================================================
 
         document.addEventListener('DOMContentLoaded', loadAll);
         document.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'r') { e.preventDefault(); refreshAll(); } });
